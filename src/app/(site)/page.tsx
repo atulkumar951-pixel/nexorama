@@ -42,32 +42,30 @@ export default async function HomePage() {
   return (
     <div>
       {/* Hero */}
-      <section className="relative overflow-hidden bg-slate-950 text-white">
-        {/* Ambient background glow from artwork */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-white via-indigo-50/40 to-slate-50 border-b border-slate-200/80 text-slate-900">
+        {/* Delicate ambient light gradient */}
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-20 filter blur-md scale-105"
-          style={{ backgroundImage: `url(${heroImageUrl})` }}
+          className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(99,102,241,0.12),rgba(255,255,255,0))]"
           aria-hidden
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/90 to-slate-950/75" aria-hidden />
 
         <div className="relative mx-auto max-w-7xl px-4 py-16 sm:py-24">
           <div className="grid items-center gap-10 lg:grid-cols-12">
             {/* Left Content Column */}
             <div className="lg:col-span-7">
-              <div className="inline-flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-3.5 py-1.5 text-xs font-semibold text-indigo-300 shadow-sm shadow-indigo-500/20 backdrop-blur-md">
-                <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <div className="inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50/80 px-3.5 py-1.5 text-xs font-semibold text-indigo-700 shadow-sm backdrop-blur-sm">
+                <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
                 <span>⚡ Instant Digital Delivery & Lifetime Access</span>
               </div>
 
-              <h1 className="mt-5 text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-[3.25rem] leading-[1.15]">
+              <h1 className="mt-5 text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-[3.25rem] leading-[1.15] text-slate-900">
                 Premium Notes, eBooks &{" "}
-                <span className="bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400 bg-clip-text text-transparent drop-shadow-sm">
+                <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
                   Courses for Serious Learners
                 </span>
               </h1>
 
-              <p className="mt-5 text-base sm:text-lg leading-relaxed text-slate-300 max-w-xl">
+              <p className="mt-5 text-base sm:text-lg leading-relaxed text-slate-600 max-w-xl">
                 {hero?.subtitle ??
                   "Download study material, code packs and digital books — or stream lecture series. Everything lives forever in your personal library."}
               </p>
@@ -75,32 +73,32 @@ export default async function HomePage() {
               <div className="mt-8 flex flex-wrap items-center gap-4">
                 <Link
                   href={hero?.buttonUrl || "/products"}
-                  className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 px-6 py-3.5 text-sm sm:text-base font-bold text-white shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-[1.02] active:scale-[0.98] transition duration-200"
+                  className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 px-6 py-3.5 text-sm sm:text-base font-bold text-white shadow-md shadow-indigo-200 hover:shadow-lg hover:shadow-indigo-300 hover:scale-[1.02] active:scale-[0.98] transition duration-200"
                 >
                   <span>{hero?.buttonText || "Browse Marketplace"}</span>
                   <span className="text-lg">→</span>
                 </Link>
                 <Link
                   href="/categories"
-                  className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-6 py-3.5 text-sm sm:text-base font-semibold text-white backdrop-blur-md hover:bg-white/20 hover:border-white/30 hover:scale-[1.02] active:scale-[0.98] transition duration-200"
+                  className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-6 py-3.5 text-sm sm:text-base font-semibold text-slate-700 shadow-sm hover:bg-slate-50 hover:border-slate-400 hover:scale-[1.02] active:scale-[0.98] transition duration-200"
                 >
                   <span>Explore Categories</span>
                 </Link>
               </div>
 
               {/* Trust badges */}
-              <div className="mt-10 flex flex-wrap items-center gap-4 border-t border-white/10 pt-6 text-xs sm:text-sm text-slate-300">
-                <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 backdrop-blur-sm">
-                  <span className="h-2 w-2 rounded-full bg-emerald-400"></span>
-                  <span className="font-medium">Instant Lifetime Access</span>
+              <div className="mt-10 flex flex-wrap items-center gap-3 border-t border-slate-200 pt-6 text-xs sm:text-sm text-slate-600">
+                <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3.5 py-1.5 shadow-sm">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
+                  <span className="font-medium text-slate-700">Instant Lifetime Access</span>
                 </div>
-                <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 backdrop-blur-sm">
-                  <span className="h-2 w-2 rounded-full bg-indigo-400"></span>
-                  <span className="font-medium">High-Yield Study Packs</span>
+                <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3.5 py-1.5 shadow-sm">
+                  <span className="h-2 w-2 rounded-full bg-indigo-500"></span>
+                  <span className="font-medium text-slate-700">High-Yield Study Packs</span>
                 </div>
-                <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 backdrop-blur-sm">
-                  <span className="h-2 w-2 rounded-full bg-amber-400"></span>
-                  <span className="font-medium">Verified Razorpay Checkout</span>
+                <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3.5 py-1.5 shadow-sm">
+                  <span className="h-2 w-2 rounded-full bg-amber-500"></span>
+                  <span className="font-medium text-slate-700">Verified Razorpay Checkout</span>
                 </div>
               </div>
             </div>
@@ -109,31 +107,31 @@ export default async function HomePage() {
             <div className="lg:col-span-5">
               <div className="relative mx-auto max-w-md lg:max-w-none">
                 {/* Ambient back light */}
-                <div className="absolute -inset-1.5 rounded-3xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 opacity-35 blur-2xl transition duration-500 hover:opacity-50"></div>
+                <div className="absolute -inset-2 rounded-3xl bg-gradient-to-tr from-indigo-200 via-purple-200 to-pink-200 opacity-60 blur-2xl transition duration-500 hover:opacity-80"></div>
 
                 {/* Showcase card */}
-                <div className="group relative overflow-hidden rounded-2xl border border-white/15 bg-slate-900/90 p-2 shadow-2xl shadow-indigo-950/60 backdrop-blur-sm transition duration-300 hover:border-indigo-400/50 hover:shadow-indigo-500/20">
+                <div className="group relative overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-2.5 shadow-xl shadow-indigo-100/60 transition duration-300 hover:border-indigo-300 hover:shadow-2xl hover:shadow-indigo-200/50">
                   <div className="relative overflow-hidden rounded-xl">
                     <img
                       src={heroImageUrl}
                       alt="Nexora Digital Learning"
                       className="aspect-[16/10] w-full object-cover transition duration-700 group-hover:scale-105"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-transparent to-transparent"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent"></div>
 
                     {/* Top floating badge */}
-                    <div className="absolute top-3 right-3 rounded-full bg-slate-950/70 px-3 py-1 text-[11px] font-semibold text-indigo-200 backdrop-blur-md border border-white/10 shadow-sm flex items-center gap-1.5">
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <div className="absolute top-3 right-3 rounded-full bg-white/95 px-3 py-1 text-[11px] font-semibold text-indigo-700 backdrop-blur-md border border-slate-200/80 shadow-sm flex items-center gap-1.5">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                       <span>Live Learning Hub</span>
                     </div>
 
                     {/* Bottom frosted bar */}
-                    <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between rounded-xl bg-slate-950/70 px-3.5 py-2.5 backdrop-blur-md border border-white/10">
+                    <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between rounded-xl bg-white/95 px-3.5 py-2.5 backdrop-blur-md border border-slate-200/80 shadow-md">
                       <div>
-                        <p className="text-[11px] font-bold uppercase tracking-wider text-indigo-300">Nexora Learning Hub</p>
-                        <p className="text-xs font-semibold text-slate-200">Study & code anytime, anywhere</p>
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-indigo-600">Nexora Learning Hub</p>
+                        <p className="text-xs font-semibold text-slate-800">Study & code anytime, anywhere</p>
                       </div>
-                      <span className="rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 px-2.5 py-1 text-[11px] font-bold text-white shadow-sm">
+                      <span className="rounded-lg bg-indigo-600 px-2.5 py-1 text-[11px] font-bold text-white shadow-sm">
                         24/7 Access
                       </span>
                     </div>
