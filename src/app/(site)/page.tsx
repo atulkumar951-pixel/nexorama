@@ -42,56 +42,103 @@ export default async function HomePage() {
   return (
     <div>
       {/* Hero */}
-      <section className="relative overflow-hidden bg-slate-950 text-white min-h-[540px] flex items-center">
-        {/* Full-screen background image with blur effect */}
+      <section className="relative overflow-hidden bg-slate-950 text-white">
+        {/* Ambient background glow from artwork */}
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-75 filter blur-[6px] scale-110"
+          className="absolute inset-0 bg-cover bg-center opacity-20 filter blur-md scale-105"
           style={{ backgroundImage: `url(${heroImageUrl})` }}
           aria-hidden
         />
-        {/* Dark gradient overlay to ensure text contrast while keeping artwork visible */}
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/80 to-slate-950/60" aria-hidden />
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/90 to-slate-950/75" aria-hidden />
 
-        <div className="relative mx-auto max-w-7xl px-4 py-20 sm:py-28 w-full">
-          <div className="max-w-3xl">
-            <span className="badge bg-indigo-500/30 text-indigo-200 ring-1 ring-indigo-400/50 backdrop-blur-md">
-              ⚡ Instant digital delivery
-            </span>
-            <h1 className="mt-5 text-4xl font-extrabold leading-tight sm:text-5xl lg:text-6xl text-white drop-shadow-md">
-              {hero?.title ?? "Premium Notes, eBooks & Courses for Serious Learners"}
-            </h1>
-            <p className="mt-5 text-lg sm:text-xl text-slate-200 drop-shadow">
-              {hero?.subtitle ??
-                "Download study material, code packs and digital books — or stream lecture series. Everything lives forever in your personal library."}
-            </p>
-            <div className="mt-8 flex flex-wrap gap-4">
-              <Link
-                href={hero?.buttonUrl || "/products"}
-                className="btn-primary !px-7 !py-3.5 !text-base shadow-xl shadow-indigo-600/40 hover:shadow-indigo-500/50 transition duration-200"
-              >
-                {hero?.buttonText || "Browse Marketplace"}
-              </Link>
-              <Link
-                href="/categories"
-                className="btn-secondary !border-white/30 !bg-white/15 !px-7 !py-3.5 !text-base !text-white hover:!bg-white/25 backdrop-blur-md transition duration-200"
-              >
-                Explore Categories
-              </Link>
+        <div className="relative mx-auto max-w-7xl px-4 py-16 sm:py-24">
+          <div className="grid items-center gap-10 lg:grid-cols-12">
+            {/* Left Content Column */}
+            <div className="lg:col-span-7">
+              <div className="inline-flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-3.5 py-1.5 text-xs font-semibold text-indigo-300 shadow-sm shadow-indigo-500/20 backdrop-blur-md">
+                <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>⚡ Instant Digital Delivery & Lifetime Access</span>
+              </div>
+
+              <h1 className="mt-5 text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-[3.25rem] leading-[1.15]">
+                Premium Notes, eBooks &{" "}
+                <span className="bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400 bg-clip-text text-transparent drop-shadow-sm">
+                  Courses for Serious Learners
+                </span>
+              </h1>
+
+              <p className="mt-5 text-base sm:text-lg leading-relaxed text-slate-300 max-w-xl">
+                {hero?.subtitle ??
+                  "Download study material, code packs and digital books — or stream lecture series. Everything lives forever in your personal library."}
+              </p>
+
+              <div className="mt-8 flex flex-wrap items-center gap-4">
+                <Link
+                  href={hero?.buttonUrl || "/products"}
+                  className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 px-6 py-3.5 text-sm sm:text-base font-bold text-white shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-[1.02] active:scale-[0.98] transition duration-200"
+                >
+                  <span>{hero?.buttonText || "Browse Marketplace"}</span>
+                  <span className="text-lg">→</span>
+                </Link>
+                <Link
+                  href="/categories"
+                  className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-6 py-3.5 text-sm sm:text-base font-semibold text-white backdrop-blur-md hover:bg-white/20 hover:border-white/30 hover:scale-[1.02] active:scale-[0.98] transition duration-200"
+                >
+                  <span>Explore Categories</span>
+                </Link>
+              </div>
+
+              {/* Trust badges */}
+              <div className="mt-10 flex flex-wrap items-center gap-4 border-t border-white/10 pt-6 text-xs sm:text-sm text-slate-300">
+                <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 backdrop-blur-sm">
+                  <span className="h-2 w-2 rounded-full bg-emerald-400"></span>
+                  <span className="font-medium">Instant Lifetime Access</span>
+                </div>
+                <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 backdrop-blur-sm">
+                  <span className="h-2 w-2 rounded-full bg-indigo-400"></span>
+                  <span className="font-medium">High-Yield Study Packs</span>
+                </div>
+                <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 backdrop-blur-sm">
+                  <span className="h-2 w-2 rounded-full bg-amber-400"></span>
+                  <span className="font-medium">Verified Razorpay Checkout</span>
+                </div>
+              </div>
             </div>
 
-            {/* Trust badges */}
-            <div className="mt-12 flex flex-wrap items-center gap-4 sm:gap-6 border-t border-white/15 pt-6 text-xs sm:text-sm font-medium text-slate-200">
-              <div className="flex items-center gap-2 bg-slate-900/50 px-3 py-1.5 rounded-full backdrop-blur-md border border-white/10">
-                <span className="h-2 w-2 rounded-full bg-emerald-400"></span>
-                <span>Instant Lifetime Access</span>
-              </div>
-              <div className="flex items-center gap-2 bg-slate-900/50 px-3 py-1.5 rounded-full backdrop-blur-md border border-white/10">
-                <span className="h-2 w-2 rounded-full bg-indigo-400"></span>
-                <span>High-Yield Study Packs</span>
-              </div>
-              <div className="flex items-center gap-2 bg-slate-900/50 px-3 py-1.5 rounded-full backdrop-blur-md border border-white/10">
-                <span className="h-2 w-2 rounded-full bg-amber-400"></span>
-                <span>Verified Razorpay Checkout</span>
+            {/* Right Image Column */}
+            <div className="lg:col-span-5">
+              <div className="relative mx-auto max-w-md lg:max-w-none">
+                {/* Ambient back light */}
+                <div className="absolute -inset-1.5 rounded-3xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 opacity-35 blur-2xl transition duration-500 hover:opacity-50"></div>
+
+                {/* Showcase card */}
+                <div className="group relative overflow-hidden rounded-2xl border border-white/15 bg-slate-900/90 p-2 shadow-2xl shadow-indigo-950/60 backdrop-blur-sm transition duration-300 hover:border-indigo-400/50 hover:shadow-indigo-500/20">
+                  <div className="relative overflow-hidden rounded-xl">
+                    <img
+                      src={heroImageUrl}
+                      alt="Nexora Digital Learning"
+                      className="aspect-[16/10] w-full object-cover transition duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-transparent to-transparent"></div>
+
+                    {/* Top floating badge */}
+                    <div className="absolute top-3 right-3 rounded-full bg-slate-950/70 px-3 py-1 text-[11px] font-semibold text-indigo-200 backdrop-blur-md border border-white/10 shadow-sm flex items-center gap-1.5">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                      <span>Live Learning Hub</span>
+                    </div>
+
+                    {/* Bottom frosted bar */}
+                    <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between rounded-xl bg-slate-950/70 px-3.5 py-2.5 backdrop-blur-md border border-white/10">
+                      <div>
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-indigo-300">Nexora Learning Hub</p>
+                        <p className="text-xs font-semibold text-slate-200">Study & code anytime, anywhere</p>
+                      </div>
+                      <span className="rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 px-2.5 py-1 text-[11px] font-bold text-white shadow-sm">
+                        24/7 Access
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
