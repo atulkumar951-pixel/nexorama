@@ -11,6 +11,7 @@ import {
   addLectureAction,
   deleteAssetAction,
   deleteLectureAction,
+  deleteProductAction,
   setProductStatus,
   uploadAssetAction,
 } from "@/lib/actions/admin-actions";
@@ -41,7 +42,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
             )}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {product.status !== "PUBLISHED" ? (
             <form action={setProductStatus.bind(null, product.id, "PUBLISHED")}>
               <SubmitButton className="btn-primary !bg-emerald-600 hover:!bg-emerald-700">Publish</SubmitButton>
@@ -52,8 +53,15 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
             </form>
           )}
           <form action={setProductStatus.bind(null, product.id, "ARCHIVED")}>
-            <SubmitButton className="btn-secondary !text-red-600">Archive</SubmitButton>
+            <SubmitButton className="btn-secondary !text-slate-600">Archive</SubmitButton>
           </form>
+          <ConfirmButton
+            action={deleteProductAction.bind(null, product.id)}
+            confirmText={`Are you sure you want to permanently delete "${product.title}"? This cannot be undone.`}
+            className="btn-secondary !text-red-600 hover:!bg-red-50 hover:!border-red-200"
+          >
+            Delete Product
+          </ConfirmButton>
         </div>
       </div>
 

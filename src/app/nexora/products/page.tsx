@@ -3,8 +3,8 @@ import { db } from "@/db";
 import { categories, products } from "@/db/schema";
 import { desc, eq } from "drizzle-orm";
 import { formatDate, formatINR, statusBadgeClass } from "@/lib/format";
-import { setProductStatus } from "@/lib/actions/admin-actions";
-import { SubmitButton } from "@/components/client";
+import { setProductStatus, deleteProductAction } from "@/lib/actions/admin-actions";
+import { SubmitButton, ConfirmButton } from "@/components/client";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Admin · Products" };
@@ -54,7 +54,13 @@ export default async function AdminProductsPage() {
                 <td className="px-4 py-3"><span className={`badge ${statusBadgeClass(p.status)}`}>{p.status}</span></td>
                 <td className="px-4 py-3 text-slate-500">{formatDate(p.createdAt)}</td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-2 text-xs">
+                  <div className="flex items-center gap-2.5 text-xs">
+                    <Link
+                      href={`/nexora/products/${p.id}`}
+                      className="font-semibold text-indigo-600 hover:underline"
+                    >
+                      Edit
+                    </Link>
                     {p.status !== "PUBLISHED" && (
                       <form action={setProductStatus.bind(null, p.id, "PUBLISHED")}>
                         <SubmitButton className="font-semibold text-emerald-600 hover:underline" pendingText="…">Publish</SubmitButton>
@@ -67,9 +73,16 @@ export default async function AdminProductsPage() {
                     )}
                     {p.status !== "ARCHIVED" && (
                       <form action={setProductStatus.bind(null, p.id, "ARCHIVED")}>
-                        <SubmitButton className="font-semibold text-red-500 hover:underline" pendingText="…">Archive</SubmitButton>
+                        <SubmitButton className="font-semibold text-slate-500 hover:underline" pendingText="…">Archive</SubmitButton>
                       </form>
                     )}
+                    <ConfirmButton
+                      action={deleteProductAction.bind(null, p.id)}
+                      confirmText={`Are you sure you want to permanently delete "${p.title}"? This cannot be undone.`}
+                      className="font-semibold text-red-600 hover:underline"
+                    >
+                      Delete
+                    </ConfirmButton>
                   </div>
                 </td>
               </tr>

@@ -9,9 +9,13 @@ import { db } from "@/db";
 import {
   accessGrants,
   banners,
+  cartItems,
   categories,
   coupons,
+  downloads,
+  lectureProgress,
   notifications,
+  orderItems,
   orders,
   payments,
   productAssets,
@@ -19,8 +23,9 @@ import {
   products,
   refunds,
   users,
+  wishlistItems,
 } from "@/db/schema";
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { requireAdmin } from "@/lib/auth";
 import { audit, notify, slugify } from "@/lib/helpers";
 
@@ -101,7 +106,10 @@ export async function saveProductAction(_p: AdminFormState, formData: FormData):
     return { error: "Slug already exists. Choose another." };
   }
   revalidatePath("/nexora/products");
+  revalidatePath(`/nexora/products/${productId}`);
   revalidatePath("/products");
+  revalidatePath(`/products/${values.slug}`);
+  revalidatePath("/", "layout");
   if (!id) redirect(`/nexora/products/${productId}`);
   return { success: "Product saved." };
 }
@@ -119,6 +127,53 @@ export async function setProductStatus(productId: number, status: string) {
   revalidatePath(`/nexora/products/${productId}`);
   revalidatePath("/products");
   revalidatePath("/", "layout");
+}
+
+export async function deleteProductAction(productId: number): Promise<void> {
+  const admin = await requireAdmin();
+  const [product] = await db.select().from(products).where(eq(products.id, productId)).limit(1);
+  if (!product) return;
+
+  try {
+    // 1. Delete lecture progress for all lectures of this product
+    const lectures = await db
+      .select({ id: productLectures.id })
+      .from(productLectures)
+      .where(eq(productLectures.productId, productId));
+    if (lectures.length > 0) {
+      const lectureIds = lectures.map((l) => l.id);
+      await db.delete(lectureProgress).where(inArray(lectureProgress.lectureId, lectureIds));
+    }
+
+    // 2. Delete downloads for this product
+    await db.delete(downloads).where(eq(downloads.productId, productId));
+
+    // 3. Delete assets and lectures
+    await db.delete(productAssets).where(eq(productAssets.productId, productId));
+    await db.delete(productLectures).where(eq(productLectures.productId, productId));
+
+    // 4. Delete cart & wishlist items
+    await db.delete(cartItems).where(eq(cartItems.productId, productId));
+    await db.delete(wishlistItems).where(eq(wishlistItems.productId, productId));
+
+    // 5. Delete access grants & order items
+    await db.delete(accessGrants).where(eq(accessGrants.productId, productId));
+    await db.delete(orderItems).where(eq(orderItems.productId, productId));
+
+    // 6. Delete the product itself
+    await db.delete(products).where(eq(products.id, productId));
+
+    await audit(admin, "product.deleted", "product", productId, product.title);
+  } catch (err: any) {
+    console.error("Failed to delete product:", err);
+    throw new Error(err?.message || "Failed to delete product.");
+  }
+
+  revalidatePath("/nexora/products");
+  revalidatePath(`/nexora/products/${productId}`);
+  revalidatePath("/products");
+  revalidatePath("/", "layout");
+  redirect("/nexora/products");
 }
 
 // ---------------- Assets (file upload & cloud link) ----------------

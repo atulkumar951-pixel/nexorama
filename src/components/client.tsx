@@ -94,7 +94,7 @@ export function ConfirmButton({
         }
       }}
     >
-      {children}
+      {pending ? "Processing…" : children}
     </button>
   );
 }
