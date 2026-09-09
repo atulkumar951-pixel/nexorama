@@ -4,11 +4,16 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "DigiMart — Digital Products & Learning Marketplace",
-    template: "%s | DigiMart",
+    default: "Nexora — Your Digital Knowledge Marketplace",
+    template: "%s | Nexora",
   },
   description:
-    "Buy premium notes, eBooks, study material, code packs and lecture courses. Instant delivery to your personal library.",
+    "Buy premium notes, eBooks, study resources, code bundles and lecture playlists. Instant delivery to your personal library.",
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

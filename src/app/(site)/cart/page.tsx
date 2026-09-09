@@ -8,6 +8,7 @@ import { effectivePrice } from "@/lib/helpers";
 import { formatINR } from "@/lib/format";
 import { removeFromCart } from "@/lib/actions/shop-actions";
 import { SubmitButton } from "@/components/client";
+import ProductCover from "@/components/ProductCover";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Cart" };
@@ -40,13 +41,13 @@ export default async function CartPage() {
           <div className="card divide-y divide-slate-100">
             {items.map((p) => (
               <div key={p.id} className="flex items-center gap-4 p-4">
-                <div className="h-16 w-24 shrink-0 overflow-hidden rounded-lg bg-indigo-50">
-                  {p.coverImage ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={p.coverImage} alt="" className="h-full w-full object-cover" />
-                  ) : (
-                    <div className="flex h-full items-center justify-center text-2xl">📚</div>
-                  )}
+                <div className="h-16 w-24 shrink-0 overflow-hidden rounded-lg">
+                  <ProductCover
+                    title={p.title}
+                    coverImage={p.coverImage}
+                    productType={p.productType}
+                    aspectRatio="aspect-[16/10]"
+                  />
                 </div>
                 <div className="min-w-0 flex-1">
                   <Link href={`/products/${p.slug}`} className="font-semibold text-slate-900 hover:text-indigo-600">{p.title}</Link>

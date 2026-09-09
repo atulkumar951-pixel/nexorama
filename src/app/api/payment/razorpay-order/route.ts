@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
     razorpayOrderId: rzpOrder.id,
     amount: amountPaise,
     currency: "INR",
-    name: "DigiMart",
+    name: "Nexora",
     description: order.orderNumber,
     prefill: { name: user.name, email: user.email },
   });

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { formatINR } from "@/lib/format";
+import ProductCover from "./ProductCover";
 
 export type ProductCardData = {
   id: number;
@@ -34,26 +35,21 @@ export default function ProductCard({ p }: { p: ProductCardData }) {
       href={`/products/${p.slug}`}
       className="card group flex flex-col overflow-hidden transition hover:-translate-y-0.5 hover:shadow-lg"
     >
-      <div className="relative aspect-[16/10] overflow-hidden bg-indigo-50">
-        {p.coverImage ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={p.coverImage}
-            alt={p.title}
-            loading="lazy"
-            className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center text-5xl">📚</div>
-        )}
+      <div className="relative overflow-hidden">
+        <ProductCover
+          title={p.title}
+          coverImage={p.coverImage}
+          productType={p.productType}
+          aspectRatio="aspect-[16/10]"
+        />
         {p.isFeatured && (
-          <span className="badge absolute left-2 top-2 bg-amber-400 text-amber-950">★ Featured</span>
+          <span className="badge absolute left-2 top-2 z-20 bg-amber-400 text-amber-950 shadow-sm">★ Featured</span>
         )}
         {hasDiscount && (
-          <span className="badge absolute right-2 top-2 bg-red-500 text-white">-{pct}%</span>
+          <span className="badge absolute right-2 top-2 z-20 bg-red-500 text-white shadow-sm">-{pct}%</span>
         )}
         {p.isFree && (
-          <span className="badge absolute right-2 top-2 bg-emerald-500 text-white">FREE</span>
+          <span className="badge absolute right-2 top-2 z-20 bg-emerald-500 text-white shadow-sm">FREE</span>
         )}
       </div>
       <div className="flex flex-1 flex-col p-4">

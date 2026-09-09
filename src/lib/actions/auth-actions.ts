@@ -28,7 +28,7 @@ export async function registerAction(_prev: FormState, formData: FormData): Prom
     .values({ name, email, passwordHash: hashPassword(password), authMethod: "email" })
     .returning();
 
-  await notify(user.id, "Welcome to DigiMart! 👋", "Your account is ready. Browse the marketplace and start learning.", "ACCOUNT");
+  await notify(user.id, "Welcome to Nexora! 👋", "Your account is ready. Browse the marketplace and start learning.", "ACCOUNT");
   await createSession(user.id);
   redirect("/dashboard");
 }

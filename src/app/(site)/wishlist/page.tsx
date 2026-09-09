@@ -8,6 +8,7 @@ import { effectivePrice } from "@/lib/helpers";
 import { formatINR } from "@/lib/format";
 import { moveWishlistToCart, toggleWishlist } from "@/lib/actions/shop-actions";
 import { SubmitButton } from "@/components/client";
+import ProductCover from "@/components/ProductCover";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Wishlist" };
@@ -36,13 +37,13 @@ export default async function WishlistPage() {
         <div className="card mt-8 divide-y divide-slate-100">
           {rows.map(({ product: p }) => (
             <div key={p.id} className="flex flex-wrap items-center gap-4 p-4">
-              <div className="h-14 w-20 shrink-0 overflow-hidden rounded-lg bg-indigo-50">
-                {p.coverImage ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={p.coverImage} alt="" className="h-full w-full object-cover" />
-                ) : (
-                  <div className="flex h-full items-center justify-center text-xl">📚</div>
-                )}
+              <div className="h-14 w-20 shrink-0 overflow-hidden rounded-lg">
+                <ProductCover
+                  title={p.title}
+                  coverImage={p.coverImage}
+                  productType={p.productType}
+                  aspectRatio="aspect-[16/10]"
+                />
               </div>
               <div className="min-w-0 flex-1">
                 <Link href={`/products/${p.slug}`} className="font-semibold hover:text-indigo-600">{p.title}</Link>

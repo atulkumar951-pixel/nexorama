@@ -139,7 +139,7 @@ export default async function HomePage() {
 
         {/* Why choose us */}
         <section className="py-12">
-          <h2 className="mb-8 text-center text-2xl font-bold">Why Choose DigiMart?</h2>
+          <h2 className="mb-8 text-center text-2xl font-bold">Why Choose Nexora?</h2>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {[
               { icon: "⚡", title: "Instant Access", desc: "Products appear in your library the moment payment succeeds." },

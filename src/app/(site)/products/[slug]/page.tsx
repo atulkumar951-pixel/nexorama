@@ -7,6 +7,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { getActiveGrant } from "@/lib/helpers";
 import { formatINR, formatBytes } from "@/lib/format";
 import ProductCard, { TYPE_LABELS } from "@/components/ProductCard";
+import ProductCover from "@/components/ProductCover";
 import { DownloadButton, SubmitButton } from "@/components/client";
 import { addToCart, toggleWishlist } from "@/lib/actions/shop-actions";
 import type { Metadata } from "next";
@@ -77,12 +78,12 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
       <div className="grid gap-8 lg:grid-cols-[1fr_380px]">
         <div>
           <div className="card overflow-hidden">
-            {p.coverImage ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={p.coverImage} alt={p.title} className="aspect-[16/9] w-full object-cover" />
-            ) : (
-              <div className="flex aspect-[16/9] items-center justify-center bg-indigo-50 text-7xl">📚</div>
-            )}
+            <ProductCover
+              title={p.title}
+              coverImage={p.coverImage}
+              productType={p.productType}
+              aspectRatio="aspect-[16/9]"
+            />
           </div>
 
           <div className="card mt-6 p-6">

@@ -6,6 +6,7 @@ import { desc, eq } from "drizzle-orm";
 import { getCurrentUser } from "@/lib/auth";
 import { formatDate, statusBadgeClass } from "@/lib/format";
 import { TYPE_LABELS } from "@/components/ProductCard";
+import ProductCover from "@/components/ProductCover";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "My Library" };
@@ -47,14 +48,12 @@ export default async function LibraryPage() {
         <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {items.map(({ grant, product }) => (
             <div key={product.id} className="card overflow-hidden">
-              <div className="aspect-[16/9] bg-indigo-50">
-                {product.coverImage ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={product.coverImage} alt="" className="h-full w-full object-cover" />
-                ) : (
-                  <div className="flex h-full items-center justify-center text-5xl">📚</div>
-                )}
-              </div>
+              <ProductCover
+                title={product.title}
+                coverImage={product.coverImage}
+                productType={product.productType}
+                aspectRatio="aspect-[16/9]"
+              />
               <div className="p-4">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs text-slate-500">{TYPE_LABELS[product.productType] ?? product.productType}</span>

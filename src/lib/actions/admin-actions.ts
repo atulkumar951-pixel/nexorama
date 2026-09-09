@@ -28,7 +28,7 @@ export type AdminFormState = { error?: string; success?: string };
 
 import os from "os";
 
-const UPLOAD_DIR = path.join(os.tmpdir(), "digimart-uploads");
+const UPLOAD_DIR = path.join(os.tmpdir(), "nexora-uploads");
 const ALLOWED_EXT = ["pdf", "zip", "doc", "docx", "ppt", "pptx", "xls", "xlsx", "txt", "epub"];
 
 // ---------------- Categories ----------------

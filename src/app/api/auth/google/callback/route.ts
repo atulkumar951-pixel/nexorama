@@ -89,7 +89,7 @@ export async function GET(req: NextRequest) {
         })
         .returning();
       user = newUser;
-      await notify(user.id, "Welcome to DigiMart! 👋", "Signed up with Google successfully.", "ACCOUNT");
+      await notify(user.id, "Welcome to Nexora! 👋", "Signed up with Google successfully.", "ACCOUNT");
     }
 
     await createSession(user.id);

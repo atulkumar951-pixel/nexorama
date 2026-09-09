@@ -62,7 +62,7 @@ export async function GET(_req: NextRequest, ctx: { params: Promise<{ token: str
 
   // 3. Local / tmp disk cache
   const possiblePaths = [
-    path.join(os.tmpdir(), "digimart-uploads", asset.storageKey),
+    path.join(os.tmpdir(), "nexora-uploads", asset.storageKey),
     path.join(process.cwd(), "uploads", asset.storageKey),
   ];
 
@@ -79,7 +79,7 @@ export async function GET(_req: NextRequest, ctx: { params: Promise<{ token: str
   if (!body) {
     // 4. Placeholder fallback
     body = Buffer.from(
-      `DigiMart — ${asset.fileName}\n\nThis is your purchased digital file.\nDownloaded by: ${user.name} <${user.email}>\nGenerated: ${new Date().toISOString()}\n`
+      `Nexora — ${asset.fileName}\n\nThis is your purchased digital file.\nDownloaded by: ${user.name} <${user.email}>\nGenerated: ${new Date().toISOString()}\n`
     );
   }
 

@@ -23,11 +23,14 @@ export default async function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:gap-6">
-        <Link href="/" className="flex shrink-0 items-center gap-2 text-lg font-extrabold tracking-tight text-slate-900">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-white">D</span>
-          <span className="hidden sm:inline">Digi<span className="text-indigo-600">Mart</span></span>
+    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
+      <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2.5 sm:gap-6">
+        <Link href="/" className="flex shrink-0 items-center gap-2.5 group">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt="Nexora" className="h-9 w-9 rounded-lg object-contain shadow-sm group-hover:scale-105 transition duration-200" />
+          <span className="text-xl font-black tracking-tight text-slate-900">
+            Nex<span className="text-emerald-600">ora</span>
+          </span>
         </Link>
 
         <nav className="hidden items-center gap-5 text-sm font-medium text-slate-600 md:flex">
