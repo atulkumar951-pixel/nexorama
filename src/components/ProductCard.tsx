@@ -40,7 +40,7 @@ export default function ProductCard({ p }: { p: ProductCardData }) {
           title={p.title}
           coverImage={p.coverImage}
           productType={p.productType}
-          aspectRatio="aspect-[16/10]"
+          aspectRatio="aspect-square"
         />
         {p.isFeatured && (
           <span className="badge absolute left-2 top-2 z-20 bg-amber-400 text-amber-950 shadow-sm">★ Featured</span>
