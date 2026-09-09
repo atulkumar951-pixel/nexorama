@@ -84,7 +84,7 @@ export default async function Header() {
                     <Link href="/orders" className="block px-4 py-2 hover:bg-slate-50">My Orders</Link>
                     <Link href="/profile" className="block px-4 py-2 hover:bg-slate-50">Profile & Settings</Link>
                     {isAdmin(user) && (
-                      <Link href="/admin" className="block px-4 py-2 font-semibold text-indigo-600 hover:bg-indigo-50">Admin Panel</Link>
+                      <Link href="/nexora" className="block px-4 py-2 font-semibold text-emerald-600 hover:bg-emerald-50">Admin Panel</Link>
                     )}
                     <form action={logoutAction}>
                       <button className="block w-full px-4 py-2 text-left text-red-600 hover:bg-red-50">Sign out</button>

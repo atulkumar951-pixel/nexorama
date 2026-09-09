@@ -21,7 +21,7 @@ export default async function AdminProductsPage() {
     <div>
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Products</h1>
-        <Link href="/admin/products/new" className="btn-primary">+ Add Product</Link>
+        <Link href="/nexora/products/new" className="btn-primary">+ Add Product</Link>
       </div>
       <div className="card mt-6 overflow-x-auto">
         <table className="w-full text-sm">
@@ -41,7 +41,7 @@ export default async function AdminProductsPage() {
             {rows.map(({ product: p, categoryName }) => (
               <tr key={p.id} className="hover:bg-slate-50">
                 <td className="px-4 py-3">
-                  <Link href={`/admin/products/${p.id}`} className="font-semibold text-indigo-600 hover:underline">{p.title}</Link>
+                  <Link href={`/nexora/products/${p.id}`} className="font-semibold text-indigo-600 hover:underline">{p.title}</Link>
                   {p.isFeatured && <span className="badge ml-2 bg-amber-100 text-amber-700">★</span>}
                 </td>
                 <td className="px-4 py-3 text-slate-500">{categoryName ?? "—"}</td>

@@ -5,27 +5,27 @@ import { getCurrentUser, isAdmin } from "@/lib/auth";
 import { logoutAction } from "@/lib/actions/auth-actions";
 
 const NAV = [
-  { href: "/admin", label: "Dashboard", icon: "📊" },
-  { href: "/admin/products", label: "Products", icon: "📦" },
-  { href: "/admin/categories", label: "Categories", icon: "🗂️" },
-  { href: "/admin/orders", label: "Orders", icon: "🧾" },
-  { href: "/admin/payments", label: "Payments", icon: "💳" },
-  { href: "/admin/users", label: "Users", icon: "👥" },
-  { href: "/admin/coupons", label: "Coupons", icon: "🏷️" },
-  { href: "/admin/banners", label: "Banners", icon: "🖼️" },
-  { href: "/admin/notifications", label: "Notifications", icon: "🔔" },
-  { href: "/admin/audit-logs", label: "Audit Logs", icon: "🛡️" },
+  { href: "/nexora", label: "Dashboard", icon: "📊" },
+  { href: "/nexora/products", label: "Products", icon: "📦" },
+  { href: "/nexora/categories", label: "Categories", icon: "🗂️" },
+  { href: "/nexora/orders", label: "Orders", icon: "🧾" },
+  { href: "/nexora/payments", label: "Payments", icon: "💳" },
+  { href: "/nexora/users", label: "Users", icon: "👥" },
+  { href: "/nexora/coupons", label: "Coupons", icon: "🏷️" },
+  { href: "/nexora/banners", label: "Banners", icon: "🖼️" },
+  { href: "/nexora/notifications", label: "Notifications", icon: "🔔" },
+  { href: "/nexora/audit-logs", label: "Audit Logs", icon: "🛡️" },
 ];
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const user = await getCurrentUser();
-  if (!user) redirect("/login?next=/admin");
+  if (!user) redirect("/login?next=/nexora");
   if (!isAdmin(user)) redirect("/dashboard");
 
   return (
     <div className="flex min-h-screen bg-slate-100">
       <aside className="hidden w-60 shrink-0 flex-col border-r border-slate-800 bg-slate-900 text-slate-300 lg:flex">
-        <Link href="/admin" className="flex items-center gap-2.5 border-b border-slate-800 px-5 py-4 text-lg font-extrabold text-white">
+        <Link href="/nexora" className="flex items-center gap-2.5 border-b border-slate-800 px-5 py-4 text-lg font-extrabold text-white">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.png" alt="Nexora" className="h-7 w-7 rounded-md object-contain" />
           <span>Nex<span className="text-emerald-400">ora</span> Admin</span>

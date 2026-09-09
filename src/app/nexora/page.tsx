@@ -54,7 +54,7 @@ export default async function AdminDashboard() {
         <div className="card overflow-x-auto">
           <div className="flex items-center justify-between border-b border-slate-100 p-4">
             <h2 className="font-bold">Recent Orders</h2>
-            <Link href="/admin/orders" className="text-sm font-semibold text-indigo-600 hover:underline">All orders →</Link>
+            <Link href="/nexora/orders" className="text-sm font-semibold text-indigo-600 hover:underline">All orders →</Link>
           </div>
           <table className="w-full text-sm">
             <thead className="bg-slate-50 text-left text-xs uppercase text-slate-500">
@@ -70,7 +70,7 @@ export default async function AdminDashboard() {
               {recentOrders.map(({ order, userName }) => (
                 <tr key={order.id} className="hover:bg-slate-50">
                   <td className="px-4 py-2.5">
-                    <Link href={`/admin/orders/${order.id}`} className="font-semibold text-indigo-600 hover:underline">{order.orderNumber}</Link>
+                    <Link href={`/nexora/orders/${order.id}`} className="font-semibold text-indigo-600 hover:underline">{order.orderNumber}</Link>
                   </td>
                   <td className="px-4 py-2.5">{userName}</td>
                   <td className="px-4 py-2.5 font-semibold">{formatINR(order.total)}</td>
@@ -88,7 +88,7 @@ export default async function AdminDashboard() {
             {topProducts.map((tp, i) => (
               <li key={tp.id} className="flex items-center gap-3 py-2.5">
                 <span className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-700">{i + 1}</span>
-                <Link href={`/admin/products/${tp.id}`} className="flex-1 truncate font-medium hover:text-indigo-600">{tp.title}</Link>
+                <Link href={`/nexora/products/${tp.id}`} className="flex-1 truncate font-medium hover:text-indigo-600">{tp.title}</Link>
                 <span className="text-xs text-slate-500">{tp.salesCount} sales</span>
               </li>
             ))}

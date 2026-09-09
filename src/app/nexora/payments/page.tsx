@@ -40,7 +40,7 @@ export default async function AdminPaymentsPage() {
                   <p className="text-xs text-slate-500">{p.razorpayPaymentId ?? "—"}</p>
                 </td>
                 <td className="px-4 py-3">
-                  <Link href={`/admin/orders/${orderId}`} className="font-semibold text-indigo-600 hover:underline">{orderNumber}</Link>
+                  <Link href={`/nexora/orders/${orderId}`} className="font-semibold text-indigo-600 hover:underline">{orderNumber}</Link>
                 </td>
                 <td className="px-4 py-3 text-slate-500">{userEmail}</td>
                 <td className="px-4 py-3 font-semibold">{formatINR(p.amount)}</td>

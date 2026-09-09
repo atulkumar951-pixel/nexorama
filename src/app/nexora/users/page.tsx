@@ -39,7 +39,7 @@ export default async function AdminUsersPage() {
             {rows.map(({ user: u, orderCount, spent }) => (
               <tr key={u.id} className="hover:bg-slate-50">
                 <td className="px-4 py-3">
-                  <Link href={`/admin/users/${u.id}`} className="font-semibold text-indigo-600 hover:underline">{u.name}</Link>
+                  <Link href={`/nexora/users/${u.id}`} className="font-semibold text-indigo-600 hover:underline">{u.name}</Link>
                   <p className="text-xs text-slate-500">{u.email}</p>
                 </td>
                 <td className="px-4 py-3 capitalize">{u.role.replace("_", " ")}</td>

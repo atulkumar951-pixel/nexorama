@@ -52,7 +52,7 @@ export async function saveCategoryAction(_p: AdminFormState, formData: FormData)
     const [row] = await db.insert(categories).values(values).returning();
     await audit(admin, "category.created", "category", row.id, name);
   }
-  revalidatePath("/admin/categories");
+  revalidatePath("/nexora/categories");
   revalidatePath("/categories");
   return { success: "Category saved." };
 }
@@ -100,9 +100,9 @@ export async function saveProductAction(_p: AdminFormState, formData: FormData):
   } catch {
     return { error: "Slug already exists. Choose another." };
   }
-  revalidatePath("/admin/products");
+  revalidatePath("/nexora/products");
   revalidatePath("/products");
-  if (!id) redirect(`/admin/products/${productId}`);
+  if (!id) redirect(`/nexora/products/${productId}`);
   return { success: "Product saved." };
 }
 
@@ -115,8 +115,8 @@ export async function setProductStatus(productId: number, status: string) {
     .set({ status, updatedAt: new Date(), ...(status === "PUBLISHED" ? { publishedAt: new Date() } : {}) })
     .where(eq(products.id, productId));
   await audit(admin, `product.status.${status.toLowerCase()}`, "product", productId);
-  revalidatePath("/admin/products");
-  revalidatePath(`/admin/products/${productId}`);
+  revalidatePath("/nexora/products");
+  revalidatePath(`/nexora/products/${productId}`);
   revalidatePath("/products");
   revalidatePath("/", "layout");
 }
@@ -156,7 +156,7 @@ export async function uploadAssetAction(_p: AdminFormState, formData: FormData):
       isPreview: formData.get("isPreview") === "on",
     });
     await audit(admin, "file.uploaded", "product", productId, file.name);
-    revalidatePath(`/admin/products/${productId}`);
+    revalidatePath(`/nexora/products/${productId}`);
     return { success: `Uploaded ${file.name}` };
   } catch (err: any) {
     console.error("Upload error:", err);
@@ -192,7 +192,7 @@ export async function addExternalAssetAction(_p: AdminFormState, formData: FormD
     });
 
     await audit(admin, "file.external_linked", "product", productId, fileName);
-    revalidatePath(`/admin/products/${productId}`);
+    revalidatePath(`/nexora/products/${productId}`);
     return { success: `Attached ${fileName}` };
   } catch (err: any) {
     console.error("External asset link error:", err);
@@ -206,7 +206,7 @@ export async function deleteAssetAction(assetId: number, productId: number) {
   if (!asset) return;
   await db.update(productAssets).set({ status: "DELETED" }).where(eq(productAssets.id, assetId));
   await audit(admin, "file.deleted", "asset", assetId, asset.fileName);
-  revalidatePath(`/admin/products/${productId}`);
+  revalidatePath(`/nexora/products/${productId}`);
 }
 
 // ---------------- Lectures ----------------
@@ -228,7 +228,7 @@ export async function addLectureAction(_p: AdminFormState, formData: FormData): 
     isPreview: formData.get("isPreview") === "on",
   });
   await audit(admin, "lecture.added", "product", productId, title);
-  revalidatePath(`/admin/products/${productId}`);
+  revalidatePath(`/nexora/products/${productId}`);
   return { success: "Lecture added." };
 }
 
@@ -236,7 +236,7 @@ export async function deleteLectureAction(lectureId: number, productId: number) 
   const admin = await requireAdmin();
   await db.delete(productLectures).where(eq(productLectures.id, lectureId));
   await audit(admin, "lecture.deleted", "lecture", lectureId);
-  revalidatePath(`/admin/products/${productId}`);
+  revalidatePath(`/nexora/products/${productId}`);
 }
 
 // ---------------- Users ----------------
@@ -247,8 +247,8 @@ export async function setUserStatus(userId: number, status: string) {
   if (!target || target.role === "super_admin") return;
   await db.update(users).set({ status }).where(eq(users.id, userId));
   await audit(admin, `user.status.${status.toLowerCase()}`, "user", userId, target.email);
-  revalidatePath("/admin/users");
-  revalidatePath(`/admin/users/${userId}`);
+  revalidatePath("/nexora/users");
+  revalidatePath(`/nexora/users/${userId}`);
 }
 
 // ---------------- Access management ----------------
@@ -262,7 +262,7 @@ export async function revokeAccessAction(grantId: number, reason: string) {
     .where(eq(accessGrants.id, grantId));
   await audit(admin, "access.revoked", "access_grant", grantId, reason);
   await notify(grant.userId, "Access revoked", "Access to one of your products was revoked by an administrator.", "ACCOUNT");
-  revalidatePath(`/admin/users/${grant.userId}`);
+  revalidatePath(`/nexora/users/${grant.userId}`);
 }
 
 export async function restoreAccessAction(grantId: number) {
@@ -275,7 +275,7 @@ export async function restoreAccessAction(grantId: number) {
     .where(eq(accessGrants.id, grantId));
   await audit(admin, "access.restored", "access_grant", grantId);
   await notify(grant.userId, "Access restored", "Access to one of your products was restored.", "ACCOUNT");
-  revalidatePath(`/admin/users/${grant.userId}`);
+  revalidatePath(`/nexora/users/${grant.userId}`);
 }
 
 // ---------------- Refunds ----------------
@@ -315,8 +315,8 @@ export async function refundOrderAction(_p: AdminFormState, formData: FormData):
     `Your order ${order.orderNumber} has been refunded (₹${payment.amount}).${revokeAccess ? " Product access has been revoked." : ""}`,
     "REFUND"
   );
-  revalidatePath("/admin/orders");
-  revalidatePath(`/admin/orders/${orderId}`);
+  revalidatePath("/nexora/orders");
+  revalidatePath(`/nexora/orders/${orderId}`);
   return { success: "Refund processed successfully." };
 }
 
@@ -347,7 +347,7 @@ export async function saveCouponAction(_p: AdminFormState, formData: FormData): 
   } catch {
     return { error: "Coupon code already exists." };
   }
-  revalidatePath("/admin/coupons");
+  revalidatePath("/nexora/coupons");
   return { success: "Coupon created." };
 }
 
@@ -355,7 +355,7 @@ export async function toggleCouponAction(couponId: number, isActive: boolean) {
   const admin = await requireAdmin();
   await db.update(coupons).set({ isActive }).where(eq(coupons.id, couponId));
   await audit(admin, isActive ? "coupon.enabled" : "coupon.disabled", "coupon", couponId);
-  revalidatePath("/admin/coupons");
+  revalidatePath("/nexora/coupons");
 }
 
 // ---------------- Banners ----------------
@@ -376,7 +376,7 @@ export async function saveBannerAction(_p: AdminFormState, formData: FormData): 
     })
     .returning();
   await audit(admin, "banner.created", "banner", row.id, title);
-  revalidatePath("/admin/banners");
+  revalidatePath("/nexora/banners");
   revalidatePath("/");
   return { success: "Banner created." };
 }
@@ -385,7 +385,7 @@ export async function toggleBannerAction(bannerId: number, isActive: boolean) {
   const admin = await requireAdmin();
   await db.update(banners).set({ isActive }).where(eq(banners.id, bannerId));
   await audit(admin, isActive ? "banner.enabled" : "banner.disabled", "banner", bannerId);
-  revalidatePath("/admin/banners");
+  revalidatePath("/nexora/banners");
   revalidatePath("/");
 }
 

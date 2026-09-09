@@ -34,7 +34,7 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
 
   return (
     <div className="mx-auto max-w-4xl">
-      <Link href="/admin/users" className="text-sm text-slate-500 hover:text-indigo-600">← All users</Link>
+      <Link href="/nexora/users" className="text-sm text-slate-500 hover:text-indigo-600">← All users</Link>
       <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold">{user.name}</h1>
@@ -98,7 +98,7 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
         <ul className="mt-3 divide-y divide-slate-100 text-sm">
           {userOrders.map((o) => (
             <li key={o.id} className="flex items-center justify-between py-2.5">
-              <Link href={`/admin/orders/${o.id}`} className="font-semibold text-indigo-600 hover:underline">{o.orderNumber}</Link>
+              <Link href={`/nexora/orders/${o.id}`} className="font-semibold text-indigo-600 hover:underline">{o.orderNumber}</Link>
               <div className="flex items-center gap-3">
                 <span className="font-semibold">{formatINR(o.total)}</span>
                 <span className={`badge ${statusBadgeClass(o.status)}`}>{o.status}</span>

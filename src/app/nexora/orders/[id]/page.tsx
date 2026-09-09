@@ -30,13 +30,13 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
 
   return (
     <div className="mx-auto max-w-4xl">
-      <Link href="/admin/orders" className="text-sm text-slate-500 hover:text-indigo-600">← All orders</Link>
+      <Link href="/nexora/orders" className="text-sm text-slate-500 hover:text-indigo-600">← All orders</Link>
       <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold">{order.orderNumber}</h1>
         <span className={`badge ${statusBadgeClass(order.status)} !px-3 !py-1`}>{order.status}</span>
       </div>
       <p className="mt-1 text-sm text-slate-500">
-        Customer: <Link href={`/admin/users/${row.userId}`} className="font-semibold text-indigo-600 hover:underline">{row.userName}</Link> ({row.userEmail}) · {formatDate(order.createdAt)}
+        Customer: <Link href={`/nexora/users/${row.userId}`} className="font-semibold text-indigo-600 hover:underline">{row.userName}</Link> ({row.userEmail}) · {formatDate(order.createdAt)}
       </p>
 
       <div className="card mt-6 p-6">

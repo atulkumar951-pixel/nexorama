@@ -27,9 +27,9 @@ export default async function AdminOrdersPage({
     <div>
       <h1 className="text-2xl font-bold">Orders</h1>
       <div className="mt-4 flex flex-wrap gap-2">
-        <Link href="/admin/orders" className={`badge ${!sp.status ? "bg-slate-900 text-white" : "bg-white text-slate-600 ring-1 ring-slate-200"}`}>All</Link>
+        <Link href="/nexora/orders" className={`badge ${!sp.status ? "bg-slate-900 text-white" : "bg-white text-slate-600 ring-1 ring-slate-200"}`}>All</Link>
         {statuses.map((s) => (
-          <Link key={s} href={`/admin/orders?status=${s}`} className={`badge ${sp.status === s ? "bg-slate-900 text-white" : "bg-white text-slate-600 ring-1 ring-slate-200"}`}>{s}</Link>
+          <Link key={s} href={`/nexora/orders?status=${s}`} className={`badge ${sp.status === s ? "bg-slate-900 text-white" : "bg-white text-slate-600 ring-1 ring-slate-200"}`}>{s}</Link>
         ))}
       </div>
       <div className="card mt-6 overflow-x-auto">
@@ -48,7 +48,7 @@ export default async function AdminOrdersPage({
             {rows.map(({ order: o, userName, userEmail }) => (
               <tr key={o.id} className="hover:bg-slate-50">
                 <td className="px-4 py-3">
-                  <Link href={`/admin/orders/${o.id}`} className="font-semibold text-indigo-600 hover:underline">{o.orderNumber}</Link>
+                  <Link href={`/nexora/orders/${o.id}`} className="font-semibold text-indigo-600 hover:underline">{o.orderNumber}</Link>
                 </td>
                 <td className="px-4 py-3">
                   <p className="font-medium">{userName}</p>
