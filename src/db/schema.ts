@@ -93,6 +93,8 @@ export const productAssets = pgTable("product_assets", {
   fileType: varchar("file_type", { length: 20 }).notNull().default("pdf"),
   fileSize: integer("file_size").notNull().default(0), // bytes
   storageKey: varchar("storage_key", { length: 255 }).notNull(),
+  fileData: text("file_data"), // base64 data for database-stored files on serverless
+  externalUrl: text("external_url"), // direct external link (Google Drive, S3, Dropbox, etc.)
   isPreview: boolean("is_preview").notNull().default(false),
   sortOrder: integer("sort_order").notNull().default(0),
   status: varchar("status", { length: 20 }).notNull().default("ACTIVE"),

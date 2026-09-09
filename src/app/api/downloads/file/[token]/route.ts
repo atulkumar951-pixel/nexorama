@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs/promises";
 import path from "path";
+import os from "os";
 import { db } from "@/db";
 import { downloads, productAssets } from "@/db/schema";
 import { eq } from "drizzle-orm";
@@ -36,21 +37,51 @@ export async function GET(_req: NextRequest, ctx: { params: Promise<{ token: str
   const [asset] = await db.select().from(productAssets).where(eq(productAssets.id, dl.assetId)).limit(1);
   if (!asset) return NextResponse.json({ error: "File not found." }, { status: 404 });
 
-  const filePath = path.join(process.cwd(), "uploads", asset.storageKey);
-  let body: Buffer;
-  try {
-    body = await fs.readFile(filePath);
-  } catch {
-    // Storage object missing (e.g. demo seed) — serve a generated placeholder document
-    body = Buffer.from(
-      `DigiMart — ${asset.fileName}\n\nThis is your purchased digital file.\nDownloaded by: ${user.name} <${user.email}>\nGenerated: ${new Date().toISOString()}\n`
-    );
-  }
-
   await db
     .update(downloads)
     .set({ status: "COMPLETED", completedAt: new Date() })
     .where(eq(downloads.id, dl.id));
+
+  // 1. External Download URL (Google Drive, Dropbox, AWS S3, etc.)
+  if (asset.externalUrl && /^https?:\/\//i.test(asset.externalUrl)) {
+    return NextResponse.redirect(asset.externalUrl);
+  }
+
+  // 2. Base64 database-stored file
+  if (asset.fileData) {
+    const fileBuffer = Buffer.from(asset.fileData, "base64");
+    return new NextResponse(new Uint8Array(fileBuffer), {
+      headers: {
+        "Content-Type": MIME[asset.fileType] ?? "application/octet-stream",
+        "Content-Disposition": `attachment; filename="${asset.fileName.replace(/"/g, "")}"`,
+        "Content-Length": String(fileBuffer.length),
+        "Cache-Control": "no-store",
+      },
+    });
+  }
+
+  // 3. Local / tmp disk cache
+  const possiblePaths = [
+    path.join(os.tmpdir(), "digimart-uploads", asset.storageKey),
+    path.join(process.cwd(), "uploads", asset.storageKey),
+  ];
+
+  let body: Buffer | null = null;
+  for (const p of possiblePaths) {
+    try {
+      body = await fs.readFile(p);
+      if (body) break;
+    } catch {
+      // try next
+    }
+  }
+
+  if (!body) {
+    // 4. Placeholder fallback
+    body = Buffer.from(
+      `DigiMart — ${asset.fileName}\n\nThis is your purchased digital file.\nDownloaded by: ${user.name} <${user.email}>\nGenerated: ${new Date().toISOString()}\n`
+    );
+  }
 
   return new NextResponse(new Uint8Array(body), {
     headers: {

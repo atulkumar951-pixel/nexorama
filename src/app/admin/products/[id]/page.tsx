@@ -7,6 +7,7 @@ import ProductForm from "../product-form";
 import ActionForm from "@/components/ActionForm";
 import { SubmitButton, ConfirmButton } from "@/components/client";
 import {
+  addExternalAssetAction,
   addLectureAction,
   deleteAssetAction,
   deleteLectureAction,
@@ -62,14 +63,15 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
 
       {/* Files */}
       <div className="card mt-8 p-6">
-        <h2 className="text-lg font-bold">📁 Files ({assets.length})</h2>
+        <h2 className="text-lg font-bold">📁 Files & Digital Downloads ({assets.length})</h2>
         <ul className="mt-4 divide-y divide-slate-100 text-sm">
           {assets.map((a) => (
             <li key={a.id} className="flex items-center justify-between gap-3 py-2.5">
               <div>
                 <p className="font-medium">{a.fileName}</p>
                 <p className="text-xs text-slate-500">
-                  {a.fileType.toUpperCase()} · {formatBytes(a.fileSize)} · key: {a.storageKey}
+                  {a.fileType.toUpperCase()} · {a.fileSize > 0 ? formatBytes(a.fileSize) : "Cloud Hosted"}
+                  {a.externalUrl && <span className="ml-2 text-indigo-600 underline">External Link</span>}
                   {a.isPreview && <span className="badge ml-2 bg-emerald-100 text-emerald-700">Preview</span>}
                 </p>
               </div>
@@ -84,17 +86,49 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
           ))}
           {assets.length === 0 && <li className="py-3 text-slate-400">No files uploaded yet.</li>}
         </ul>
-        <div className="mt-4 rounded-lg bg-slate-50 p-4">
-          <ActionForm action={uploadAssetAction} submitLabel="Upload file" className="space-y-3">
-            <input type="hidden" name="productId" value={product.id} />
-            <div>
-              <label className="label">Choose file (pdf, zip, doc, docx, ppt, pptx, xls, xlsx, txt, epub · max 50 MB)</label>
-              <input type="file" name="file" required className="input !p-2" accept=".pdf,.zip,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.epub" />
-            </div>
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" name="isPreview" className="h-4 w-4 rounded" /> Free preview (downloadable without purchase)
-            </label>
-          </ActionForm>
+
+        <div className="mt-6 grid gap-6 md:grid-cols-2">
+          {/* Method 1: Direct File Upload */}
+          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+            <h3 className="text-sm font-semibold text-slate-900">Upload File Directly</h3>
+            <p className="mt-0.5 text-xs text-slate-500">PDF, ZIP, DOCX up to 4.5 MB (stored securely in DB)</p>
+            <ActionForm action={uploadAssetAction} submitLabel="Upload file" className="mt-3 space-y-3">
+              <input type="hidden" name="productId" value={product.id} />
+              <div>
+                <input type="file" name="file" required className="input !p-1.5 text-xs" accept=".pdf,.zip,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.epub" />
+              </div>
+              <label className="flex items-center gap-2 text-xs">
+                <input type="checkbox" name="isPreview" className="h-3.5 w-3.5 rounded" /> Free preview (downloadable without purchase)
+              </label>
+            </ActionForm>
+          </div>
+
+          {/* Method 2: Cloud / External Download Link */}
+          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+            <h3 className="text-sm font-semibold text-slate-900">Add Cloud / Direct Link</h3>
+            <p className="mt-0.5 text-xs text-slate-500">Google Drive, Dropbox, AWS S3, OneDrive, Mega</p>
+            <ActionForm action={addExternalAssetAction} submitLabel="Attach Link" className="mt-3 space-y-2">
+              <input type="hidden" name="productId" value={product.id} />
+              <div>
+                <input name="fileName" required className="input text-xs" placeholder="e.g. Complete Course Material.zip" />
+              </div>
+              <div>
+                <input name="externalUrl" required className="input text-xs" placeholder="https://drive.google.com/uc?id=... or direct link" />
+              </div>
+              <div className="flex gap-2">
+                <select name="fileType" className="input text-xs !py-1">
+                  <option value="zip">ZIP</option>
+                  <option value="pdf">PDF</option>
+                  <option value="docx">DOCX</option>
+                  <option value="epub">EPUB</option>
+                  <option value="other">OTHER</option>
+                </select>
+                <label className="flex items-center gap-1.5 text-xs">
+                  <input type="checkbox" name="isPreview" className="h-3.5 w-3.5 rounded" /> Preview
+                </label>
+              </div>
+            </ActionForm>
+          </div>
         </div>
       </div>
 

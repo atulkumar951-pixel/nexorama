@@ -33,9 +33,17 @@ export default function RegisterPage() {
           </div>
           <SubmitButton className="btn-primary w-full !py-3">Create account</SubmitButton>
         </form>
-        <p className="mt-6 border-t border-slate-100 pt-4 text-center text-sm text-slate-500">
-          Already have an account? <Link href="/login" className="font-semibold text-indigo-600 hover:underline">Sign in</Link>
-        </p>
+        <div className="mt-6 border-t border-slate-100 pt-4 text-center text-sm text-slate-500">
+          <a
+            href="/api/auth/google"
+            className="btn-secondary flex w-full items-center justify-center gap-2 !py-2.5"
+          >
+            <span className="font-bold text-[#4285F4]">G</span> Sign up with Google
+          </a>
+          <p className="mt-4">
+            Already have an account? <Link href="/login" className="font-semibold text-indigo-600 hover:underline">Sign in</Link>
+          </p>
+        </div>
       </div>
     </div>
   );

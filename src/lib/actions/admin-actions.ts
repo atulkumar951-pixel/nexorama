@@ -26,7 +26,9 @@ import { audit, notify, slugify } from "@/lib/helpers";
 
 export type AdminFormState = { error?: string; success?: string };
 
-const UPLOAD_DIR = path.join(process.cwd(), "uploads");
+import os from "os";
+
+const UPLOAD_DIR = path.join(os.tmpdir(), "digimart-uploads");
 const ALLOWED_EXT = ["pdf", "zip", "doc", "docx", "ppt", "pptx", "xls", "xlsx", "txt", "epub"];
 
 // ---------------- Categories ----------------
@@ -43,19 +45,15 @@ export async function saveCategoryAction(_p: AdminFormState, formData: FormData)
     isActive: formData.get("isActive") === "on",
     sortOrder: Number(formData.get("sortOrder") || 0),
   };
-  try {
-    if (id) {
-      await db.update(categories).set(values).where(eq(categories.id, id));
-      await audit(admin, "category.updated", "category", id, name);
-    } else {
-      const [row] = await db.insert(categories).values(values).returning();
-      await audit(admin, "category.created", "category", row.id, name);
-    }
-  } catch {
-    return { error: "Slug already exists. Choose another." };
+  if (id) {
+    await db.update(categories).set(values).where(eq(categories.id, id));
+    await audit(admin, "category.updated", "category", id, name);
+  } else {
+    const [row] = await db.insert(categories).values(values).returning();
+    await audit(admin, "category.created", "category", row.id, name);
   }
   revalidatePath("/admin/categories");
-  revalidatePath("/", "layout");
+  revalidatePath("/categories");
   return { success: "Category saved." };
 }
 
@@ -123,32 +121,83 @@ export async function setProductStatus(productId: number, status: string) {
   revalidatePath("/", "layout");
 }
 
-// ---------------- Assets (file upload) ----------------
+// ---------------- Assets (file upload & cloud link) ----------------
 export async function uploadAssetAction(_p: AdminFormState, formData: FormData): Promise<AdminFormState> {
-  const admin = await requireAdmin();
-  const productId = Number(formData.get("productId") || 0);
-  const file = formData.get("file") as File | null;
-  if (!productId || !file || file.size === 0) return { error: "Please choose a file to upload." };
-  const ext = (file.name.split(".").pop() || "").toLowerCase();
-  if (!ALLOWED_EXT.includes(ext)) return { error: `File type .${ext} is not allowed. Allowed: ${ALLOWED_EXT.join(", ")}` };
-  if (file.size > 50 * 1024 * 1024) return { error: "Maximum file size is 50 MB." };
+  try {
+    const admin = await requireAdmin();
+    const productId = Number(formData.get("productId") || 0);
+    const file = formData.get("file") as File | null;
+    if (!productId || !file || file.size === 0) return { error: "Please choose a file to upload." };
+    const ext = (file.name.split(".").pop() || "").toLowerCase();
+    if (!ALLOWED_EXT.includes(ext)) return { error: `File type .${ext} is not allowed. Allowed: ${ALLOWED_EXT.join(", ")}` };
+    if (file.size > 4.5 * 1024 * 1024) {
+      return { error: "Direct file upload is limited to 4.5 MB on serverless hosting. For larger files, use 'Add Cloud / Download Link' below." };
+    }
 
-  await fs.mkdir(UPLOAD_DIR, { recursive: true });
-  const storageKey = `${crypto.randomBytes(12).toString("hex")}.${ext}`;
-  const buffer = Buffer.from(await file.arrayBuffer());
-  await fs.writeFile(path.join(UPLOAD_DIR, storageKey), buffer);
+    const storageKey = `${crypto.randomBytes(12).toString("hex")}.${ext}`;
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    const base64Data = buffer.toString("base64");
 
-  await db.insert(productAssets).values({
-    productId,
-    fileName: file.name,
-    fileType: ext,
-    fileSize: file.size,
-    storageKey,
-    isPreview: formData.get("isPreview") === "on",
-  });
-  await audit(admin, "file.uploaded", "product", productId, file.name);
-  revalidatePath(`/admin/products/${productId}`);
-  return { success: `Uploaded ${file.name}` };
+    try {
+      await fs.mkdir(UPLOAD_DIR, { recursive: true });
+      await fs.writeFile(path.join(UPLOAD_DIR, storageKey), buffer);
+    } catch {
+      // Ephemeral disk write fallback
+    }
+
+    await db.insert(productAssets).values({
+      productId,
+      fileName: file.name,
+      fileType: ext,
+      fileSize: file.size,
+      storageKey,
+      fileData: base64Data,
+      isPreview: formData.get("isPreview") === "on",
+    });
+    await audit(admin, "file.uploaded", "product", productId, file.name);
+    revalidatePath(`/admin/products/${productId}`);
+    return { success: `Uploaded ${file.name}` };
+  } catch (err: any) {
+    console.error("Upload error:", err);
+    return { error: err?.message || "Failed to upload file. Please try again." };
+  }
+}
+
+export async function addExternalAssetAction(_p: AdminFormState, formData: FormData): Promise<AdminFormState> {
+  try {
+    const admin = await requireAdmin();
+    const productId = Number(formData.get("productId") || 0);
+    const fileName = String(formData.get("fileName") ?? "").trim();
+    const externalUrl = String(formData.get("externalUrl") ?? "").trim();
+    const fileType = String(formData.get("fileType") ?? "zip").toLowerCase().replace(/^\./, "");
+    const isPreview = formData.get("isPreview") === "on";
+
+    if (!productId || !fileName || !externalUrl) {
+      return { error: "File name and direct download URL are required." };
+    }
+    if (!/^https?:\/\//i.test(externalUrl)) {
+      return { error: "URL must start with http:// or https://" };
+    }
+
+    const storageKey = `ext_${crypto.randomBytes(8).toString("hex")}`;
+    await db.insert(productAssets).values({
+      productId,
+      fileName,
+      fileType,
+      fileSize: 0,
+      storageKey,
+      externalUrl,
+      isPreview,
+    });
+
+    await audit(admin, "file.external_linked", "product", productId, fileName);
+    revalidatePath(`/admin/products/${productId}`);
+    return { success: `Attached ${fileName}` };
+  } catch (err: any) {
+    console.error("External asset link error:", err);
+    return { error: err?.message || "Failed to attach external file link." };
+  }
 }
 
 export async function deleteAssetAction(assetId: number, productId: number) {

@@ -30,13 +30,12 @@ function LoginForm() {
           <SubmitButton className="btn-primary w-full !py-3">Sign in</SubmitButton>
         </form>
         <div className="mt-6 border-t border-slate-100 pt-4 text-center text-sm text-slate-500">
-          <button
-            type="button"
-            onClick={() => alert("Google sign-in requires GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET to be configured on the server.")}
-            className="btn-secondary w-full"
+          <a
+            href={`/api/auth/google?next=${encodeURIComponent(next)}`}
+            className="btn-secondary flex w-full items-center justify-center gap-2 !py-2.5"
           >
             <span className="font-bold text-[#4285F4]">G</span> Continue with Google
-          </button>
+          </a>
           <p className="mt-4">
             New here? <Link href="/register" className="font-semibold text-indigo-600 hover:underline">Create an account</Link>
           </p>
