@@ -82,7 +82,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               title={p.title}
               coverImage={p.coverImage}
               productType={p.productType}
-              aspectRatio="aspect-square max-w-xl mx-auto"
+              className="max-w-2xl mx-auto"
             />
           </div>
 
