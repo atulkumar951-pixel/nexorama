@@ -26,7 +26,22 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
   if (!product) notFound();
 
   const [assets, lectures] = await Promise.all([
-    db.select().from(productAssets).where(and(eq(productAssets.productId, product.id), eq(productAssets.status, "ACTIVE"))).orderBy(asc(productAssets.sortOrder)),
+    db
+      .select({
+        id: productAssets.id,
+        productId: productAssets.productId,
+        fileName: productAssets.fileName,
+        fileType: productAssets.fileType,
+        fileSize: productAssets.fileSize,
+        storageKey: productAssets.storageKey,
+        externalUrl: productAssets.externalUrl,
+        isPreview: productAssets.isPreview,
+        sortOrder: productAssets.sortOrder,
+        status: productAssets.status,
+      })
+      .from(productAssets)
+      .where(and(eq(productAssets.productId, product.id), eq(productAssets.status, "ACTIVE")))
+      .orderBy(asc(productAssets.sortOrder)),
     db.select().from(productLectures).where(eq(productLectures.productId, product.id)).orderBy(asc(productLectures.sortOrder), asc(productLectures.id)),
   ]);
 

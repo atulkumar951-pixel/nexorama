@@ -33,8 +33,9 @@ export default function Footer() {
           </ul>
         </div>
         <div>
-          <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-white">Legal</p>
+          <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-white">Support &amp; Legal</p>
           <ul className="space-y-2 text-sm">
+            <li><Link href="/contact" className="flex items-center gap-1.5 font-semibold text-emerald-400 hover:text-emerald-300">✉ Contact Us</Link></li>
             <li><Link href="/terms" className="hover:text-white">Terms &amp; Conditions</Link></li>
             <li><Link href="/privacy" className="hover:text-white">Privacy Policy</Link></li>
             <li><Link href="/refund-policy" className="hover:text-white">Refund Policy</Link></li>

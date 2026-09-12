@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { cache } from "react";
 import { db } from "@/db";
 import { categories, productAssets, productLectures, products, wishlistItems } from "@/db/schema";
 import { and, asc, eq, ne } from "drizzle-orm";
@@ -12,11 +13,23 @@ import { DownloadButton, SubmitButton } from "@/components/client";
 import { addToCart, toggleWishlist } from "@/lib/actions/shop-actions";
 import type { Metadata } from "next";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
+
+// Deduplicate product lookup between generateMetadata and ProductDetailPage
+const getProductBySlug = cache(async (slug: string) => {
+  const [row] = await db
+    .select({ product: products, categoryName: categories.name, categorySlug: categories.slug })
+    .from(products)
+    .leftJoin(categories, eq(products.categoryId, categories.id))
+    .where(eq(products.slug, slug))
+    .limit(1);
+  return row ?? null;
+});
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const [p] = await db.select().from(products).where(eq(products.slug, slug)).limit(1);
+  const row = await getProductBySlug(slug);
+  const p = row?.product;
   if (!p) return { title: "Product not found" };
   return {
     title: p.title,
@@ -27,34 +40,57 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const [row] = await db
-    .select({ product: products, categoryName: categories.name, categorySlug: categories.slug })
-    .from(products)
-    .leftJoin(categories, eq(products.categoryId, categories.id))
-    .where(eq(products.slug, slug))
-    .limit(1);
+  const row = await getProductBySlug(slug);
   if (!row || row.product.status !== "PUBLISHED") notFound();
   const p = row.product;
 
   const user = await getCurrentUser();
-  const [assets, lectures, grant, wish] = await Promise.all([
-    db.select().from(productAssets).where(and(eq(productAssets.productId, p.id), eq(productAssets.status, "ACTIVE"))).orderBy(asc(productAssets.sortOrder)),
-    db.select().from(productLectures).where(eq(productLectures.productId, p.id)).orderBy(asc(productLectures.sortOrder), asc(productLectures.id)),
+
+  // Run all secondary queries in parallel with explicit column projection (omitting large fileData base64)
+  const [assets, lectures, grant, wish, related] = await Promise.all([
+    db
+      .select({
+        id: productAssets.id,
+        productId: productAssets.productId,
+        fileName: productAssets.fileName,
+        fileType: productAssets.fileType,
+        fileSize: productAssets.fileSize,
+        storageKey: productAssets.storageKey,
+        externalUrl: productAssets.externalUrl,
+        isPreview: productAssets.isPreview,
+        sortOrder: productAssets.sortOrder,
+        status: productAssets.status,
+      })
+      .from(productAssets)
+      .where(and(eq(productAssets.productId, p.id), eq(productAssets.status, "ACTIVE")))
+      .orderBy(asc(productAssets.sortOrder)),
+
+    db
+      .select()
+      .from(productLectures)
+      .where(eq(productLectures.productId, p.id))
+      .orderBy(asc(productLectures.sortOrder), asc(productLectures.id)),
+
     user ? getActiveGrant(user.id, p.id) : Promise.resolve(null),
+
     user
-      ? db.select().from(wishlistItems).where(and(eq(wishlistItems.userId, user.id), eq(wishlistItems.productId, p.id))).limit(1)
+      ? db
+          .select({ id: wishlistItems.id })
+          .from(wishlistItems)
+          .where(and(eq(wishlistItems.userId, user.id), eq(wishlistItems.productId, p.id)))
+          .limit(1)
+      : Promise.resolve([]),
+
+    p.categoryId
+      ? db
+          .select({ product: products, categoryName: categories.name })
+          .from(products)
+          .leftJoin(categories, eq(products.categoryId, categories.id))
+          .where(and(eq(products.categoryId, p.categoryId), eq(products.status, "PUBLISHED"), ne(products.id, p.id)))
+          .limit(4)
       : Promise.resolve([]),
   ]);
   const inWishlist = wish.length > 0;
-
-  const related = p.categoryId
-    ? await db
-        .select({ product: products, categoryName: categories.name })
-        .from(products)
-        .leftJoin(categories, eq(products.categoryId, categories.id))
-        .where(and(eq(products.categoryId, p.categoryId), eq(products.status, "PUBLISHED"), ne(products.id, p.id)))
-        .limit(4)
-    : [];
 
   const final = p.isFree ? 0 : p.salePrice !== null && p.salePrice < p.price ? p.salePrice : p.price;
   const hasDiscount = !p.isFree && p.salePrice !== null && p.salePrice < p.price;
