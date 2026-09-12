@@ -34,3 +34,7 @@ next-env.d.ts
 # OS generated files
 .DS_Store
 Thumbs.db
+
+# Database backups
+backup/
+*.dump
