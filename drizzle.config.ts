@@ -3,11 +3,13 @@ import type { Config } from "drizzle-kit";
 
 config({ path: ".env.local" });
 
+const dbUrl = (process.env.DATABASE_URL || "").replace(":6543/", ":5432/");
+
 export default {
   dialect: "postgresql",
   schema: "./src/db/schema.ts",
   dbCredentials: {
-    url: process.env.DATABASE_URL!,
-    ssl: true,
+    url: dbUrl,
+    ssl: { rejectUnauthorized: false },
   },
 } satisfies Config;

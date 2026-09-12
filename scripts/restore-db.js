@@ -3,17 +3,37 @@ const fs = require("fs");
 const path = require("path");
 require("dotenv").config({ path: path.join(__dirname, "../.env.local") });
 
-const databaseUrl = process.env.DATABASE_URL;
+async function getClient() {
+  const base = process.env.DATABASE_URL || "";
+  if (!base) {
+    throw new Error("DATABASE_URL is not set in .env.local");
+  }
 
-if (!databaseUrl) {
-  console.error("❌ DATABASE_URL is not set in .env.local");
-  process.exit(1);
+  // Try ports 5432 (session pooler) and 6543 (transaction pooler)
+  const candidateUrls = [
+    base.replace(":6543/", ":5432/").replace(/[\?&]sslmode=[^&]+/, ""),
+    base.replace(/[\?&]sslmode=[^&]+/, ""),
+  ];
+
+  for (const url of candidateUrls) {
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        console.log(`🔌 Connecting (attempt ${attempt})...`);
+        const client = new Client({
+          connectionString: url,
+          ssl: { rejectUnauthorized: false },
+          connectionTimeoutMillis: 10000,
+        });
+        await client.connect();
+        return client;
+      } catch (err) {
+        console.warn(`Attempt ${attempt} error:`, err.message);
+        await new Promise((r) => setTimeout(r, 1000));
+      }
+    }
+  }
+  throw new Error("Failed to connect after multiple attempts.");
 }
-
-const client = new Client({
-  connectionString: databaseUrl,
-  ssl: { rejectUnauthorized: false },
-});
 
 async function restoreDatabase() {
   const sqlPath = path.join(__dirname, "../backup/nexora_backup.sql");
@@ -24,17 +44,15 @@ async function restoreDatabase() {
 
   const sqlContent = fs.readFileSync(sqlPath, "utf8");
 
-  console.log("🔌 Connecting to target database...");
-  await client.connect();
-  console.log("✅ Connected successfully.");
+  const client = await getClient();
+  console.log("✅ Connected to Supabase target database.");
 
-  console.log("⏳ Restoring data from nexora_backup.sql...");
+  console.log("⏳ Restoring all records from nexora_backup.sql...");
   await client.query(sqlContent);
-
   console.log("✅ SQL restoration executed successfully.");
 
   // Verify counts in target database
-  console.log("\n📊 Verifying restored tables:");
+  console.log("\n📊 Verifying restored tables in Supabase:");
   const tables = [
     "users",
     "categories",
@@ -48,18 +66,25 @@ async function restoreDatabase() {
     "downloads",
     "notifications",
     "audit_logs",
+    "lecture_progress",
   ];
 
+  let totalRestored = 0;
   for (const table of tables) {
     try {
       const res = await client.query(`SELECT COUNT(*)::int as count FROM "${table}"`);
-      console.log(`  ✔ "${table}": ${res.rows[0].count} records`);
-    } catch {
-      // ignore missing optional tables
+      const cnt = res.rows[0].count;
+      totalRestored += cnt;
+      console.log(`  ✔ "${table}": ${cnt} records`);
+    } catch (e) {
+      console.warn(`  ⚠ "${table}": ${e.message}`);
     }
   }
 
-  console.log("\n🎉 RESTORATION COMPLETE! Zero data loss.\n");
+  console.log(`\n=========================================`);
+  console.log(`🎉 RESTORATION COMPLETE! Total restored: ${totalRestored} records.`);
+  console.log(`=========================================\n`);
+
   await client.end();
 }
 
