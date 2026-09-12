@@ -38,7 +38,7 @@ const PAGES: Record<string, { title: string; body: string[] }> = {
   contact: {
     title: "Contact Us",
     body: [
-      "Support email: support@nexora.in",
+      "Support email: r22541873@gmail.com",
       "For order issues, include your order number and registered email address.",
       "Business hours: Monday–Saturday, 10:00–18:00 IST.",
     ],

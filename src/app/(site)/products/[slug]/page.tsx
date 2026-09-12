@@ -118,7 +118,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               title={p.title}
               coverImage={p.coverImage}
               productType={p.productType}
-              className="max-w-2xl mx-auto"
+              className="mx-auto"
             />
           </div>
 

@@ -12,7 +12,7 @@ export default function ContactPage() {
   const [message, setMessage] = useState("");
   const [isSent, setIsSent] = useState(false);
 
-  const supportEmail = "support@nexora.in";
+  const supportEmail = "r22541873@gmail.com";
 
   const handleCopyEmail = async () => {
     try {
