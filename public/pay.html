@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexoraMart - Secure Payment Gateway</title>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background:#0f172a; color:#f8fafc; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:16px; }
+        .card { background:#1e293b; border:1px solid #334155; border-radius:18px; max-width:440px; width:100%; padding:28px; box-shadow:0 20px 40px rgba(0,0,0,0.5); text-align:center; }
+        .logo-badge { display:inline-flex; align-items:center; gap:8px; background:rgba(99,102,241,0.15); color:#818cf8; padding:6px 14px; border-radius:20px; font-size:12px; font-weight:700; margin-bottom:16px; border:1px solid rgba(99,102,241,0.3); }
+        .amount-display { font-size:36px; font-weight:900; color:#fff; margin:12px 0; }
+        .desc { font-size:13px; color:#94a3b8; margin-bottom:24px; }
+        .btn-pay { width:100%; padding:15px; background:linear-gradient(135deg, #6366f1, #4f46e5); color:#fff; border:none; border-radius:12px; font-size:15px; font-weight:800; cursor:pointer; box-shadow:0 8px 24px rgba(99,102,241,0.4); transition:all 0.2s; }
+        .btn-pay:hover { opacity:0.95; transform:translateY(-1px); }
+        .status-box { padding:14px; border-radius:12px; font-size:13px; margin:16px 0; display:none; }
+        .status-box.success { background:rgba(16,185,129,0.15); color:#34d399; border:1px solid rgba(16,185,129,0.3); display:block; }
+        .status-box.error { background:rgba(239,68,68,0.15); color:#f87171; border:1px solid rgba(239,68,68,0.3); display:block; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="logo-badge">⚡ NexoraMart Merchant Bridge</div>
+        <div style="font-size:12px; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;">Amount to Pay</div>
+        <div class="amount-display" id="displayAmount">₹0.00</div>
+        <div class="desc" id="displayPurpose">Secure Payment Gateway</div>
+
+        <div id="statusBox" class="status-box"></div>
+
+        <button id="btnPay" class="btn-pay" onclick="launchRazorpay()">
+            ⚡ Pay with Razorpay
+        </button>
+        <div style="font-size:11px; color:#64748b; margin-top:16px;">
+            🔒 256-bit encrypted official Razorpay checkout
+        </div>
+    </div>
+
+    <script>
+        let paymentData = null;
+
+        function initFromToken() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            if (!token) {
+                showStatus("No payment token provided.", "error");
+                document.getElementById('btnPay').disabled = true;
+                return;
+            }
+            try {
+                const jsonStr = atob(token.replace(/-/g, '+').replace(/_/g, '/'));
+                paymentData = JSON.parse(jsonStr);
+                document.getElementById('displayAmount').textContent = '₹' + Number(paymentData.amount).toFixed(2);
+                if (paymentData.purpose) {
+                    document.getElementById('displayPurpose').textContent = paymentData.purpose;
+                }
+                setTimeout(launchRazorpay, 500);
+            } catch (err) {
+                showStatus("Invalid payment token.", "error");
+            }
+        }
+
+        function showStatus(msg, type) {
+            const el = document.getElementById('statusBox');
+            el.className = 'status-box ' + type;
+            el.textContent = msg;
+        }
+
+        function launchRazorpay() {
+            if (!paymentData) return;
+            const options = {
+                key: paymentData.keyId,
+                amount: paymentData.amountPaise,
+                currency: paymentData.currency || "INR",
+                name: "NexoraMart / ShareX",
+                description: paymentData.purpose || "Payment",
+                order_id: paymentData.razorpayOrderId,
+                prefill: {
+                    name: paymentData.customer?.name || "",
+                    contact: paymentData.customer?.contact || "",
+                    email: paymentData.customer?.email || ""
+                },
+                theme: { color: "#6366f1" },
+                handler: async function (response) {
+                    showStatus("Verifying payment with server...", "success");
+                    try {
+                        const verifyRes = await fetch("/api/payment/verify", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                transactionId: paymentData.transactionId,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_order_id: response.razorpay_order_id || paymentData.razorpayOrderId,
+                                razorpay_signature: response.razorpay_signature,
+                                amountPaise: paymentData.amountPaise,
+                                callbackUrl: paymentData.callbackUrl
+                            })
+                        });
+                        if (verifyRes.ok) {
+                            showStatus("✅ Payment Successful! Your order has been activated.", "success");
+                            document.getElementById('btnPay').style.display = 'none';
+                            setTimeout(() => { window.close(); }, 2500);
+                        } else {
+                            showStatus("Payment received. Processing verification...", "success");
+                        }
+                    } catch (e) {
+                        showStatus("Payment captured. Updating status...", "success");
+                    }
+                }
+            };
+            const rzp = new Razorpay(options);
+            rzp.open();
+        }
+
+        window.onload = initFromToken;
+    </script>
+</body>
+</html>
