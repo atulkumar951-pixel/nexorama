@@ -20,11 +20,20 @@ export function statusBadgeClass(status: string) {
     case "CAPTURED":
     case "ACTIVE":
     case "PUBLISHED":
+    case "AVAILABLE":
+    case "SENT":
       return "bg-emerald-100 text-emerald-700";
     case "PENDING":
     case "CREATED":
     case "DRAFT":
       return "bg-amber-100 text-amber-700";
+    case "RESERVED":
+      return "bg-violet-100 text-violet-700";
+    case "ASSIGNED":
+    case "PROCESSING":
+      return "bg-blue-100 text-blue-700";
+    case "MANUAL_REVIEW":
+      return "bg-orange-100 text-orange-700";
     case "FAILED":
     case "CANCELLED":
     case "REVOKED":
@@ -36,6 +45,7 @@ export function statusBadgeClass(status: string) {
     case "EXPIRED":
     case "UNPUBLISHED":
     case "ARCHIVED":
+    case "REPLACED":
       return "bg-slate-200 text-slate-600";
     default:
       return "bg-indigo-100 text-indigo-700";

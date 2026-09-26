@@ -12,6 +12,7 @@ const NAV = [
   { href: "/nexora/payments", label: "Payments", icon: "💳" },
   { href: "/nexora/users", label: "Users", icon: "👥" },
   { href: "/nexora/coupons", label: "Coupons", icon: "🏷️" },
+  { href: "/nexora/gift-cards", label: "Gift Codes", icon: "🎁" },
   { href: "/nexora/banners", label: "Banners", icon: "🖼️" },
   { href: "/nexora/notifications", label: "Notifications", icon: "🔔" },
   { href: "/nexora/audit-logs", label: "Audit Logs", icon: "🛡️" },
