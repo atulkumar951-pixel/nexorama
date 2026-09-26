@@ -1,0 +1,1055 @@
+// ============================================================
+// Digital Products & Learning Marketplace — Prisma Schema
+// Version 1.0
+// PostgreSQL
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// ENUMS
+// ============================================================
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  BANNED
+  PENDING_VERIFICATION
+  DELETED
+}
+
+enum AuthProvider {
+  EMAIL
+  GOOGLE
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+  CONTENT_MANAGER
+  SUPPORT
+}
+
+enum ProductType {
+  PDF
+  ZIP
+  DOCUMENT
+  EBOOK
+  PLAYLIST
+  BUNDLE
+}
+
+enum ProductStatus {
+  DRAFT
+  PUBLISHED
+  UNPUBLISHED
+  ARCHIVED
+}
+
+enum AssetStatus {
+  ACTIVE
+  REPLACED
+  DELETED
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PROCESSING
+  COMPLETED
+  CANCELLED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum PaymentStatus {
+  CREATED
+  PENDING
+  AUTHORIZED
+  CAPTURED
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+  CANCELLED
+}
+
+enum RefundStatus {
+  INITIATED
+  PROCESSED
+  FAILED
+}
+
+enum AccessGrantStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+  REFUNDED
+}
+
+enum DownloadStatus {
+  PENDING
+  COMPLETED
+  EXPIRED
+  FAILED
+  BLOCKED
+}
+
+enum CouponType {
+  PERCENTAGE
+  FIXED
+}
+
+enum CouponStatus {
+  ACTIVE
+  INACTIVE
+  EXPIRED
+}
+
+enum NotificationType {
+  ACCOUNT
+  PURCHASE
+  CONTENT
+  REFUND
+  PROMOTIONAL
+  SYSTEM
+}
+
+enum BannerPosition {
+  HERO
+  PROMOTIONAL
+  CATEGORY
+  CAMPAIGN
+}
+
+enum BannerStatus {
+  ACTIVE
+  INACTIVE
+}
+
+/// Which marketplace a banner belongs to (PRD §53).
+enum BannerAudience {
+  DIGITAL
+  GIFT_CODES
+  BOTH
+}
+
+enum VerificationPurpose {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+}
+
+// ============================================================
+// GIFT CODES MODE (extended feature — non-destructive add-on)
+// ============================================================
+
+enum MarketplaceMode {
+  DIGITAL
+  GIFT_CODES
+}
+
+enum OrderType {
+  DIGITAL_PRODUCT
+  GIFT_CODE
+}
+
+enum OrderItemType {
+  DIGITAL_PRODUCT
+  GIFT_CODE
+}
+
+enum GiftCategoryStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum GiftProductStatus {
+  DRAFT
+  PUBLISHED
+  UNPUBLISHED
+  ARCHIVED
+}
+
+enum GiftCodeStatus {
+  AVAILABLE
+  RESERVED
+  ASSIGNED
+  SOLD
+  EXPIRED
+  CANCELLED
+}
+
+enum GiftReservationStatus {
+  ACTIVE
+  EXPIRED
+  CONVERTED
+  CANCELLED
+}
+
+enum GiftDeliveryStatus {
+  PENDING
+  ASSIGNED
+  PROCESSING
+  SENT
+  FAILED
+  REPLACED
+  CANCELLED
+  MANUAL_REVIEW
+}
+
+enum AuditAction {
+  PRODUCT_CREATED
+  PRODUCT_UPDATED
+  PRODUCT_DELETED
+  PRODUCT_ARCHIVED
+  PRODUCT_PUBLISHED
+  PRODUCT_UNPUBLISHED
+  PRODUCT_PRICE_CHANGED
+  FILE_UPLOADED
+  FILE_REPLACED
+  FILE_DELETED
+  CATEGORY_CREATED
+  CATEGORY_UPDATED
+  CATEGORY_DELETED
+  USER_SUSPENDED
+  USER_RESTORED
+  USER_BANNED
+  USER_DELETED
+  ACCESS_GRANTED
+  ACCESS_REVOKED
+  ACCESS_EXTENDED
+  ACCESS_RESTORED
+  COUPON_CREATED
+  COUPON_UPDATED
+  COUPON_DELETED
+  REFUND_ISSUED
+  REFUND_FAILED
+  ADMIN_CREATED
+  ADMIN_UPDATED
+  ADMIN_ROLE_CHANGED
+  ADMIN_DELETED
+  SETTING_CHANGED
+  BANNER_CREATED
+  BANNER_UPDATED
+  BANNER_DELETED
+  NOTIFICATION_SENT
+
+  // Gift Codes Mode audit events
+  GIFT_PRODUCT_CREATED
+  GIFT_PRODUCT_UPDATED
+  GIFT_PRODUCT_PUBLISHED
+  GIFT_PRODUCT_UNPUBLISHED
+  GIFT_CATEGORY_CREATED
+  GIFT_CATEGORY_UPDATED
+  GIFT_CATEGORY_DELETED
+  GIFT_CODE_IMPORTED
+  GIFT_CODE_VIEWED
+  GIFT_CODE_ASSIGNED
+  GIFT_CODE_REPLACED
+  GIFT_CODE_CANCELLED
+  GIFT_ORDER_CREATED
+  GIFT_ORDER_PAID
+  GIFT_DELIVERY_MARKED_SENT
+  GIFT_MODE_ENABLED
+  GIFT_MODE_DISABLED
+  GIFT_PRICE_CHANGED
+  GIFT_STOCK_CHANGED
+  GIFT_SETTING_CHANGED
+  GIFT_REFUND_OVERRIDE
+}
+
+// ============================================================
+// AUTH / USERS
+// ============================================================
+
+model User {
+  id            String       @id @default(cuid())
+  name          String
+  email         String       @unique
+  passwordHash  String?
+  profileImage  String?
+  phone         String?
+  emailVerified Boolean      @default(false)
+  status        UserStatus   @default(PENDING_VERIFICATION)
+  authProvider  AuthProvider @default(EMAIL)
+  googleId      String?      @unique
+  lastLoginAt   DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  accounts          Account[]
+  sessions          Session[]
+  orders            Order[]
+  payments          Payment[]
+  accessGrants      AccessGrant[]
+  downloads         Download[]
+  wishlistItems     WishlistItem[]
+  cartItems         CartItem[]
+  notifications     Notification[]
+  couponRedemptions CouponRedemption[]
+  lectureProgress   LectureProgress[]
+  giftCartItems     GiftCartItem[]
+  giftReservations  GiftCodeReservation[]
+
+  @@index([email])
+  @@index([status])
+  @@map("users")
+}
+
+model Account {
+  id         String   @id @default(cuid())
+  userId     String
+  provider   String
+  providerId String?
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerId])
+  @@map("accounts")
+}
+
+model Session {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  userAgent String?
+  ipAddress String?
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+  revokedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+model VerificationToken {
+  id         String              @id @default(cuid())
+  identifier String
+  token      String              @unique
+  purpose    VerificationPurpose
+  expiresAt  DateTime
+  usedAt     DateTime?
+  createdAt  DateTime            @default(now())
+
+  @@index([identifier, purpose])
+  @@map("verification_tokens")
+}
+
+// ============================================================
+// ADMINS
+// ============================================================
+
+model Admin {
+  id           String    @id @default(cuid())
+  name         String
+  email        String    @unique
+  passwordHash String
+  role         AdminRole @default(SUPPORT)
+  isActive     Boolean   @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  auditLogs          AuditLog[]         @relation("AuditActor")
+  refunds            Refund[]
+  giftDeliveriesSent GiftCodeDelivery[] @relation("GiftDeliveryAdmin")
+  giftCodeViews      GiftCode[]         @relation("GiftCodeViewer")
+
+  @@map("admins")
+}
+
+// ============================================================
+// CATALOG
+// ============================================================
+
+model Category {
+  id             String   @id @default(cuid())
+  name           String
+  slug           String   @unique
+  description    String?
+  image          String?
+  parentId       String?
+  isVisible      Boolean  @default(true)
+  sortOrder      Int      @default(0)
+  seoTitle       String?
+  seoDescription String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  parent   Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children Category[] @relation("CategoryTree")
+  products Product[]
+
+  @@index([slug])
+  @@index([parentId])
+  @@map("categories")
+}
+
+model Product {
+  id                 String        @id @default(cuid())
+  title              String
+  slug               String        @unique
+  shortDescription   String?
+  description        String?
+  categoryId         String?
+  productType        ProductType
+  coverImage         String?
+  price              Decimal       @default(0) @db.Decimal(10, 2)
+  salePrice          Decimal?      @db.Decimal(10, 2)
+  isFree             Boolean       @default(false)
+  status             ProductStatus @default(DRAFT)
+  isFeatured         Boolean       @default(false)
+  downloadLimit      Int?
+  accessDurationDays Int?
+  salesActive        Boolean       @default(true)
+  downloadsActive    Boolean       @default(true)
+  lecturesActive     Boolean       @default(true)
+  viewCount          Int           @default(0)
+  salesCount         Int           @default(0)
+  seoTitle           String?
+  seoDescription     String?
+  ogImage            String?
+  faq                Json?
+  contentSource      String?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  publishedAt        DateTime?
+
+  category      Category?           @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  assets        ProductAsset[]
+  chapters      ProductChapter[]
+  lectures      ProductLecture[]
+  bundleItems   ProductBundleItem[] @relation("BundleParent")
+  partOfBundles ProductBundleItem[] @relation("BundleChild")
+  orderItems    OrderItem[]
+  accessGrants  AccessGrant[]
+  downloads     Download[]
+  wishlistItems WishlistItem[]
+  cartItems     CartItem[]
+  couponScopes  CouponScope[]
+
+  @@index([slug])
+  @@index([status])
+  @@index([categoryId])
+  @@index([productType])
+  @@map("products")
+}
+
+model ProductAsset {
+  id            String      @id @default(cuid())
+  productId     String
+  fileName      String
+  fileType      String
+  fileSize      Int
+  storageKey    String
+  downloadLimit Int?
+  sortOrder     Int         @default(0)
+  isPreview     Boolean     @default(false)
+  status        AssetStatus @default(ACTIVE)
+  version       Int         @default(1)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  product   Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  downloads Download[]
+
+  @@index([productId])
+  @@map("product_assets")
+}
+
+model ProductChapter {
+  id        String   @id @default(cuid())
+  productId String
+  title     String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  product  Product          @relation(fields: [productId], references: [id], onDelete: Cascade)
+  lectures ProductLecture[]
+
+  @@index([productId])
+  @@map("product_chapters")
+}
+
+model ProductLecture {
+  id          String   @id @default(cuid())
+  productId   String
+  chapterId   String?
+  title       String
+  description String?
+  externalUrl String
+  provider    String   @default("youtube")
+  duration    Int?
+  thumbnail   String?
+  sortOrder   Int      @default(0)
+  isPreview   Boolean  @default(false)
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  product  Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
+  chapter  ProductChapter?   @relation(fields: [chapterId], references: [id], onDelete: SetNull)
+  progress LectureProgress[]
+
+  @@index([productId])
+  @@index([chapterId])
+  @@map("product_lectures")
+}
+
+model ProductBundleItem {
+  id             String @id @default(cuid())
+  bundleId       String
+  childProductId String
+
+  bundle Product @relation("BundleParent", fields: [bundleId], references: [id], onDelete: Cascade)
+  child  Product @relation("BundleChild", fields: [childProductId], references: [id], onDelete: Cascade)
+
+  @@unique([bundleId, childProductId])
+  @@index([childProductId])
+  @@map("product_bundle_items")
+}
+
+// ============================================================
+// COMMERCE
+// ============================================================
+
+model Order {
+  id             String      @id @default(cuid())
+  orderNumber    String      @unique
+  userId         String
+  orderType      OrderType   @default(DIGITAL_PRODUCT)
+  emailSnapshot  String?
+  subtotal       Decimal     @db.Decimal(10, 2)
+  discount       Decimal     @default(0) @db.Decimal(10, 2)
+  couponDiscount Decimal     @default(0) @db.Decimal(10, 2)
+  tax            Decimal     @default(0) @db.Decimal(10, 2)
+  total          Decimal     @db.Decimal(10, 2)
+  currency       String      @default("INR")
+  status         OrderStatus @default(PENDING)
+  paidAt         DateTime?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  user             User               @relation(fields: [userId], references: [id])
+  items            OrderItem[]
+  payments         Payment[]
+  refunds          Refund[]
+  couponRedemption CouponRedemption?
+  giftDeliveries   GiftCodeDelivery[]
+  giftCodes        GiftCode[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([orderNumber])
+  @@index([orderType])
+  @@map("orders")
+}
+
+model OrderItem {
+  id            String        @id @default(cuid())
+  orderId       String
+  productId     String?
+  giftProductId String?
+  itemType      OrderItemType @default(DIGITAL_PRODUCT)
+  title         String
+  denomination  Decimal?      @db.Decimal(10, 2)
+  unitPrice     Decimal       @db.Decimal(10, 2)
+  quantity      Int           @default(1)
+  totalPrice    Decimal       @default(0) @db.Decimal(10, 2)
+
+  order       Order              @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product     Product?           @relation(fields: [productId], references: [id])
+  giftProduct GiftProduct?       @relation(fields: [giftProductId], references: [id])
+  deliveries  GiftCodeDelivery[]
+
+  @@index([orderId])
+  @@index([productId])
+  @@index([giftProductId])
+  @@map("order_items")
+}
+
+model Payment {
+  id                String        @id @default(cuid())
+  orderId           String
+  userId            String
+  razorpayOrderId   String
+  razorpayPaymentId String?       @unique
+  razorpaySignature String?
+  amount            Decimal       @db.Decimal(10, 2)
+  currency          String        @default("INR")
+  status            PaymentStatus @default(CREATED)
+  method            String?
+  failureReason     String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  order   Order    @relation(fields: [orderId], references: [id])
+  user    User     @relation(fields: [userId], references: [id])
+  refunds Refund[]
+
+  @@unique([orderId, razorpayOrderId])
+  @@index([userId])
+  @@index([status])
+  @@map("payments")
+}
+
+model Refund {
+  id                 String       @id @default(cuid())
+  paymentId          String
+  orderId            String
+  amount             Decimal      @db.Decimal(10, 2)
+  reason             String?
+  status             RefundStatus @default(INITIATED)
+  razorpayRefundId   String?
+  revokeAccess       Boolean      @default(true)
+  processedByAdminId String?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+
+  payment     Payment @relation(fields: [paymentId], references: [id])
+  order       Order   @relation(fields: [orderId], references: [id])
+  processedBy Admin?  @relation(fields: [processedByAdminId], references: [id])
+
+  @@index([orderId])
+  @@index([paymentId])
+  @@map("refunds")
+}
+
+model Coupon {
+  id              String       @id @default(cuid())
+  code            String       @unique
+  description     String?
+  type            CouponType
+  value           Decimal      @db.Decimal(10, 2)
+  minimumOrder    Decimal      @default(0) @db.Decimal(10, 2)
+  maximumDiscount Decimal?     @db.Decimal(10, 2)
+  usageLimit      Int?
+  perUserLimit    Int?
+  usedCount       Int          @default(0)
+  startsAt        DateTime?
+  expiresAt       DateTime?
+  status          CouponStatus @default(ACTIVE)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  scopes      CouponScope[]
+  redemptions CouponRedemption[]
+
+  @@index([code])
+  @@map("coupons")
+}
+
+model CouponScope {
+  id        String  @id @default(cuid())
+  couponId  String
+  productId String?
+
+  coupon  Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  product Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([couponId, productId])
+  @@map("coupon_scopes")
+}
+
+model CouponRedemption {
+  id        String   @id @default(cuid())
+  couponId  String
+  userId    String
+  orderId   String   @unique
+  createdAt DateTime @default(now())
+
+  coupon Coupon @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id])
+  order  Order  @relation(fields: [orderId], references: [id])
+
+  @@unique([couponId, userId, orderId])
+  @@index([couponId, userId])
+  @@map("coupon_redemptions")
+}
+
+// ============================================================
+// ACCESS / LIBRARY
+// ============================================================
+
+model AccessGrant {
+  id        String            @id @default(cuid())
+  userId    String
+  productId String
+  orderId   String?
+  status    AccessGrantStatus @default(ACTIVE)
+  grantedAt DateTime          @default(now())
+  expiresAt DateTime?
+  revokedAt DateTime?
+  reason    String?
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  user      User       @relation(fields: [userId], references: [id])
+  product   Product    @relation(fields: [productId], references: [id])
+  downloads Download[]
+
+  @@unique([userId, productId, orderId])
+  @@index([userId, status])
+  @@index([productId])
+  @@map("access_grants")
+}
+
+model Download {
+  id             String         @id @default(cuid())
+  userId         String
+  productId      String
+  assetId        String
+  accessGrantId  String?
+  downloadNumber Int
+  token          String?        @unique
+  tokenExpiresAt DateTime?
+  status         DownloadStatus @default(PENDING)
+  ipAddress      String?
+  userAgent      String?
+  requestedAt    DateTime       @default(now())
+  completedAt    DateTime?
+
+  user        User         @relation(fields: [userId], references: [id])
+  product     Product      @relation(fields: [productId], references: [id])
+  asset       ProductAsset @relation(fields: [assetId], references: [id])
+  accessGrant AccessGrant? @relation(fields: [accessGrantId], references: [id])
+
+  @@index([userId])
+  @@index([assetId])
+  @@index([productId])
+  @@map("downloads")
+}
+
+model LectureProgress {
+  id                String   @id @default(cuid())
+  userId            String
+  lectureId         String
+  startedAt         DateTime @default(now())
+  lastPositionSec   Int      @default(0)
+  completed         Boolean  @default(false)
+  completionPercent Int      @default(0)
+  updatedAt         DateTime @updatedAt
+
+  user    User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lecture ProductLecture @relation(fields: [lectureId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lectureId])
+  @@map("lecture_progress")
+}
+
+// ============================================================
+// ENGAGEMENT
+// ============================================================
+
+model WishlistItem {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@map("wishlist_items")
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@map("cart_items")
+}
+
+// ============================================================
+// NOTIFICATIONS
+// ============================================================
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  type      NotificationType @default(SYSTEM)
+  link      String?
+  emailSent Boolean          @default(false)
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt])
+  @@map("notifications")
+}
+
+// ============================================================
+// MARKETING
+// ============================================================
+
+model Banner {
+  id         String         @id @default(cuid())
+  title      String
+  subtitle   String?
+  image      String?
+  buttonText String?
+  buttonUrl  String?
+  position   BannerPosition @default(HERO)
+  audience   BannerAudience @default(BOTH)
+  status     BannerStatus   @default(ACTIVE)
+  priority   Int            @default(0)
+  startsAt   DateTime?
+  endsAt     DateTime?
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  @@index([position, status])
+  @@index([audience, status])
+  @@map("banners")
+}
+
+// ============================================================
+// AUDIT / SETTINGS
+// ============================================================
+
+model AuditLog {
+  id           String      @id @default(cuid())
+  actorAdminId String?
+  actorEmail   String?
+  action       AuditAction
+  targetType   String
+  targetId     String?
+  description  String?
+  oldValue     Json?
+  newValue     Json?
+  ipAddress    String?
+  userAgent    String?
+  createdAt    DateTime    @default(now())
+
+  actor Admin? @relation("AuditActor", fields: [actorAdminId], references: [id], onDelete: SetNull)
+
+  @@index([actorAdminId])
+  @@index([action])
+  @@index([targetType, targetId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model Setting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+
+  @@map("settings")
+}
+
+// ============================================================
+// GIFT CODES MODE — catalog, inventory, reservations, delivery
+// ============================================================
+
+model GiftCategory {
+  id          String             @id @default(cuid())
+  name        String
+  slug        String             @unique
+  description String?
+  image       String?
+  icon        String?
+  status      GiftCategoryStatus @default(ACTIVE)
+  sortOrder   Int                @default(0)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  products GiftProduct[]
+
+  @@index([slug])
+  @@index([status])
+  @@map("gift_categories")
+}
+
+model GiftProduct {
+  id                String            @id @default(cuid())
+  categoryId        String?
+  brandName         String
+  name              String
+  slug              String            @unique
+  description       String?
+  terms             String?
+  instructions      String?
+  image             String?
+  denomination      Decimal           @db.Decimal(10, 2)
+  sellingPrice      Decimal           @db.Decimal(10, 2)
+  currency          String            @default("INR")
+  status            GiftProductStatus @default(DRAFT)
+  featured          Boolean           @default(false)
+  purchaseLimit     Int?
+  allowCoupon       Boolean           @default(false)
+  lowStockThreshold Int?
+  sortOrder         Int               @default(0)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  category     GiftCategory?         @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  codes        GiftCode[]
+  cartItems    GiftCartItem[]
+  reservations GiftCodeReservation[]
+  orderItems   OrderItem[]
+
+  @@index([slug])
+  @@index([categoryId])
+  @@index([brandName])
+  @@index([status])
+  @@map("gift_products")
+}
+
+/// Individual gift code inventory. Raw codes are stored encrypted at rest and
+/// are never exposed through customer-facing APIs (PRD §14, §88, §89).
+model GiftCode {
+  id                  String         @id @default(cuid())
+  giftProductId       String
+  encryptedCode       String
+  codeHash            String
+  maskedCode          String
+  batchLabel          String?
+  internalNote        String?
+  expiryDate          DateTime?
+  status              GiftCodeStatus @default(AVAILABLE)
+  assignedOrderId     String?
+  assignedAt          DateTime?
+  soldAt              DateTime?
+  importedByAdminId   String?
+  lastViewedAt        DateTime?
+  lastViewedByAdminId String?
+  viewCount           Int            @default(0)
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+
+  giftProduct   GiftProduct        @relation(fields: [giftProductId], references: [id], onDelete: Cascade)
+  assignedOrder Order?             @relation(fields: [assignedOrderId], references: [id], onDelete: SetNull)
+  lastViewedBy  Admin?             @relation("GiftCodeViewer", fields: [lastViewedByAdminId], references: [id], onDelete: SetNull)
+  deliveries    GiftCodeDelivery[]
+
+  @@unique([giftProductId, codeHash])
+  @@index([giftProductId, status])
+  @@index([status])
+  @@index([expiryDate])
+  @@index([assignedOrderId])
+  @@map("gift_codes")
+}
+
+model GiftCartItem {
+  id            String   @id @default(cuid())
+  userId        String
+  giftProductId String
+  quantity      Int      @default(1)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  giftProduct GiftProduct @relation(fields: [giftProductId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, giftProductId])
+  @@map("gift_cart_items")
+}
+
+/// Temporary inventory hold created while a customer shops (PRD §22, §23, §60).
+model GiftCodeReservation {
+  id               String                @id @default(cuid())
+  userId           String
+  giftProductId    String
+  quantity         Int
+  reservationToken String                @unique
+  status           GiftReservationStatus @default(ACTIVE)
+  expiresAt        DateTime
+  releasedAt       DateTime?
+  convertedOrderId String?
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  giftProduct GiftProduct @relation(fields: [giftProductId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([giftProductId, status])
+  @@index([expiresAt])
+  @@map("gift_code_reservations")
+}
+
+/// Operational traceability for manual code delivery (PRD §48, §62).
+/// `giftCodeId` is null only for MANUAL_REVIEW rows where payment succeeded but
+/// automatic assignment could not complete (PRD §66).
+model GiftCodeDelivery {
+  id             String             @id @default(cuid())
+  orderId        String
+  orderItemId    String?
+  giftCodeId     String?
+  recipientEmail String
+  status         GiftDeliveryStatus @default(PENDING)
+  assignedAt     DateTime?
+  sentAt         DateTime?
+  sentByAdminId  String?
+  adminNote      String?
+  failureReason  String?
+  replacedFromId String?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  order     Order      @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderItem OrderItem? @relation(fields: [orderItemId], references: [id], onDelete: SetNull)
+  giftCode  GiftCode?  @relation(fields: [giftCodeId], references: [id])
+  sentBy    Admin?     @relation("GiftDeliveryAdmin", fields: [sentByAdminId], references: [id], onDelete: SetNull)
+
+  @@index([orderId])
+  @@index([giftCodeId])
+  @@index([status])
+  @@index([recipientEmail])
+  @@map("gift_code_deliveries")
+}
+
+/// Webhook idempotency ledger (PRD §67) — one row per processed gateway event.
+model GatewayEvent {
+  id          String   @id @default(cuid())
+  provider    String   @default("razorpay")
+  eventId     String
+  eventType   String
+  orderId     String?
+  payloadRef  String?
+  processedAt DateTime @default(now())
+
+  @@unique([provider, eventId])
+  @@index([orderId])
+  @@map("gateway_events")
+}
+
+/// Internal alerts for the operations team (PRD §52, §66, §94).
+model AdminNotification {
+  id        String    @id @default(cuid())
+  title     String
+  message   String
+  type      String    @default("GIFT_CODE")
+  severity  String    @default("INFO") // INFO | WARNING | CRITICAL
+  link      String?
+  targetId  String?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([readAt])
+  @@index([type])
+  @@map("admin_notifications")
+}

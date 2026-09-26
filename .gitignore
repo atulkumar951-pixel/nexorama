@@ -1,40 +1,55 @@
 # Dependencies
 node_modules/
-/.pnp
+.pnp
 .pnp.js
 .yarn/install-state.gz
 
-# Next.js build output
+# Builds / Next.js
 .next/
 out/
 build/
 dist/
+*.tsbuildinfo
+next-env.d.ts
 
-# Environment files
+# Environment variables
 .env
+.env.local
 .env*.local
 .env.development.local
 .env.test.local
 .env.production.local
 
-# Debug and temporary logs
+# Logs
+logs/
+*.log
+install_log.txt
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-install_log.txt
-*.log
+pnpm-debug.log*
 
-# Vercel
-.vercel
-
-# TypeScript
-*.tsbuildinfo
-next-env.d.ts
-
-# OS generated files
-.DS_Store
-Thumbs.db
+# Uploaded/private files (never commit user content)
+uploads/
+storage/
+private-storage/
 
 # Database backups
 backup/
 *.dump
+
+# Testing
+coverage/
+.nyc_output/
+
+# Misc
+.DS_Store
+Thumbs.db
+*.pem
+.vercel
+.turbo
+
+# Editors
+.vscode/*
+!.vscode/extensions.json
+.idea/
