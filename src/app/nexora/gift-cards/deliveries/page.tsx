@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { formatDate, formatINR, statusBadgeClass } from "@/lib/format";
 import { giftAdminApi, GiftAdminApiError, type GiftDeliveryQueueResponse } from "@/lib/gift-admin-api";
-import { MarkSentButton } from "../gift-actions-client";
+import { DeliveryRowActions } from "./delivery-row-actions";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Admin · Gift Deliveries" };
@@ -148,11 +148,15 @@ export default async function AdminGiftDeliveriesPage({
                     : `${d.minutesWaiting} min / ${d.targetMinutes}`}
                 </td>
                 <td className="px-4 py-3 text-right">
-                  {d.deliveryStatus !== "SENT" ? (
-                    <MarkSentButton deliveryId={d.id} />
-                  ) : (
-                    <span className="text-xs text-slate-400">sent {formatDate(d.sentAt)}</span>
-                  )}
+                  <DeliveryRowActions
+                    deliveryId={d.id}
+                    orderNumber={d.orderNumber}
+                    recipientEmail={d.recipientEmail}
+                    deliveryStatus={d.deliveryStatus}
+                    sentAt={d.sentAt}
+                    maskedCode={d.maskedCode}
+                    giftCodeId={d.giftCodeId}
+                  />
                 </td>
               </tr>
             ))}

@@ -32,11 +32,19 @@ export default async function OrderDetailPage({
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
       {sp.success && (
-        <div className="mb-6 rounded-xl bg-emerald-50 p-5 text-emerald-800 ring-1 ring-emerald-200">
-          <p className="text-lg font-bold">🎉 Payment successful!</p>
-          <p className="text-sm">Your products have been added to your library.</p>
-          <Link href="/library" className="btn-primary mt-3 !bg-emerald-600 hover:!bg-emerald-700">Go to My Library →</Link>
-        </div>
+        order.orderType === "GIFT_CODE" ? (
+          <div className="mb-6 rounded-xl bg-emerald-50 p-5 text-emerald-800 ring-1 ring-emerald-200">
+            <p className="text-lg font-bold">🎉 Gift card order confirmed!</p>
+            <p className="text-sm">Your order has been received. Your gift code will be delivered to your email shortly.</p>
+            <Link href="/my-gift-codes" className="btn-primary mt-3 !bg-emerald-600 hover:!bg-emerald-700">Track My Gift Codes →</Link>
+          </div>
+        ) : (
+          <div className="mb-6 rounded-xl bg-emerald-50 p-5 text-emerald-800 ring-1 ring-emerald-200">
+            <p className="text-lg font-bold">🎉 Payment successful!</p>
+            <p className="text-sm">Your products have been added to your library.</p>
+            <Link href="/library" className="btn-primary mt-3 !bg-emerald-600 hover:!bg-emerald-700">Go to My Library →</Link>
+          </div>
+        )
       )}
       {sp.failed && (
         <div className="mb-6 rounded-xl bg-red-50 p-5 text-red-700 ring-1 ring-red-200">
@@ -89,7 +97,13 @@ export default async function OrderDetailPage({
           <Link href={`/pay/${order.id}`} className="btn-primary mt-6 w-full !py-3">Complete Payment →</Link>
         )}
         {(order.status === "PAID" || order.status === "COMPLETED") && (
-          <Link href="/library" className="btn-primary mt-6 w-full !py-3">Open My Library →</Link>
+          order.orderType === "GIFT_CODE" ? (
+            <Link href="/my-gift-codes" className="btn-primary mt-6 w-full !bg-emerald-600 hover:!bg-emerald-700 !py-3">
+              Track Gift Code Delivery →
+            </Link>
+          ) : (
+            <Link href="/library" className="btn-primary mt-6 w-full !py-3">Open My Library →</Link>
+          )
         )}
       </div>
     </div>

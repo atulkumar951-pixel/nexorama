@@ -174,6 +174,8 @@ export const orders = pgTable(
     id: serial("id").primaryKey(),
     orderNumber: varchar("order_number", { length: 40 }).notNull(),
     userId: integer("user_id").notNull().references(() => users.id),
+    orderType: varchar("order_type", { length: 30 }).notNull().default("DIGITAL_PRODUCT"), // DIGITAL_PRODUCT | GIFT_CODE
+    emailSnapshot: varchar("email_snapshot", { length: 255 }),
     subtotal: integer("subtotal").notNull().default(0),
     discount: integer("discount").notNull().default(0),
     couponCode: varchar("coupon_code", { length: 40 }),
@@ -190,8 +192,12 @@ export const orders = pgTable(
 export const orderItems = pgTable("order_items", {
   id: serial("id").primaryKey(),
   orderId: integer("order_id").notNull().references(() => orders.id),
-  productId: integer("product_id").notNull().references(() => products.id),
+  productId: integer("product_id").references(() => products.id),
+  giftProductId: integer("gift_product_id"),
+  itemType: varchar("item_type", { length: 30 }).notNull().default("DIGITAL_PRODUCT"), // DIGITAL_PRODUCT | GIFT_CODE
   title: varchar("title", { length: 200 }).notNull(),
+  denomination: integer("denomination"),
+  quantity: integer("quantity").notNull().default(1),
   price: integer("price").notNull().default(0),
 });
 
@@ -304,3 +310,149 @@ export const lectureProgress = pgTable(
   },
   (t) => [uniqueIndex("progress_user_lecture_idx").on(t.userId, t.lectureId)]
 );
+
+// ---------------- Platform Settings & Marketplace Mode (PRD §2, §76, §80, §106) ----------------
+export const platformSettings = pgTable(
+  "platform_settings",
+  {
+    id: serial("id").primaryKey(),
+    key: varchar("key", { length: 80 }).notNull(),
+    value: text("value").notNull(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("platform_settings_key_idx").on(t.key)]
+);
+
+// ---------------- Gift Code Categories (PRD §7, §103) ----------------
+export const giftCategories = pgTable(
+  "gift_categories",
+  {
+    id: serial("id").primaryKey(),
+    name: varchar("name", { length: 120 }).notNull(),
+    slug: varchar("slug", { length: 140 }).notNull(),
+    description: text("description"),
+    image: text("image"),
+    icon: varchar("icon", { length: 40 }).default("🎁"),
+    status: varchar("status", { length: 20 }).notNull().default("ACTIVE"), // ACTIVE | INACTIVE
+    sortOrder: integer("sort_order").notNull().default(0),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("gift_categories_slug_idx").on(t.slug)]
+);
+
+// ---------------- Gift Code Products (PRD §9, §10, §11, §103) ----------------
+export const giftProducts = pgTable(
+  "gift_products",
+  {
+    id: serial("id").primaryKey(),
+    categoryId: integer("category_id").references(() => giftCategories.id),
+    brandName: varchar("brand_name", { length: 120 }).notNull(),
+    name: varchar("name", { length: 200 }).notNull(),
+    slug: varchar("slug", { length: 220 }).notNull(),
+    description: text("description"),
+    terms: text("terms"),
+    instructions: text("instructions"),
+    image: text("image"),
+    denomination: integer("denomination").notNull().default(0), // Gift Card Value (₹)
+    sellingPrice: integer("selling_price").notNull().default(0), // Selling Price (₹)
+    currency: varchar("currency", { length: 8 }).notNull().default("INR"),
+    status: varchar("status", { length: 20 }).notNull().default("DRAFT"), // DRAFT | PUBLISHED | UNPUBLISHED | ARCHIVED
+    isFeatured: boolean("is_featured").notNull().default(false),
+    purchaseLimit: integer("purchase_limit").notNull().default(5),
+    allowCoupon: boolean("allow_coupon").notNull().default(false),
+    lowStockThreshold: integer("low_stock_threshold").notNull().default(10),
+    sortOrder: integer("sort_order").notNull().default(0),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("gift_products_slug_idx").on(t.slug),
+    index("gift_products_category_idx").on(t.categoryId),
+    index("gift_products_brand_idx").on(t.brandName),
+    index("gift_products_status_idx").on(t.status),
+  ]
+);
+
+// ---------------- Gift Codes Inventory (PRD §13, §14, §20, §42, §61, §103) ----------------
+export const giftCodes = pgTable(
+  "gift_codes",
+  {
+    id: serial("id").primaryKey(),
+    giftProductId: integer("gift_product_id").notNull().references(() => giftProducts.id),
+    encryptedCode: text("encrypted_code").notNull(),
+    codeHash: varchar("code_hash", { length: 128 }).notNull(),
+    maskedCode: varchar("masked_code", { length: 80 }).notNull(),
+    batchLabel: varchar("batch_label", { length: 120 }),
+    internalNote: text("internal_note"),
+    expiryDate: timestamp("expiry_date"),
+    status: varchar("status", { length: 20 }).notNull().default("AVAILABLE"), // AVAILABLE | RESERVED | ASSIGNED | SOLD | EXPIRED | CANCELLED
+    assignedOrderId: integer("assigned_order_id").references(() => orders.id),
+    assignedAt: timestamp("assigned_at"),
+    soldAt: timestamp("sold_at"),
+    importedByAdminId: integer("imported_by_admin_id").references(() => users.id),
+    lastViewedAt: timestamp("last_viewed_at"),
+    lastViewedByAdminId: integer("last_viewed_by_admin_id").references(() => users.id),
+    viewCount: integer("view_count").notNull().default(0),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("gift_codes_product_hash_idx").on(t.giftProductId, t.codeHash),
+    index("gift_codes_product_status_idx").on(t.giftProductId, t.status),
+    index("gift_codes_status_idx").on(t.status),
+    index("gift_codes_assigned_order_idx").on(t.assignedOrderId),
+  ]
+);
+
+// ---------------- Gift Code Reservations (PRD §22, §23, §59, §60) ----------------
+export const giftCodeReservations = pgTable(
+  "gift_code_reservations",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id").notNull().references(() => users.id),
+    giftProductId: integer("gift_product_id").notNull().references(() => giftProducts.id),
+    quantity: integer("quantity").notNull().default(1),
+    reservationToken: varchar("reservation_token", { length: 128 }).notNull(),
+    status: varchar("status", { length: 20 }).notNull().default("ACTIVE"), // ACTIVE | EXPIRED | CONVERTED | CANCELLED
+    expiresAt: timestamp("expires_at").notNull(),
+    releasedAt: timestamp("released_at"),
+    convertedOrderId: integer("converted_order_id").references(() => orders.id),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("gift_reservations_token_idx").on(t.reservationToken),
+    index("gift_reservations_user_idx").on(t.userId, t.status),
+    index("gift_reservations_product_idx").on(t.giftProductId, t.status),
+    index("gift_reservations_expires_idx").on(t.expiresAt),
+  ]
+);
+
+// ---------------- Gift Code Deliveries (PRD §18, §19, §47, §48, §62) ----------------
+export const giftCodeDeliveries = pgTable(
+  "gift_code_deliveries",
+  {
+    id: serial("id").primaryKey(),
+    orderId: integer("order_id").notNull().references(() => orders.id),
+    orderItemId: integer("order_item_id").references(() => orderItems.id),
+    giftCodeId: integer("gift_code_id").references(() => giftCodes.id),
+    recipientEmail: varchar("recipient_email", { length: 255 }).notNull(),
+    status: varchar("status", { length: 20 }).notNull().default("PENDING"), // PENDING | ASSIGNED | PROCESSING | SENT | FAILED | REPLACED | CANCELLED
+    assignedAt: timestamp("assigned_at").notNull().defaultNow(),
+    sentAt: timestamp("sent_at"),
+    sentByAdminId: integer("sent_by_admin_id").references(() => users.id),
+    adminNote: text("admin_note"),
+    failureReason: text("failure_reason"),
+    replacedFromId: integer("replaced_from_id"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("gift_deliveries_order_idx").on(t.orderId),
+    index("gift_deliveries_code_idx").on(t.giftCodeId),
+    index("gift_deliveries_status_idx").on(t.status),
+    index("gift_deliveries_recipient_idx").on(t.recipientEmail),
+  ]
+);
+

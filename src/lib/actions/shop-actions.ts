@@ -17,6 +17,7 @@ import {
 import { and, eq, inArray } from "drizzle-orm";
 import { getCurrentUser } from "@/lib/auth";
 import { effectivePrice, fulfillOrder, getActiveGrant, validateCoupon } from "@/lib/helpers";
+import { fulfillGiftOrder } from "@/lib/gift-helpers";
 
 // ---------- Cart ----------
 export async function addToCart(productId: number, redirectToCart = false) {
@@ -173,6 +174,11 @@ export async function testPayAction(orderId: number, outcome: "success" | "fail"
       type: "PURCHASE",
     });
     redirect(`/orders/${orderId}?failed=1`);
+  }
+  // Route to correct fulfillment based on order type
+  if (order.orderType === "GIFT_CODE") {
+    await fulfillGiftOrder(orderId, { method: "test-card", provider: "TEST", razorpayPaymentId: `test_${crypto.randomBytes(8).toString("hex")}` });
+    redirect(`/my-gift-codes?order=${orderId}&success=1`);
   }
   await fulfillOrder(orderId, { method: "test-card", provider: "TEST", razorpayPaymentId: `test_${crypto.randomBytes(8).toString("hex")}` });
   redirect(`/orders/${orderId}?success=1`);

@@ -1,12 +1,21 @@
+import { redirect } from "next/navigation";
+import { getMarketplaceMode } from "@/lib/marketplace-mode";
 import Link from "next/link";
 import { db } from "@/db";
-import { banners, categories, products } from "@/db/schema";
-import { and, desc, eq, gte, isNull, lte, or } from "drizzle-orm";
+import { banners, categories, products, giftProducts, giftCodes, giftCategories } from "@/db/schema";
+import { and, desc, eq, gte, isNull, lte, or, sql } from "drizzle-orm";
 import ProductCard from "@/components/ProductCard";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
+  const mode = await getMarketplaceMode();
+
+  // In Gift Codes mode, redirect homepage to gift codes storefront
+  if (mode === "GIFT_CODES") {
+    redirect("/gift-codes");
+  }
+
   const now = new Date();
   const activeBanner = and(
     eq(banners.isActive, true),

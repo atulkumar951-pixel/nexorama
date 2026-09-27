@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import { getCurrentUser, isAdmin } from "@/lib/auth";
 import { logoutAction } from "@/lib/actions/auth-actions";
+import { getMarketplaceMode } from "@/lib/marketplace-mode";
 
 const NAV = [
   { href: "/nexora", label: "Dashboard", icon: "📊" },
@@ -16,12 +17,15 @@ const NAV = [
   { href: "/nexora/banners", label: "Banners", icon: "🖼️" },
   { href: "/nexora/notifications", label: "Notifications", icon: "🔔" },
   { href: "/nexora/audit-logs", label: "Audit Logs", icon: "🛡️" },
+  { href: "/nexora/settings", label: "Settings", icon: "⚙️" },
 ];
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login?next=/nexora");
   if (!isAdmin(user)) redirect("/dashboard");
+
+  const mode = await getMarketplaceMode();
 
   return (
     <div className="flex min-h-screen bg-slate-100">
@@ -50,6 +54,35 @@ export default async function AdminLayout({ children }: { children: ReactNode })
         </div>
       </aside>
       <div className="min-w-0 flex-1">
+        {/* Top Mode Indicator Bar (PRD §108) */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-white px-4 py-2.5 shadow-sm sm:px-8">
+          <div className="flex items-center gap-2.5">
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Current Mode:</span>
+            {mode === "GIFT_CODES" ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300 bg-emerald-50 px-3 py-0.5 text-xs font-bold text-emerald-800">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                🟢 GIFT CODES MODE
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-300 bg-blue-50 px-3 py-0.5 text-xs font-bold text-blue-800">
+                <span className="h-2 w-2 rounded-full bg-blue-500"></span>
+                🔵 DIGITAL MARKETPLACE
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-3 text-xs">
+            <Link
+              href="/nexora/settings"
+              className="rounded bg-slate-100 px-2.5 py-1 font-semibold text-slate-700 hover:bg-slate-200 transition"
+            >
+              ⚙️ Switch Mode / Settings
+            </Link>
+            <Link href="/" target="_blank" className="font-medium text-indigo-600 hover:underline">
+              Preview Storefront ↗
+            </Link>
+          </div>
+        </div>
+
         {/* Mobile admin nav */}
         <div className="flex items-center gap-3 overflow-x-auto border-b border-slate-200 bg-slate-900 px-4 py-3 text-sm text-slate-300 lg:hidden">
           {NAV.map((n) => (

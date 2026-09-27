@@ -104,22 +104,42 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
       )}
 
       {(order.status === "PAID" || order.status === "COMPLETED") && (
-        <div className="card mt-6 border-red-200 p-6">
-          <h2 className="font-bold text-red-700">Process refund</h2>
-          <p className="mt-1 text-xs text-slate-500">Refunds the full amount ({formatINR(order.total)}), updates payment records and (optionally) revokes access. This action is audited.</p>
-          <div className="mt-4">
-            <ActionForm action={refundOrderAction} submitLabel="Process refund">
-              <input type="hidden" name="orderId" value={order.id} />
+        order.orderType === "GIFT_CODE" ? (
+          <div className="card mt-6 border-amber-200 bg-amber-50 p-6">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">🛡️</span>
               <div>
-                <label className="label">Reason</label>
-                <input name="reason" className="input" placeholder="Customer request" />
+                <h2 className="font-bold text-amber-900">Gift Code Order — Strictly Non-Refundable</h2>
+                <p className="mt-1 text-xs text-amber-700 leading-relaxed">
+                  In accordance with platform security policy, gift card and voucher orders cannot be refunded once issued. If the customer reported a faulty code or delivery issue, you can inspect or replace the code from the Gift Deliveries queue.
+                </p>
+                <Link
+                  href={`/nexora/gift-cards/deliveries?search=${order.orderNumber}`}
+                  className="mt-3 inline-block rounded-lg bg-amber-600 px-3.5 py-1.5 text-xs font-bold text-white hover:bg-amber-700 transition"
+                >
+                  View in Deliveries Queue →
+                </Link>
               </div>
-              <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" name="keepAccess" className="h-4 w-4 rounded" /> Let the customer keep access (default revokes)
-              </label>
-            </ActionForm>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="card mt-6 border-red-200 p-6">
+            <h2 className="font-bold text-red-700">Process refund</h2>
+            <p className="mt-1 text-xs text-slate-500">Refunds the full amount ({formatINR(order.total)}), updates payment records and (optionally) revokes access. This action is audited.</p>
+            <div className="mt-4">
+              <ActionForm action={refundOrderAction} submitLabel="Process refund">
+                <input type="hidden" name="orderId" value={order.id} />
+                <div>
+                  <label className="label">Reason</label>
+                  <input name="reason" className="input" placeholder="Customer request" />
+                </div>
+                <label className="flex items-center gap-2 text-sm">
+                  <input type="checkbox" name="keepAccess" className="h-4 w-4 rounded" /> Let the customer keep access (default revokes)
+                </label>
+              </ActionForm>
+            </div>
+          </div>
+        )
       )}
     </div>
   );

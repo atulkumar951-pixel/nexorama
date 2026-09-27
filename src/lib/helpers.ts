@@ -12,6 +12,7 @@ import {
   products,
 } from "@/db/schema";
 import { and, eq, sql } from "drizzle-orm";
+import { fulfillGiftOrder } from "@/lib/gift-helpers";
 
 export function effectivePrice(p: { price: number; salePrice: number | null; isFree: boolean }) {
   if (p.isFree) return 0;
@@ -108,6 +109,10 @@ export async function fulfillOrder(orderId: number, paymentMeta?: { razorpayPaym
   if (!order) throw new Error("Order not found");
   if (order.status === "PAID" || order.status === "COMPLETED") return order; // idempotent
 
+  if (order.orderType === "GIFT_CODE") {
+    return fulfillGiftOrder(orderId, paymentMeta);
+  }
+
   await db
     .update(orders)
     .set({ status: "PAID", updatedAt: new Date() })
@@ -125,6 +130,7 @@ export async function fulfillOrder(orderId: number, paymentMeta?: { razorpayPaym
 
   const items = await db.select().from(orderItems).where(eq(orderItems.orderId, orderId));
   for (const item of items) {
+    if (!item.productId) continue;
     const existing = await getActiveGrant(order.userId, item.productId);
     if (!existing) {
       const [product] = await db.select().from(products).where(eq(products.id, item.productId)).limit(1);

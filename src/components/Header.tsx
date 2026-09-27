@@ -4,9 +4,13 @@ import { cartItems, notifications } from "@/db/schema";
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { getCurrentUser, isAdmin } from "@/lib/auth";
 import { logoutAction } from "@/lib/actions/auth-actions";
+import { getMarketplaceMode } from "@/lib/marketplace-mode";
 
 export default async function Header() {
   const user = await getCurrentUser();
+  const mode = await getMarketplaceMode();
+  const isGift = mode === "GIFT_CODES";
+
   let cartCount = 0;
   let unread = 0;
   if (user) {
@@ -31,20 +35,36 @@ export default async function Header() {
           <span className="text-xl font-black tracking-tight text-slate-900">
             Nex<span className="text-emerald-600">ora</span>
           </span>
+          {isGift && (
+            <span className="hidden sm:inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
+              GIFT CODES
+            </span>
+          )}
         </Link>
 
         <nav className="hidden items-center gap-5 text-sm font-medium text-slate-600 md:flex">
-          <Link href="/products" className="hover:text-indigo-600">Marketplace</Link>
-          <Link href="/categories" className="hover:text-indigo-600">Categories</Link>
-          {user && <Link href="/library" className="hover:text-indigo-600">My Library</Link>}
+          {isGift ? (
+            <>
+              <Link href="/gift-codes" className="hover:text-emerald-600">Gift Codes</Link>
+              <Link href="/categories" className="hover:text-emerald-600">Categories</Link>
+              {user && <Link href="/my-gift-codes" className="hover:text-emerald-600">My Gift Codes</Link>}
+              {user && <Link href="/orders" className="hover:text-emerald-600">Orders</Link>}
+            </>
+          ) : (
+            <>
+              <Link href="/products" className="hover:text-indigo-600">Marketplace</Link>
+              <Link href="/categories" className="hover:text-indigo-600">Categories</Link>
+              {user && <Link href="/library" className="hover:text-indigo-600">My Library</Link>}
+            </>
+          )}
         </nav>
 
-        <form action="/products" className="ml-auto hidden flex-1 max-w-md sm:block">
+        <form action={isGift ? "/gift-codes" : "/products"} className="ml-auto hidden flex-1 max-w-md sm:block">
           <input
             type="search"
             name="q"
-            placeholder="Search notes, books, courses…"
-            className="w-full rounded-full border border-slate-300 bg-slate-50 px-4 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+            placeholder={isGift ? "Search gift cards, gaming vouchers, OTT…" : "Search notes, books, courses…"}
+            className="w-full rounded-full border border-slate-300 bg-slate-50 px-4 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
             aria-label="Search products"
           />
         </form>
@@ -80,7 +100,11 @@ export default async function Header() {
                       <p className="truncate text-xs text-slate-500">{user.email}</p>
                     </div>
                     <Link href="/dashboard" className="block px-4 py-2 hover:bg-slate-50">Dashboard</Link>
-                    <Link href="/library" className="block px-4 py-2 hover:bg-slate-50">My Library</Link>
+                    {isGift ? (
+                      <Link href="/my-gift-codes" className="block px-4 py-2 font-medium text-emerald-700 hover:bg-emerald-50">🎁 My Gift Codes</Link>
+                    ) : (
+                      <Link href="/library" className="block px-4 py-2 hover:bg-slate-50">My Library</Link>
+                    )}
                     <Link href="/orders" className="block px-4 py-2 hover:bg-slate-50">My Orders</Link>
                     <Link href="/profile" className="block px-4 py-2 hover:bg-slate-50">Profile & Settings</Link>
                     {isAdmin(user) && (
@@ -103,10 +127,21 @@ export default async function Header() {
       </div>
       {/* Mobile nav */}
       <nav className="flex items-center gap-4 overflow-x-auto border-t border-slate-100 px-4 py-2 text-sm font-medium text-slate-600 md:hidden">
-        <Link href="/products">Marketplace</Link>
-        <Link href="/categories">Categories</Link>
-        {user && <Link href="/library">My Library</Link>}
-        {user && <Link href="/orders">Orders</Link>}
+        {isGift ? (
+          <>
+            <Link href="/gift-codes">Gift Codes</Link>
+            <Link href="/categories">Categories</Link>
+            {user && <Link href="/my-gift-codes">My Gift Codes</Link>}
+            {user && <Link href="/orders">Orders</Link>}
+          </>
+        ) : (
+          <>
+            <Link href="/products">Marketplace</Link>
+            <Link href="/categories">Categories</Link>
+            {user && <Link href="/library">My Library</Link>}
+            {user && <Link href="/orders">Orders</Link>}
+          </>
+        )}
       </nav>
     </header>
   );

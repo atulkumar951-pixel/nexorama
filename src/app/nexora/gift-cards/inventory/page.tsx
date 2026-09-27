@@ -6,6 +6,7 @@ import {
   type GiftInventoryResponse,
   type GiftProductsResponse,
 } from "@/lib/gift-admin-api";
+import { InventoryActionButtons, RevealCodeButton } from "./inventory-actions";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Admin · Gift Inventory" };
@@ -71,9 +72,12 @@ export default async function AdminGiftInventoryPage({
             {selectedProduct && <> for {selectedProduct.name}</>}
           </p>
         </div>
-        <Link href="/nexora/gift-cards" className="text-sm font-semibold text-indigo-600 hover:underline">
-          ← Gift dashboard
-        </Link>
+        <div className="flex items-center gap-3">
+          <InventoryActionButtons products={products.products} />
+          <Link href="/nexora/gift-cards" className="text-sm font-semibold text-indigo-600 hover:underline">
+            ← Gift dashboard
+          </Link>
+        </div>
       </div>
 
       {/* Product stock overview */}
@@ -159,6 +163,7 @@ export default async function AdminGiftInventoryPage({
               <th className="px-4 py-3">Status</th>
               <th className="px-4 py-3">Order</th>
               <th className="px-4 py-3">Added</th>
+              <th className="px-4 py-3">Action</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -176,6 +181,9 @@ export default async function AdminGiftInventoryPage({
                 </td>
                 <td className="px-4 py-3 text-slate-500">{code.assignedOrder?.orderNumber ?? "—"}</td>
                 <td className="px-4 py-3 text-slate-500">{formatDate(code.createdAt)}</td>
+                <td className="px-4 py-3">
+                  <RevealCodeButton codeId={code.id} maskedCode={code.maskedCode} />
+                </td>
               </tr>
             ))}
             {inventory.codes.length === 0 && (

@@ -49,7 +49,10 @@ export function ModeSwitcher({ mode }: { mode: "DIGITAL" | "GIFT_CODES" }) {
 /** Row action: mark one delivery as sent, with inline error feedback. */
 export function MarkSentButton({ deliveryId }: { deliveryId: string }) {
   const [state, formAction] = useActionState(
-    (_prev: GiftAdminFormState, formData: FormData) => markDeliveriesSentAction([deliveryId], formData),
+    (_prev: GiftAdminFormState, formData: FormData) => {
+      const note = formData.get("adminNote") ? String(formData.get("adminNote")) : undefined;
+      return markDeliveriesSentAction([deliveryId], note);
+    },
     INITIAL,
   );
 

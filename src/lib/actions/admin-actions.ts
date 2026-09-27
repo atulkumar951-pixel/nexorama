@@ -342,6 +342,9 @@ export async function refundOrderAction(_p: AdminFormState, formData: FormData):
   const [order] = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
   if (!order) return { error: "Order not found." };
   if (order.status !== "PAID" && order.status !== "COMPLETED") return { error: "Only paid orders can be refunded." };
+  if (order.orderType === "GIFT_CODE") {
+    return { error: "Gift code orders are strictly non-refundable once issued (PRD policy). You can replace faulty codes via the Gift Deliveries queue." };
+  }
 
   const [payment] = await db.select().from(payments).where(eq(payments.orderId, orderId)).limit(1);
   if (!payment) return { error: "Payment record not found." };
