@@ -153,7 +153,15 @@ export async function setMarketplaceModeAction(
     return { error: err instanceof Error ? err.message : "Failed to switch mode." };
   }
   revalidatePath("/", "layout");
+  revalidatePath("/nexora", "layout");
+  revalidatePath("/nexora");
+  revalidatePath("/nexora/products");
+  revalidatePath("/nexora/categories");
   revalidatePath("/nexora/gift-cards");
+  revalidatePath("/nexora/gift-cards/products");
+  revalidatePath("/nexora/gift-cards/inventory");
+  revalidatePath("/nexora/gift-cards/deliveries");
+  revalidatePath("/nexora/settings");
   return { success: `Marketplace mode set to ${mode === "DIGITAL" ? "Digital Products" : "Gift Codes"}.` };
 }
 

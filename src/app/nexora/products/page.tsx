@@ -6,10 +6,17 @@ import { formatDate, formatINR, statusBadgeClass } from "@/lib/format";
 import { setProductStatus, deleteProductAction } from "@/lib/actions/admin-actions";
 import { SubmitButton, ConfirmButton } from "@/components/client";
 
+import { redirect } from "next/navigation";
+import { getMarketplaceMode } from "@/lib/marketplace-mode";
+
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Admin · Products" };
 
 export default async function AdminProductsPage() {
+  const mode = await getMarketplaceMode();
+  if (mode === "GIFT_CODES") {
+    redirect("/nexora/gift-cards/products");
+  }
   const rows = await db
     .select({ product: products, categoryName: categories.name })
     .from(products)

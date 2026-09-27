@@ -6,7 +6,7 @@ import { logoutAction } from "@/lib/actions/auth-actions";
 import { getMarketplaceMode } from "@/lib/marketplace-mode";
 import { ensureDatabaseSchema } from "@/db/auto-migrate";
 
-const NAV = [
+const DIGITAL_NAV = [
   { href: "/nexora", label: "Dashboard", icon: "📊" },
   { href: "/nexora/products", label: "Products", icon: "📦" },
   { href: "/nexora/categories", label: "Categories", icon: "🗂️" },
@@ -21,6 +21,21 @@ const NAV = [
   { href: "/nexora/settings", label: "Settings", icon: "⚙️" },
 ];
 
+const GIFT_NAV = [
+  { href: "/nexora/gift-cards", label: "Gift Dashboard", icon: "📊" },
+  { href: "/nexora/gift-cards/products", label: "Gift Products", icon: "🎁" },
+  { href: "/nexora/gift-cards/inventory", label: "Codes Inventory", icon: "🔑" },
+  { href: "/nexora/gift-cards/deliveries", label: "Deliveries Queue", icon: "📤" },
+  { href: "/nexora/gift-cards/categories", label: "Gift Categories", icon: "🗂️" },
+  { href: "/nexora/orders", label: "Orders", icon: "🧾" },
+  { href: "/nexora/payments", label: "Payments", icon: "💳" },
+  { href: "/nexora/users", label: "Users", icon: "👥" },
+  { href: "/nexora/coupons", label: "Coupons", icon: "🏷️" },
+  { href: "/nexora/banners", label: "Banners", icon: "🖼️" },
+  { href: "/nexora/audit-logs", label: "Audit Logs", icon: "🛡️" },
+  { href: "/nexora/settings", label: "Settings", icon: "⚙️" },
+];
+
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   await ensureDatabaseSchema();
   const user = await getCurrentUser();
@@ -28,17 +43,18 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   if (!isAdmin(user)) redirect("/dashboard");
 
   const mode = await getMarketplaceMode();
+  const navItems = mode === "GIFT_CODES" ? GIFT_NAV : DIGITAL_NAV;
 
   return (
     <div className="flex min-h-screen bg-slate-100">
       <aside className="hidden w-60 shrink-0 flex-col border-r border-slate-800 bg-slate-900 text-slate-300 lg:flex">
-        <Link href="/nexora" className="flex items-center gap-2.5 border-b border-slate-800 px-5 py-4 text-lg font-extrabold text-white">
+        <Link href={mode === "GIFT_CODES" ? "/nexora/gift-cards" : "/nexora"} className="flex items-center gap-2.5 border-b border-slate-800 px-5 py-4 text-lg font-extrabold text-white">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.png" alt="Nexora" className="h-7 w-7 rounded-md object-contain" />
           <span>Nex<span className="text-emerald-400">ora</span> Admin</span>
         </Link>
         <nav className="flex-1 space-y-0.5 p-3">
-          {NAV.map((n) => (
+          {navItems.map((n) => (
             <Link key={n.href} href={n.href} className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium hover:bg-slate-800 hover:text-white">
               <span>{n.icon}</span> {n.label}
             </Link>
@@ -87,7 +103,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
 
         {/* Mobile admin nav */}
         <div className="flex items-center gap-3 overflow-x-auto border-b border-slate-200 bg-slate-900 px-4 py-3 text-sm text-slate-300 lg:hidden">
-          {NAV.map((n) => (
+          {navItems.map((n) => (
             <Link key={n.href} href={n.href} className="whitespace-nowrap hover:text-white">{n.icon} {n.label}</Link>
           ))}
         </div>

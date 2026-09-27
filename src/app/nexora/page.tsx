@@ -4,10 +4,17 @@ import { downloads, orders, payments, products, refunds, users } from "@/db/sche
 import { desc, eq, sql } from "drizzle-orm";
 import { formatDate, formatINR, statusBadgeClass } from "@/lib/format";
 
+import { redirect } from "next/navigation";
+import { getMarketplaceMode } from "@/lib/marketplace-mode";
+
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Admin Dashboard" };
 
 export default async function AdminDashboard() {
+  const mode = await getMarketplaceMode();
+  if (mode === "GIFT_CODES") {
+    redirect("/nexora/gift-cards");
+  }
   let u: { c: number } | undefined;
   let p: { c: number } | undefined;
   let o: { c: number } | undefined;

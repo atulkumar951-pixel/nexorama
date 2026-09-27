@@ -12,7 +12,21 @@ const INITIAL: GiftAdminFormState = {};
 
 /** Marketplace mode switch (DIGITAL ↔ GIFT_CODES) with inline feedback. */
 export function ModeSwitcher({ mode }: { mode: "DIGITAL" | "GIFT_CODES" }) {
-  const [state, formAction, pending] = useActionState(setMarketplaceModeAction, INITIAL);
+  const [state, formAction, pending] = useActionState(
+    async (prev: GiftAdminFormState, formData: FormData) => {
+      const target = String(formData.get("mode") ?? "");
+      const res = await setMarketplaceModeAction(prev, formData);
+      if (res.success) {
+        if (target === "DIGITAL") {
+          window.location.href = "/nexora/products";
+        } else {
+          window.location.href = "/nexora/gift-cards/products";
+        }
+      }
+      return res;
+    },
+    INITIAL,
+  );
 
   return (
     <form action={formAction} className="space-y-2">
@@ -40,6 +54,7 @@ export function ModeSwitcher({ mode }: { mode: "DIGITAL" | "GIFT_CODES" }) {
           🎁 Gift Codes
         </button>
       </div>
+      {pending && <p className="text-xs text-slate-500 animate-pulse">Switching mode…</p>}
       {state.error && <p className="text-xs text-red-600">{state.error}</p>}
       {state.success && <p className="text-xs text-emerald-600">{state.success}</p>}
     </form>

@@ -4,10 +4,17 @@ import { and, eq, sql } from "drizzle-orm";
 import ActionForm from "@/components/ActionForm";
 import { saveCategoryAction } from "@/lib/actions/admin-actions";
 
+import { redirect } from "next/navigation";
+import { getMarketplaceMode } from "@/lib/marketplace-mode";
+
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Admin · Categories" };
 
 export default async function AdminCategoriesPage() {
+  const mode = await getMarketplaceMode();
+  if (mode === "GIFT_CODES") {
+    redirect("/nexora/gift-cards/categories");
+  }
   const rows = await db
     .select({ category: categories, productCount: sql<number>`count(${products.id})::int` })
     .from(categories)

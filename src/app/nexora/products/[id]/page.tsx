@@ -17,10 +17,17 @@ import {
 } from "@/lib/actions/admin-actions";
 import { formatBytes, statusBadgeClass } from "@/lib/format";
 
+import { redirect } from "next/navigation";
+import { getMarketplaceMode } from "@/lib/marketplace-mode";
+
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Admin · Edit Product" };
 
 export default async function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
+  const mode = await getMarketplaceMode();
+  if (mode === "GIFT_CODES") {
+    redirect("/nexora/gift-cards/products");
+  }
   const { id } = await params;
   const [product] = await db.select().from(products).where(eq(products.id, Number(id))).limit(1);
   if (!product) notFound();

@@ -3,10 +3,17 @@ import { db } from "@/db";
 import { categories, products } from "@/db/schema";
 import { and, eq, sql } from "drizzle-orm";
 
+import { redirect } from "next/navigation";
+import { getMarketplaceMode } from "@/lib/marketplace-mode";
+
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Categories" };
 
 export default async function CategoriesPage() {
+  const mode = await getMarketplaceMode();
+  if (mode === "GIFT_CODES") {
+    redirect("/gift-codes");
+  }
   const rows = await db
     .select({
       category: categories,

@@ -6,6 +6,7 @@ import {
   CreateGiftCategoryForm,
   ProductStatusButton,
 } from "../gift-admin-forms";
+import { InventoryActionButtons } from "../inventory/inventory-actions";
 
 interface GiftProduct {
   id: string;
@@ -44,18 +45,40 @@ export default async function GiftProductsAdminPage() {
     error = err instanceof Error ? err.message : "Failed to load gift products.";
   }
 
+  const productOptions = products.map((p) => ({
+    id: p.id,
+    name: p.name,
+    brandName: p.brandName,
+    denomination: String(p.denomination),
+  }));
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <nav className="text-xs text-gray-500">
             <Link href="/nexora/gift-cards" className="hover:underline">Gift Codes</Link> {" / "}
-            <span className="text-gray-700">Products</span>
+            <span className="text-gray-700">Products &amp; Codes Adder</span>
           </nav>
-          <h1 className="text-2xl font-bold text-gray-900">Gift Products &amp; Categories</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Gift Products &amp; Codes Management</h1>
           <p className="text-xs text-gray-500">
-            Create denominations, set pricing, assign categories, and control storefront visibility.
+            Create gift card SKUs, import/add voucher codes, and manage store availability.
           </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <InventoryActionButtons products={productOptions} />
+          <Link
+            href="/nexora/gift-cards/inventory"
+            className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition"
+          >
+            🔑 Codes Inventory
+          </Link>
+          <Link
+            href="/nexora/gift-cards/deliveries"
+            className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition"
+          >
+            📤 Deliveries Queue
+          </Link>
         </div>
       </div>
 
@@ -116,7 +139,16 @@ export default async function GiftProductsAdminPage() {
                         </span>
                       </td>
                       <td className="p-3 text-right">
-                        <ProductStatusButton productId={p.id} currentStatus={p.status} />
+                        <div className="flex items-center justify-end gap-1.5">
+                          <Link
+                            href={`/nexora/gift-cards/inventory?giftProductId=${p.id}`}
+                            className="rounded bg-indigo-50 px-2 py-1 text-[11px] font-semibold text-indigo-700 hover:bg-indigo-100 transition whitespace-nowrap"
+                            title="Add or manage gift voucher codes for this SKU"
+                          >
+                            + Add Codes
+                          </Link>
+                          <ProductStatusButton productId={p.id} currentStatus={p.status} />
+                        </div>
                       </td>
                     </tr>
                   ))}

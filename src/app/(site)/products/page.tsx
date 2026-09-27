@@ -4,6 +4,9 @@ import { and, asc, desc, eq, ilike, or, SQL } from "drizzle-orm";
 import ProductCard from "@/components/ProductCard";
 import Link from "next/link";
 
+import { redirect } from "next/navigation";
+import { getMarketplaceMode } from "@/lib/marketplace-mode";
+
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Marketplace" };
 
@@ -14,6 +17,10 @@ export default async function ProductsPage({
 }: {
   searchParams: Promise<{ q?: string; category?: string; type?: string; sort?: string; filter?: string; page?: string }>;
 }) {
+  const mode = await getMarketplaceMode();
+  if (mode === "GIFT_CODES") {
+    redirect("/gift-codes");
+  }
   const sp = await searchParams;
   const page = Math.max(1, Number(sp.page || 1));
 

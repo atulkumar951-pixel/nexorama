@@ -57,16 +57,23 @@ export default function SettingsClient({ initialMode, initialSettings }: Setting
       const res = await setMarketplaceModeAction({}, fd);
       if (res.error) {
         setMessage({ type: "error", text: res.error });
+        setTargetMode(null);
       } else {
         setCurrentMode(targetMode);
         setMessage({
           type: "success",
           text: `Marketplace mode switched successfully to ${
             targetMode === "GIFT_CODES" ? "Gift Codes Mode" : "Digital Marketplace"
-          }!`,
+          }! Redirecting…`,
         });
+        setTargetMode(null);
+        // Direct automatic redirection to the respective product suite
+        if (targetMode === "GIFT_CODES") {
+          window.location.href = "/nexora/gift-cards/products";
+        } else {
+          window.location.href = "/nexora/products";
+        }
       }
-      setTargetMode(null);
     });
   };
 
@@ -87,7 +94,7 @@ export default function SettingsClient({ initialMode, initialSettings }: Setting
 
       {/* PRD §2, §79, §107: Master Marketplace Mode Toggle */}
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="flex items-start justify-between">
+        <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h2 className="text-lg font-bold text-slate-900">Master Marketplace Mode</h2>
             <p className="mt-1 text-sm text-slate-500">
@@ -95,15 +102,32 @@ export default function SettingsClient({ initialMode, initialSettings }: Setting
               and storefront users see.
             </p>
           </div>
-          <span
-            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-extrabold ${
-              currentMode === "GIFT_CODES"
-                ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
-                : "bg-blue-100 text-blue-800 border border-blue-300"
-            }`}
-          >
-            {currentMode === "GIFT_CODES" ? "🟢 GIFT CODES ACTIVE" : "🔵 DIGITAL MARKETPLACE ACTIVE"}
-          </span>
+          <div className="flex flex-col items-end gap-2">
+            <span
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-extrabold ${
+                currentMode === "GIFT_CODES"
+                  ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
+                  : "bg-blue-100 text-blue-800 border border-blue-300"
+              }`}
+            >
+              {currentMode === "GIFT_CODES" ? "🟢 GIFT CODES ACTIVE" : "🔵 DIGITAL MARKETPLACE ACTIVE"}
+            </span>
+            {currentMode === "GIFT_CODES" ? (
+              <a
+                href="/nexora/gift-cards/products"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-emerald-700 transition"
+              >
+                🎁 Go to Gift Products &amp; Codes Adder →
+              </a>
+            ) : (
+              <a
+                href="/nexora/products"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1 text-xs font-semibold text-white shadow-sm hover:bg-indigo-700 transition"
+              >
+                📚 Go to Digital Products →
+              </a>
+            )}
+          </div>
         </div>
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
