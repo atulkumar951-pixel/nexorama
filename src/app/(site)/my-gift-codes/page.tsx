@@ -49,13 +49,13 @@ export default async function MyGiftCodesPage() {
     .orderBy(desc(orders.createdAt));
 
   const statusColor: Record<string, string> = {
-    PENDING: "bg-amber-500/10 text-amber-400 border-amber-500/30",
-    ASSIGNED: "bg-blue-500/10 text-blue-400 border-blue-500/30",
-    PROCESSING: "bg-violet-500/10 text-violet-400 border-violet-500/30",
-    SENT: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
-    FAILED: "bg-red-500/10 text-red-400 border-red-500/30",
-    CANCELLED: "bg-slate-800 text-slate-400 border-slate-700",
-    REPLACED: "bg-orange-500/10 text-orange-400 border-orange-500/30",
+    PENDING: "bg-amber-50 text-amber-800 border-amber-200",
+    ASSIGNED: "bg-blue-50 text-blue-800 border-blue-200",
+    PROCESSING: "bg-violet-50 text-violet-800 border-violet-200",
+    SENT: "bg-emerald-50 text-emerald-800 border-emerald-200",
+    FAILED: "bg-red-50 text-red-800 border-red-200",
+    CANCELLED: "bg-slate-100 text-slate-600 border-slate-200",
+    REPLACED: "bg-orange-50 text-orange-800 border-orange-200",
   };
 
   const deliveryLabel: Record<string, string> = {
@@ -69,34 +69,34 @@ export default async function MyGiftCodesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 py-10 selection:bg-emerald-500 selection:text-white">
+    <div className="min-h-screen bg-slate-50 text-slate-900 py-10 selection:bg-emerald-500 selection:text-white">
       <div className="mx-auto max-w-4xl px-4">
         {/* Header */}
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-black text-white">My Gift Codes</h1>
-            <p className="mt-1 text-xs text-slate-400">
+            <h1 className="text-3xl font-black text-slate-900">My Gift Codes</h1>
+            <p className="mt-1 text-xs text-slate-500">
               Track your purchased gift vouchers, delivery timestamps, and order history.
             </p>
           </div>
           <Link
             href="/gift-codes"
-            className="rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 px-5 py-2.5 text-xs font-bold text-slate-950 shadow-md shadow-emerald-500/20 hover:from-emerald-400 hover:to-teal-400 transition"
+            className="rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-5 py-2.5 text-xs font-bold text-white shadow-md shadow-emerald-200 hover:from-emerald-500 hover:to-teal-500 transition"
           >
             🎁 Shop More Vouchers
           </Link>
         </div>
 
         {rows.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-800 bg-slate-900/40 py-20 text-center">
+          <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-white py-20 text-center shadow-xs">
             <div className="text-6xl mb-4">🎁</div>
-            <h3 className="text-lg font-bold text-white">No gift codes purchased yet</h3>
-            <p className="mt-1.5 text-xs text-slate-400 max-w-xs leading-relaxed">
+            <h3 className="text-lg font-bold text-slate-900">No gift codes purchased yet</h3>
+            <p className="mt-1.5 text-xs text-slate-500 max-w-xs leading-relaxed">
               Explore 50+ official brands like Steam, Amazon, Google Play, Netflix, and get codes delivered in under 5 minutes.
             </p>
             <Link
               href="/gift-codes"
-              className="mt-6 rounded-xl bg-emerald-500 px-6 py-2.5 text-xs font-bold text-slate-950 hover:bg-emerald-400 shadow-lg shadow-emerald-500/20 transition"
+              className="mt-6 rounded-xl bg-emerald-600 px-6 py-2.5 text-xs font-bold text-white hover:bg-emerald-700 shadow-md shadow-emerald-200 transition"
             >
               Browse Gift Codes
             </Link>
@@ -106,27 +106,27 @@ export default async function MyGiftCodesPage() {
             {rows.map((row) => (
               <div
                 key={`${row.orderId}-${row.deliveryId}`}
-                className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-xl transition"
+                className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition"
               >
                 {/* Order header */}
-                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 bg-slate-950/60 px-5 py-3">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 bg-slate-50/80 px-5 py-3">
                   <div className="flex items-center gap-3">
-                    <span className="text-xs font-mono font-bold text-slate-300">{row.orderNumber}</span>
+                    <span className="text-xs font-mono font-bold text-slate-700">{row.orderNumber}</span>
                     <span
                       className={`rounded-full border px-2.5 py-0.5 text-[11px] font-bold ${
                         row.orderStatus === "PAID" || row.orderStatus === "COMPLETED"
-                          ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+                          ? "border-emerald-200 bg-emerald-50 text-emerald-800"
                           : row.orderStatus === "PENDING"
-                          ? "border-amber-500/30 bg-amber-500/10 text-amber-400"
-                          : "border-slate-800 bg-slate-800 text-slate-400"
+                          ? "border-amber-200 bg-amber-50 text-amber-800"
+                          : "border-slate-200 bg-slate-100 text-slate-600"
                       }`}
                     >
                       {row.orderStatus}
                     </span>
                   </div>
-                  <div className="flex items-center gap-3 text-xs text-slate-400">
+                  <div className="flex items-center gap-3 text-xs text-slate-500">
                     <span>{formatDate(row.createdAt.toISOString())}</span>
-                    <span className="font-black text-white">{formatINR(row.total)}</span>
+                    <span className="font-black text-slate-900">{formatINR(row.total)}</span>
                   </div>
                 </div>
 
@@ -134,19 +134,19 @@ export default async function MyGiftCodesPage() {
                 <div className="p-5">
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div className="flex-1">
-                      <p className="font-bold text-white text-lg">
-                        {row.brandName && <span className="text-emerald-400">{row.brandName} · </span>}
+                      <p className="font-bold text-slate-900 text-lg">
+                        {row.brandName && <span className="text-emerald-700">{row.brandName} · </span>}
                         {row.itemTitle}
                       </p>
                       {row.denomination && (
-                        <p className="text-xs text-slate-400 mt-1">
-                          Voucher Value: <strong className="text-slate-200">{formatINR(row.denomination)}</strong>
+                        <p className="text-xs text-slate-500 mt-1">
+                          Voucher Value: <strong className="text-slate-800">{formatINR(row.denomination)}</strong>
                           {row.quantity > 1 && <> × {row.quantity}</>}
                         </p>
                       )}
                       {row.recipientEmail && (
-                        <p className="mt-1 text-xs text-slate-400">
-                          Recipient Email: <strong className="text-slate-200">{row.recipientEmail}</strong>
+                        <p className="mt-1 text-xs text-slate-500">
+                          Recipient Email: <strong className="text-slate-800">{row.recipientEmail}</strong>
                         </p>
                       )}
                     </div>
@@ -155,7 +155,7 @@ export default async function MyGiftCodesPage() {
                     {row.deliveryStatus && (
                       <div
                         className={`rounded-xl border px-3.5 py-1.5 text-xs font-bold ${
-                          statusColor[row.deliveryStatus] ?? "bg-slate-800 text-slate-400 border-slate-700"
+                          statusColor[row.deliveryStatus] ?? "bg-slate-100 text-slate-700 border-slate-200"
                         }`}
                       >
                         {deliveryLabel[row.deliveryStatus] ?? row.deliveryStatus}
@@ -165,18 +165,18 @@ export default async function MyGiftCodesPage() {
 
                   {/* Sent confirmation banner */}
                   {row.deliveryStatus === "SENT" && row.sentAt && (
-                    <div className="mt-4 rounded-xl border border-emerald-500/30 bg-emerald-950/40 p-4">
-                      <p className="text-xs font-bold text-emerald-300">
+                    <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+                      <p className="text-xs font-bold text-emerald-900">
                         ✅ Digital code dispatched on {formatDate(row.sentAt.toISOString())}
                       </p>
-                      <p className="mt-1 text-[11px] text-emerald-400/90 leading-relaxed">
+                      <p className="mt-1 text-[11px] text-emerald-800 leading-relaxed">
                         Please check your inbox (and spam/promotions folder) at{" "}
-                        <strong className="text-white">{row.recipientEmail}</strong> for the redemption voucher.
+                        <strong className="text-slate-900">{row.recipientEmail}</strong> for the redemption voucher.
                       </p>
                       {row.maskedCode && row.maskedCode !== "UNASSIGNED" && (
-                        <p className="mt-2 text-xs text-slate-300">
+                        <p className="mt-2 text-xs text-slate-700">
                           Credential Preview:{" "}
-                          <span className="font-mono font-bold bg-slate-950 px-2 py-0.5 rounded border border-slate-800 text-emerald-400">
+                          <span className="font-mono font-bold bg-white px-2 py-0.5 rounded border border-emerald-300 text-emerald-800">
                             {row.maskedCode}
                           </span>
                         </p>
@@ -187,45 +187,45 @@ export default async function MyGiftCodesPage() {
                   {/* Processing banner */}
                   {(row.deliveryStatus === "PENDING" || row.deliveryStatus === "ASSIGNED") &&
                     (row.orderStatus === "PAID" || row.orderStatus === "COMPLETED") && (
-                      <div className="mt-4 rounded-xl border border-amber-500/30 bg-amber-950/40 p-4">
-                        <p className="text-xs font-bold text-amber-300">
+                      <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4">
+                        <p className="text-xs font-bold text-amber-900">
                           ⏳ Your code is being processed in our queue
                         </p>
-                        <p className="mt-1 text-[11px] text-amber-400/90">
+                        <p className="mt-1 text-[11px] text-amber-800">
                           Codes are typically delivered within 2 to 5 minutes to{" "}
-                          <strong className="text-white">{row.recipientEmail}</strong>.
+                          <strong className="text-slate-900">{row.recipientEmail}</strong>.
                         </p>
                       </div>
                     )}
 
                   {/* Failed banner */}
                   {row.deliveryStatus === "FAILED" && (
-                    <div className="mt-4 rounded-xl border border-red-500/30 bg-red-950/40 p-4">
-                      <p className="text-xs font-bold text-red-300">❌ Dispatch Alert</p>
-                      <p className="mt-1 text-[11px] text-red-400/90">
+                    <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4">
+                      <p className="text-xs font-bold text-red-900">❌ Dispatch Alert</p>
+                      <p className="mt-1 text-[11px] text-red-800">
                         Please contact our 24/7 ops desk with order reference{" "}
-                        <strong className="text-white">{row.orderNumber}</strong> for immediate resolution.
+                        <strong className="text-slate-900">{row.orderNumber}</strong> for immediate resolution.
                       </p>
                     </div>
                   )}
 
                   {/* Ops Admin Note */}
                   {row.adminNote && row.deliveryStatus === "SENT" && (
-                    <p className="mt-2 text-[11px] text-slate-400">
-                      <span className="font-semibold text-slate-300">Note:</span> {row.adminNote}
+                    <p className="mt-2 text-[11px] text-slate-500">
+                      <span className="font-semibold text-slate-700">Note:</span> {row.adminNote}
                     </p>
                   )}
                 </div>
 
                 {/* Footer actions */}
-                <div className="flex items-center gap-4 border-t border-slate-800 bg-slate-950/40 px-5 py-3 text-xs">
-                  <Link href={`/orders/${row.orderId}`} className="font-bold text-emerald-400 hover:text-emerald-300 transition">
+                <div className="flex items-center gap-4 border-t border-slate-100 bg-slate-50/50 px-5 py-3 text-xs">
+                  <Link href={`/orders/${row.orderId}`} className="font-bold text-emerald-700 hover:text-emerald-800 transition">
                     View Full Invoice →
                   </Link>
                   {row.productSlug && (
                     <Link
                       href={`/gift-codes/${row.productSlug}`}
-                      className="font-semibold text-slate-400 hover:text-white transition"
+                      className="font-semibold text-slate-600 hover:text-slate-900 transition"
                     >
                       Buy Again
                     </Link>
