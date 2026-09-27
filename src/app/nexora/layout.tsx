@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { getCurrentUser, isAdmin } from "@/lib/auth";
 import { logoutAction } from "@/lib/actions/auth-actions";
 import { getMarketplaceMode } from "@/lib/marketplace-mode";
+import { ensureDatabaseSchema } from "@/db/auto-migrate";
 
 const NAV = [
   { href: "/nexora", label: "Dashboard", icon: "📊" },
@@ -21,6 +22,7 @@ const NAV = [
 ];
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
+  await ensureDatabaseSchema();
   const user = await getCurrentUser();
   if (!user) redirect("/login?next=/nexora");
   if (!isAdmin(user)) redirect("/dashboard");

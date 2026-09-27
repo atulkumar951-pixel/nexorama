@@ -8,22 +8,47 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Admin Dashboard" };
 
 export default async function AdminDashboard() {
-  const [[u], [p], [o], [rev], [pay], [ref], [dl], recentOrders, topProducts] = await Promise.all([
-    db.select({ c: sql<number>`count(*)::int` }).from(users).where(eq(users.role, "user")),
-    db.select({ c: sql<number>`count(*)::int` }).from(products),
-    db.select({ c: sql<number>`count(*)::int` }).from(orders),
-    db.select({ s: sql<number>`coalesce(sum(total),0)::int` }).from(orders).where(sql`status in ('PAID','COMPLETED')`),
-    db.select({ c: sql<number>`count(*)::int` }).from(payments).where(eq(payments.status, "CAPTURED")),
-    db.select({ c: sql<number>`count(*)::int` }).from(refunds),
-    db.select({ c: sql<number>`count(*)::int` }).from(downloads).where(eq(downloads.status, "COMPLETED")),
-    db
-      .select({ order: orders, userName: users.name })
-      .from(orders)
-      .innerJoin(users, eq(orders.userId, users.id))
-      .orderBy(desc(orders.createdAt))
-      .limit(8),
-    db.select().from(products).orderBy(desc(products.salesCount)).limit(5),
-  ]);
+  let u: { c: number } | undefined;
+  let p: { c: number } | undefined;
+  let o: { c: number } | undefined;
+  let rev: { s: number } | undefined;
+  let pay: { c: number } | undefined;
+  let ref: { c: number } | undefined;
+  let dl: { c: number } | undefined;
+  let recentOrders: Array<{ order: any; userName: string }> = [];
+  let topProducts: any[] = [];
+  let dbError: string | null = null;
+
+  try {
+    const [uRes, pRes, oRes, revRes, payRes, refRes, dlRes, ordersRes, productsRes] = await Promise.all([
+      db.select({ c: sql<number>`count(*)::int` }).from(users).where(eq(users.role, "user")),
+      db.select({ c: sql<number>`count(*)::int` }).from(products),
+      db.select({ c: sql<number>`count(*)::int` }).from(orders),
+      db.select({ s: sql<number>`coalesce(sum(total),0)::int` }).from(orders).where(sql`status in ('PAID','COMPLETED')`),
+      db.select({ c: sql<number>`count(*)::int` }).from(payments).where(eq(payments.status, "CAPTURED")),
+      db.select({ c: sql<number>`count(*)::int` }).from(refunds),
+      db.select({ c: sql<number>`count(*)::int` }).from(downloads).where(eq(downloads.status, "COMPLETED")),
+      db
+        .select({ order: orders, userName: users.name })
+        .from(orders)
+        .innerJoin(users, eq(orders.userId, users.id))
+        .orderBy(desc(orders.createdAt))
+        .limit(8),
+      db.select().from(products).orderBy(desc(products.salesCount)).limit(5),
+    ]);
+    [u] = uRes;
+    [p] = pRes;
+    [o] = oRes;
+    [rev] = revRes;
+    [pay] = payRes;
+    [ref] = refRes;
+    [dl] = dlRes;
+    recentOrders = ordersRes;
+    topProducts = productsRes;
+  } catch (err: any) {
+    console.error("[AdminDashboard DB Error]:", err);
+    dbError = err?.message || "Failed to load database stats.";
+  }
 
   const cards = [
     { label: "Total Revenue", value: formatINR(rev?.s ?? 0), icon: "💰", accent: "bg-emerald-500" },
@@ -37,6 +62,17 @@ export default async function AdminDashboard() {
 
   return (
     <div>
+      {dbError && (
+        <div className="mb-6 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-800">
+          <p className="font-bold">⚠️ Database Notice: {dbError}</p>
+          <p className="mt-1 text-xs">
+            If you recently deployed new features, you can verify and apply the database schema.
+            <Link href="/api/migrate" target="_blank" className="ml-2 font-bold underline hover:text-amber-950">
+              Apply Database Migration (/api/migrate) ↗
+            </Link>
+          </p>
+        </div>
+      )}
       <h1 className="text-2xl font-bold">Dashboard</h1>
       <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4">
         {cards.map((c) => (
