@@ -34,9 +34,10 @@ export default async function OrderDetailPage({
       {sp.success && (
         order.orderType === "GIFT_CODE" ? (
           <div className="mb-6 rounded-xl bg-emerald-50 p-5 text-emerald-800 ring-1 ring-emerald-200">
-            <p className="text-lg font-bold">🎉 Gift card order confirmed!</p>
-            <p className="text-sm">Your order has been received. Your gift code will be delivered to your email shortly.</p>
-            <Link href="/my-gift-codes" className="btn-primary mt-3 !bg-emerald-600 hover:!bg-emerald-700">Track My Gift Codes →</Link>
+            <p className="text-lg font-bold">🎉 Payment successful! Instant Code Delivery</p>
+            <p className="text-sm">Your payment is confirmed and your gift code is delivered instantly. View and redeem your code in My Gift Codes.</p>
+            <p className="mt-1 text-xs text-emerald-700">Note: If any item is sold out, if payment deducted it will refunded within 24-72 hrs.</p>
+            <Link href="/my-gift-codes" className="btn-primary mt-3 !bg-emerald-600 hover:!bg-emerald-700">⚡ View My Gift Codes →</Link>
           </div>
         ) : (
           <div className="mb-6 rounded-xl bg-emerald-50 p-5 text-emerald-800 ring-1 ring-emerald-200">
@@ -99,7 +100,7 @@ export default async function OrderDetailPage({
         {(order.status === "PAID" || order.status === "COMPLETED") && (
           order.orderType === "GIFT_CODE" ? (
             <Link href="/my-gift-codes" className="btn-primary mt-6 w-full !bg-emerald-600 hover:!bg-emerald-700 !py-3">
-              Track Gift Code Delivery →
+              ⚡ View &amp; Redeem My Gift Codes →
             </Link>
           ) : (
             <Link href="/library" className="btn-primary mt-6 w-full !py-3">Open My Library →</Link>

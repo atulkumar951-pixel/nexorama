@@ -7,11 +7,18 @@ import { getCurrentUser } from "@/lib/auth";
 import { getMarketplaceMode } from "@/lib/marketplace-mode";
 import { formatDate } from "@/lib/format";
 import { formatINR } from "@/lib/format";
+import { decryptGiftCode } from "@/lib/gift-crypto";
+import { CodeDisplay } from "./code-display";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "My Gift Codes | Nexora" };
 
-export default async function MyGiftCodesPage() {
+export default async function MyGiftCodesPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ success?: string; order?: string }>;
+}) {
+  const sp = searchParams ? await searchParams : {};
   const mode = await getMarketplaceMode();
   if (mode !== "GIFT_CODES") redirect("/library");
 
@@ -35,6 +42,7 @@ export default async function MyGiftCodesPage() {
       sentAt: giftCodeDeliveries.sentAt,
       adminNote: giftCodeDeliveries.adminNote,
       maskedCode: giftCodes.maskedCode,
+      encryptedCode: giftCodes.encryptedCode,
       codeStatus: giftCodes.status,
       productName: giftProducts.name,
       brandName: giftProducts.brandName,
@@ -50,22 +58,26 @@ export default async function MyGiftCodesPage() {
 
   const statusColor: Record<string, string> = {
     PENDING: "bg-amber-50 text-amber-800 border-amber-200",
-    ASSIGNED: "bg-blue-50 text-blue-800 border-blue-200",
-    PROCESSING: "bg-violet-50 text-violet-800 border-violet-200",
+    ASSIGNED: "bg-emerald-50 text-emerald-800 border-emerald-200",
+    PROCESSING: "bg-emerald-50 text-emerald-800 border-emerald-200",
     SENT: "bg-emerald-50 text-emerald-800 border-emerald-200",
     FAILED: "bg-red-50 text-red-800 border-red-200",
     CANCELLED: "bg-slate-100 text-slate-600 border-slate-200",
     REPLACED: "bg-orange-50 text-orange-800 border-orange-200",
+    SOLD_OUT: "bg-rose-50 text-rose-800 border-rose-200",
+    OUT_OF_STOCK: "bg-rose-50 text-rose-800 border-rose-200",
   };
 
   const deliveryLabel: Record<string, string> = {
-    PENDING: "⏳ Processing",
-    ASSIGNED: "🔄 Code Assigned",
-    PROCESSING: "📤 Dispatching",
-    SENT: "✅ Delivered to Email",
-    FAILED: "❌ Delivery Failed",
+    PENDING: "⏳ Pending Payment",
+    ASSIGNED: "⚡ Instant Delivered",
+    PROCESSING: "⚡ Instant Delivered",
+    SENT: "⚡ Instant Delivered",
+    FAILED: "❌ Delivery Alert",
     CANCELLED: "🚫 Cancelled",
     REPLACED: "🔁 Replaced",
+    SOLD_OUT: "⚠️ Sold Out (Refund 24-72h)",
+    OUT_OF_STOCK: "⚠️ Sold Out (Refund 24-72h)",
   };
 
   return (
@@ -76,7 +88,7 @@ export default async function MyGiftCodesPage() {
           <div>
             <h1 className="text-3xl font-black text-slate-900">My Gift Codes</h1>
             <p className="mt-1 text-xs text-slate-500">
-              Track your purchased gift vouchers, delivery timestamps, and order history.
+              Access your instant digital codes, redemption details, and purchase receipts.
             </p>
           </div>
           <Link
@@ -87,12 +99,26 @@ export default async function MyGiftCodesPage() {
           </Link>
         </div>
 
+        {sp.success && (
+          <div className="mb-8 rounded-2xl border border-emerald-300 bg-emerald-50/90 p-5 shadow-sm text-emerald-900">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">🎉</span>
+              <div>
+                <h2 className="text-sm font-bold text-emerald-950">Payment Complete! Code Delivered Instantly</h2>
+                <p className="mt-1 text-xs text-emerald-800 leading-relaxed">
+                  Your payment was verified and your voucher code is displayed below. If any requested code was sold out, if payment deducted it will refunded within 24-72 hrs.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {rows.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-white py-20 text-center shadow-xs">
             <div className="text-6xl mb-4">🎁</div>
             <h3 className="text-lg font-bold text-slate-900">No gift codes purchased yet</h3>
             <p className="mt-1.5 text-xs text-slate-500 max-w-xs leading-relaxed">
-              Explore 50+ official brands like Steam, Amazon, Google Play, Netflix, and get codes delivered in under 5 minutes.
+              Explore 50+ official brands like Steam, Amazon, Google Play, Netflix, and get codes delivered instantly upon payment.
             </p>
             <Link
               href="/gift-codes"
@@ -103,136 +129,142 @@ export default async function MyGiftCodesPage() {
           </div>
         ) : (
           <div className="space-y-5">
-            {rows.map((row) => (
-              <div
-                key={`${row.orderId}-${row.deliveryId}`}
-                className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition"
-              >
-                {/* Order header */}
-                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 bg-slate-50/80 px-5 py-3">
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs font-mono font-bold text-slate-700">{row.orderNumber}</span>
-                    <span
-                      className={`rounded-full border px-2.5 py-0.5 text-[11px] font-bold ${
-                        row.orderStatus === "PAID" || row.orderStatus === "COMPLETED"
-                          ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-                          : row.orderStatus === "PENDING"
-                          ? "border-amber-200 bg-amber-50 text-amber-800"
-                          : "border-slate-200 bg-slate-100 text-slate-600"
-                      }`}
-                    >
-                      {row.orderStatus}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3 text-xs text-slate-500">
-                    <span>{formatDate(row.createdAt.toISOString())}</span>
-                    <span className="font-black text-slate-900">{formatINR(row.total)}</span>
-                  </div>
-                </div>
+            {rows.map((row) => {
+              const rawCode = row.encryptedCode ? decryptGiftCode(row.encryptedCode) : null;
+              const hasCode = Boolean(rawCode || (row.maskedCode && row.maskedCode !== "UNASSIGNED"));
+              const isPaid = row.orderStatus === "PAID" || row.orderStatus === "COMPLETED";
+              const isSoldOut =
+                row.deliveryStatus === "SOLD_OUT" ||
+                row.deliveryStatus === "OUT_OF_STOCK" ||
+                (!hasCode && isPaid);
 
-                {/* Product & delivery info */}
-                <div className="p-5">
-                  <div className="flex flex-wrap items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <p className="font-bold text-slate-900 text-lg">
-                        {row.brandName && <span className="text-emerald-700">{row.brandName} · </span>}
-                        {row.itemTitle}
-                      </p>
-                      {row.denomination && (
-                        <p className="text-xs text-slate-500 mt-1">
-                          Voucher Value: <strong className="text-slate-800">{formatINR(row.denomination)}</strong>
-                          {row.quantity > 1 && <> × {row.quantity}</>}
-                        </p>
-                      )}
-                      {row.recipientEmail && (
-                        <p className="mt-1 text-xs text-slate-500">
-                          Recipient Email: <strong className="text-slate-800">{row.recipientEmail}</strong>
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Delivery status badge */}
-                    {row.deliveryStatus && (
-                      <div
-                        className={`rounded-xl border px-3.5 py-1.5 text-xs font-bold ${
-                          statusColor[row.deliveryStatus] ?? "bg-slate-100 text-slate-700 border-slate-200"
+              return (
+                <div
+                  key={`${row.orderId}-${row.deliveryId}`}
+                  className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition"
+                >
+                  {/* Order header */}
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 bg-slate-50/80 px-5 py-3">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs font-mono font-bold text-slate-700">{row.orderNumber}</span>
+                      <span
+                        className={`rounded-full border px-2.5 py-0.5 text-[11px] font-bold ${
+                          isPaid
+                            ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                            : row.orderStatus === "PENDING"
+                            ? "border-amber-200 bg-amber-50 text-amber-800"
+                            : "border-slate-200 bg-slate-100 text-slate-600"
                         }`}
                       >
-                        {deliveryLabel[row.deliveryStatus] ?? row.deliveryStatus}
+                        {row.orderStatus}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3 text-xs text-slate-500">
+                      <span>{formatDate(row.createdAt.toISOString())}</span>
+                      <span className="font-black text-slate-900">{formatINR(row.total)}</span>
+                    </div>
+                  </div>
+
+                  {/* Product & delivery info */}
+                  <div className="p-5">
+                    <div className="flex flex-wrap items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <p className="font-bold text-slate-900 text-lg">
+                          {row.brandName && <span className="text-emerald-700">{row.brandName} · </span>}
+                          {row.itemTitle}
+                        </p>
+                        {row.denomination && (
+                          <p className="text-xs text-slate-500 mt-1">
+                            Voucher Value: <strong className="text-slate-800">{formatINR(row.denomination)}</strong>
+                            {row.quantity > 1 && <> × {row.quantity}</>}
+                          </p>
+                        )}
+                        {row.recipientEmail && (
+                          <p className="mt-1 text-xs text-slate-500">
+                            Recipient Email: <strong className="text-slate-800">{row.recipientEmail}</strong>
+                          </p>
+                        )}
                       </div>
+
+                      {/* Delivery status badge */}
+                      {row.deliveryStatus && (
+                        <div
+                          className={`rounded-xl border px-3.5 py-1.5 text-xs font-bold ${
+                            statusColor[row.deliveryStatus] ?? "bg-slate-100 text-slate-700 border-slate-200"
+                          }`}
+                        >
+                          {deliveryLabel[row.deliveryStatus] ?? row.deliveryStatus}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Instant Delivered Code Display */}
+                    {hasCode && isPaid && (
+                      <div className="mt-4">
+                        <CodeDisplay rawCode={rawCode} maskedCode={row.maskedCode} />
+                        <div className="mt-2.5 flex items-center gap-2 text-[11px] text-slate-500">
+                          <span className="text-emerald-600 font-bold">⚡ Instant Delivery:</span>
+                          <span>Voucher confirmed and dispatched to {row.recipientEmail}</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Sold Out Notice */}
+                    {isSoldOut && (
+                      <div className="mt-4 rounded-xl border border-amber-300 bg-amber-50/90 p-4">
+                        <div className="flex items-start gap-3">
+                          <span className="text-xl">⚠️</span>
+                          <div>
+                            <p className="text-xs font-bold text-amber-900">
+                              Item Sold Out
+                            </p>
+                            <p className="mt-1 text-xs text-amber-800 leading-relaxed font-semibold">
+                              if payment deducted it will refunded within 24-72 hrs
+                            </p>
+                            <p className="mt-1 text-[11px] text-amber-700">
+                              Our automated billing system is processing the reversal. Please contact support if you need further help.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Failed banner */}
+                    {row.deliveryStatus === "FAILED" && (
+                      <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4">
+                        <p className="text-xs font-bold text-red-900">❌ Dispatch Alert</p>
+                        <p className="mt-1 text-[11px] text-red-800">
+                          Please contact our 24/7 support desk with order reference{" "}
+                          <strong className="text-slate-900">{row.orderNumber}</strong> for immediate resolution.
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Ops Admin Note */}
+                    {row.adminNote && (
+                      <p className="mt-2 text-[11px] text-slate-500">
+                        <span className="font-semibold text-slate-700">Note:</span> {row.adminNote}
+                      </p>
                     )}
                   </div>
 
-                  {/* Sent confirmation banner */}
-                  {row.deliveryStatus === "SENT" && row.sentAt && (
-                    <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-                      <p className="text-xs font-bold text-emerald-900">
-                        ✅ Digital code dispatched on {formatDate(row.sentAt.toISOString())}
-                      </p>
-                      <p className="mt-1 text-[11px] text-emerald-800 leading-relaxed">
-                        Please check your inbox (and spam/promotions folder) at{" "}
-                        <strong className="text-slate-900">{row.recipientEmail}</strong> for the redemption voucher.
-                      </p>
-                      {row.maskedCode && row.maskedCode !== "UNASSIGNED" && (
-                        <p className="mt-2 text-xs text-slate-700">
-                          Credential Preview:{" "}
-                          <span className="font-mono font-bold bg-white px-2 py-0.5 rounded border border-emerald-300 text-emerald-800">
-                            {row.maskedCode}
-                          </span>
-                        </p>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Processing banner */}
-                  {(row.deliveryStatus === "PENDING" || row.deliveryStatus === "ASSIGNED") &&
-                    (row.orderStatus === "PAID" || row.orderStatus === "COMPLETED") && (
-                      <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4">
-                        <p className="text-xs font-bold text-amber-900">
-                          ⏳ Your code is being processed in our queue
-                        </p>
-                        <p className="mt-1 text-[11px] text-amber-800">
-                          Codes are typically delivered within 2 to 5 minutes to{" "}
-                          <strong className="text-slate-900">{row.recipientEmail}</strong>.
-                        </p>
-                      </div>
-                    )}
-
-                  {/* Failed banner */}
-                  {row.deliveryStatus === "FAILED" && (
-                    <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4">
-                      <p className="text-xs font-bold text-red-900">❌ Dispatch Alert</p>
-                      <p className="mt-1 text-[11px] text-red-800">
-                        Please contact our 24/7 ops desk with order reference{" "}
-                        <strong className="text-slate-900">{row.orderNumber}</strong> for immediate resolution.
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Ops Admin Note */}
-                  {row.adminNote && row.deliveryStatus === "SENT" && (
-                    <p className="mt-2 text-[11px] text-slate-500">
-                      <span className="font-semibold text-slate-700">Note:</span> {row.adminNote}
-                    </p>
-                  )}
-                </div>
-
-                {/* Footer actions */}
-                <div className="flex items-center gap-4 border-t border-slate-100 bg-slate-50/50 px-5 py-3 text-xs">
-                  <Link href={`/orders/${row.orderId}`} className="font-bold text-emerald-700 hover:text-emerald-800 transition">
-                    View Full Invoice →
-                  </Link>
-                  {row.productSlug && (
-                    <Link
-                      href={`/gift-codes/${row.productSlug}`}
-                      className="font-semibold text-slate-600 hover:text-slate-900 transition"
-                    >
-                      Buy Again
+                  {/* Footer actions */}
+                  <div className="flex items-center gap-4 border-t border-slate-100 bg-slate-50/50 px-5 py-3 text-xs">
+                    <Link href={`/orders/${row.orderId}`} className="font-bold text-emerald-700 hover:text-emerald-800 transition">
+                      View Full Invoice →
                     </Link>
-                  )}
+                    {row.productSlug && (
+                      <Link
+                        href={`/gift-codes/${row.productSlug}`}
+                        className="font-semibold text-slate-600 hover:text-slate-900 transition"
+                      >
+                        Buy Again
+                      </Link>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

@@ -39,6 +39,8 @@ export function statusBadgeClass(status: string) {
     case "REVOKED":
     case "BANNED":
     case "SUSPENDED":
+    case "SOLD_OUT":
+    case "OUT_OF_STOCK":
       return "bg-red-100 text-red-700";
     case "REFUNDED":
     case "PARTIALLY_REFUNDED":

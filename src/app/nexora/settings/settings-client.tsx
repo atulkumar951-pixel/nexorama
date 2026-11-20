@@ -200,8 +200,7 @@ export default function SettingsClient({ initialMode, initialSettings }: Setting
               />
             </div>
             <p className="mt-3 text-xs leading-relaxed text-slate-600">
-              Users purchase brand vouchers and gift cards. Raw codes are never revealed on the site; ops team manually
-              emails codes upon verified payment within 5 minutes.
+              Users purchase brand vouchers and gift cards. Codes are provided instantly upon verified payment completion.
             </p>
             {currentMode !== "GIFT_CODES" && (
               <button
@@ -281,8 +280,7 @@ export default function SettingsClient({ initialMode, initialSettings }: Setting
               className="mt-1.5 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
             />
             <p className="mt-1 text-xs text-slate-500">
-              Target manual email delivery SLA shown to user (PRD §17: "within 5 minutes"). Orders exceeding this are
-              flagged OVERDUE.
+              Target delivery monitoring SLA. Orders exceeding this threshold are flagged OVERDUE in the admin dashboard.
             </p>
           </div>
 

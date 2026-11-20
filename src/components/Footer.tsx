@@ -16,8 +16,8 @@ export default async function Footer() {
                 ⚡
               </span>
               <div>
-                <p className="text-xs font-bold text-white uppercase tracking-wider">Instant Email Delivery</p>
-                <p className="text-[11px] text-slate-400">Codes dispatched in &lt; 5 minutes</p>
+                <p className="text-xs font-bold text-white uppercase tracking-wider">Instant Digital Delivery</p>
+                <p className="text-[11px] text-slate-400">Codes provided instantly upon payment</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -67,7 +67,7 @@ export default async function Footer() {
             </p>
             <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-950/40 px-3 py-1 text-[11px] font-semibold text-emerald-300">
               <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-              Delivery SLA: &lt; 5 Minutes Guaranteed
+              ⚡ Instant Code Delivery Guaranteed · 24-72h Refund if Sold Out
             </div>
             <div className="mt-5 flex items-center gap-2 text-xs text-slate-400">
               <span className="text-slate-500">Accepted:</span>

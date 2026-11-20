@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: Props) {
     if (!product) return { title: "Gift Card | Nexora" };
     return {
       title: `${product.brandName} ${product.name} | Nexora Gift Codes`,
-      description: product.description ?? `Buy ${product.brandName} ${product.name} gift card. Instant digital delivery in under 5 minutes.`,
+      description: product.description ?? `Buy ${product.brandName} ${product.name} gift card. Instant digital delivery upon payment.`,
     };
   } catch {
     return { title: "Gift Card | Nexora" };
@@ -143,7 +143,7 @@ export default async function GiftProductDetailPage({ params }: Props) {
                   </span>
                 )}
                 <span className="rounded-md border border-cyan-200 bg-cyan-50 px-2.5 py-1 text-xs font-bold text-cyan-800">
-                  ⚡ &lt; 5 Mins Email Delivery
+                  ⚡ Instant Delivery
                 </span>
               </div>
 
@@ -168,8 +168,8 @@ export default async function GiftProductDetailPage({ params }: Props) {
                   </div>
                   <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
                     <div className="text-2xl">📧</div>
-                    <p className="mt-2 font-bold text-slate-900 text-xs">2. Code Dispatched</p>
-                    <p className="mt-1 text-[11px] text-slate-500">Encrypted code delivered directly to your email in &lt; 5 mins.</p>
+                    <p className="mt-2 font-bold text-slate-900 text-xs">2. Code Provided Instantly</p>
+                    <p className="mt-1 text-[11px] text-slate-500">Encrypted code delivered directly to your screen &amp; email immediately.</p>
                   </div>
                   <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
                     <div className="text-2xl">🎮</div>
@@ -222,19 +222,17 @@ export default async function GiftProductDetailPage({ params }: Props) {
 
               {/* Live Inventory Stock Badge */}
               <div
-                className={`mb-6 flex items-center justify-between rounded-xl border px-4 py-2.5 text-xs font-bold ${
-                  inStock
-                    ? isLowStock
-                      ? "border-amber-200 bg-amber-50 text-amber-800"
-                      : "border-emerald-200 bg-emerald-50 text-emerald-800"
-                    : "border-red-200 bg-red-50 text-red-700"
-                }`}
+                className={`mb-6 flex items-center justify-between rounded-xl border px-4 py-2.5 text-xs font-bold ${inStock
+                  ? isLowStock
+                    ? "border-amber-200 bg-amber-50 text-amber-800"
+                    : "border-emerald-200 bg-emerald-50 text-emerald-800"
+                  : "border-red-200 bg-red-50 text-red-700"
+                  }`}
               >
                 <div className="flex items-center gap-2">
                   <span
-                    className={`h-2.5 w-2.5 rounded-full ${
-                      inStock ? (isLowStock ? "bg-amber-500 animate-ping" : "bg-emerald-500 animate-pulse") : "bg-red-500"
-                    }`}
+                    className={`h-2.5 w-2.5 rounded-full ${inStock ? (isLowStock ? "bg-amber-500 animate-ping" : "bg-emerald-500 animate-pulse") : "bg-red-500"
+                      }`}
                   />
                   <span>
                     {inStock
@@ -290,7 +288,7 @@ export default async function GiftProductDetailPage({ params }: Props) {
               <div className="mt-6 space-y-3 border-t border-slate-100 pt-6 text-xs text-slate-600">
                 <div className="flex items-center gap-2">
                   <span className="text-emerald-600">⚡</span>
-                  <span>Instant email delivery SLA &lt; 5 minutes</span>
+                  <span>Instant digital code delivery upon payment completion</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-cyan-600">🛡️</span>
@@ -301,7 +299,7 @@ export default async function GiftProductDetailPage({ params }: Props) {
                   <span>Safe checkout with 256-bit encrypted Razorpay</span>
                 </div>
                 <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-[11px] text-slate-600 leading-relaxed">
-                  <span className="font-semibold text-slate-800">⚠️ Non-Refundable:</span> Digital voucher codes are single-use credentials and cannot be cancelled or refunded once dispatched.
+                  <span className="font-semibold text-slate-800">⚠️ Policy:</span> Digital voucher codes are provided instantly upon payment. If code sold out, if payment deducted it will refunded within 24-72 hrs.
                 </div>
               </div>
             </div>

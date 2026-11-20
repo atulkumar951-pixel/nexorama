@@ -31,25 +31,29 @@ export function encryptGiftCode(plainCode: string): string {
  * Decrypt an AES-256-GCM encrypted gift code string.
  */
 export function decryptGiftCode(encryptedString: string): string {
-  if (!encryptedString || !encryptedString.includes(":")) {
-    return encryptedString;
+  try {
+    if (!encryptedString || !encryptedString.includes(":")) {
+      return encryptedString;
+    }
+
+    const parts = encryptedString.split(":");
+    if (parts.length !== 3) {
+      return encryptedString;
+    }
+
+    const [ivHex, tagHex, contentHex] = parts;
+    const iv = Buffer.from(ivHex, "hex");
+    const tag = Buffer.from(tagHex, "hex");
+    const content = Buffer.from(contentHex, "hex");
+
+    const decipher = crypto.createDecipheriv("aes-256-gcm", ENCRYPTION_KEY, iv);
+    decipher.setAuthTag(tag);
+
+    const decrypted = Buffer.concat([decipher.update(content), decipher.final()]);
+    return decrypted.toString("utf8");
+  } catch {
+    return "";
   }
-
-  const parts = encryptedString.split(":");
-  if (parts.length !== 3) {
-    return encryptedString;
-  }
-
-  const [ivHex, tagHex, contentHex] = parts;
-  const iv = Buffer.from(ivHex, "hex");
-  const tag = Buffer.from(tagHex, "hex");
-  const content = Buffer.from(contentHex, "hex");
-
-  const decipher = crypto.createDecipheriv("aes-256-gcm", ENCRYPTION_KEY, iv);
-  decipher.setAuthTag(tag);
-
-  const decrypted = Buffer.concat([decipher.update(content), decipher.final()]);
-  return decrypted.toString("utf8");
 }
 
 /**

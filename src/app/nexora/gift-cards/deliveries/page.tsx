@@ -6,7 +6,7 @@ import { DeliveryRowActions } from "./delivery-row-actions";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Admin · Gift Deliveries" };
 
-const DELIVERY_STATUSES = ["PENDING", "ASSIGNED", "PROCESSING", "MANUAL_REVIEW", "FAILED", "SENT"];
+const DELIVERY_STATUSES = ["PENDING", "ASSIGNED", "PROCESSING", "MANUAL_REVIEW", "SOLD_OUT", "FAILED", "SENT"];
 
 export default async function AdminGiftDeliveriesPage({
   searchParams,
@@ -114,7 +114,7 @@ export default async function AdminGiftDeliveriesPage({
               <th className="px-4 py-3">Amount</th>
               <th className="px-4 py-3">Code</th>
               <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3">Waiting</th>
+              <th className="px-4 py-3">Fulfillment</th>
               <th className="px-4 py-3"></th>
             </tr>
           </thead>
@@ -143,9 +143,13 @@ export default async function AdminGiftDeliveriesPage({
                   {d.overdue && <span className="badge ml-1 bg-red-100 text-red-700">overdue</span>}
                 </td>
                 <td className="px-4 py-3 text-slate-500">
-                  {d.deliveryStatus === "SENT" || d.minutesWaiting === null
+                  {d.deliveryStatus === "SENT"
+                    ? "⚡ Instant"
+                    : d.deliveryStatus === "SOLD_OUT"
+                    ? "⚠️ Sold out (24-72h refund)"
+                    : d.minutesWaiting === null
                     ? "—"
-                    : `${d.minutesWaiting} min / ${d.targetMinutes}`}
+                    : `${d.minutesWaiting} min`}
                 </td>
                 <td className="px-4 py-3 text-right">
                   <DeliveryRowActions

@@ -100,7 +100,7 @@ export function GiftBuyForm({ product, userEmail, maxQuantity = 5 }: Props) {
       </button>
 
       <p className="text-center text-xs text-slate-400">
-        🔒 Verified payment via Razorpay. Raw codes dispatched manually by ops within 5 minutes.
+        ⚡ Instant digital code delivery upon payment. If code sold out, if payment deducted it will refunded within 24-72 hrs.
       </p>
     </form>
   );

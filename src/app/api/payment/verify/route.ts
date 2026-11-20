@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { db } from "@/db";
-import { payments } from "@/db/schema";
+import { payments, orders } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { getCurrentUser } from "@/lib/auth";
 import { fulfillOrder } from "@/lib/helpers";
@@ -101,7 +101,13 @@ export async function POST(req: NextRequest) {
       method: "razorpay",
     });
 
-    return NextResponse.json({ ok: true, orderId: payment.orderId });
+    const [order] = await db
+      .select({ orderType: orders.orderType })
+      .from(orders)
+      .where(eq(orders.id, payment.orderId))
+      .limit(1);
+
+    return NextResponse.json({ ok: true, orderId: payment.orderId, isGiftCode: order?.orderType === "GIFT_CODE" });
   } catch (err: any) {
     console.error("[Payment Verify Route Error]:", err);
     return NextResponse.json({ error: err.message || "Internal server error." }, { status: 500 });

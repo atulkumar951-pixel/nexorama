@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 export const metadata = {
   title: "Gift Codes & Gaming Vouchers | Nexora",
   description:
-    "Buy official gift cards for Steam, Google Play, Amazon Pay, Netflix & 50+ brands. 100% genuine codes with instant email delivery in under 5 minutes.",
+    "Buy official gift cards for Steam, Google Play, Amazon Pay, Netflix & 50+ brands. 100% genuine codes with instant digital delivery upon payment.",
 };
 
 const POPULAR_BRANDS = [
@@ -33,7 +33,7 @@ const FAQS = [
   },
   {
     q: "How fast is the delivery?",
-    a: "Our target SLA is under 5 minutes! Over 99% of our orders are fulfilled within 2 to 3 minutes. If your code is delayed, our 24/7 ops desk is available to assist immediately.",
+    a: "Instant! Once your payment is verified, your code is revealed directly on your screen and dispatched to your email. If any item is sold out, if payment deducted it will refunded within 24-72 hrs.",
   },
   {
     q: "Are these codes official and genuine?",
@@ -45,7 +45,7 @@ const FAQS = [
   },
   {
     q: "What is the return/refund policy?",
-    a: "Because digital gift codes are single-use credentials that cannot be un-seen once delivered, gift code orders are strictly non-refundable once delivered, in accordance with brand policy.",
+    a: "Digital gift codes are single-use credentials delivered instantly upon payment. If a code is sold out at payment completion, if payment deducted it will refunded within 24-72 hrs.",
   },
 ];
 
@@ -150,7 +150,7 @@ export default async function GiftCodesStorefrontPage({
             <div className="lg:col-span-7">
               <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50/80 px-3.5 py-1.5 text-xs font-bold text-emerald-800 shadow-xs backdrop-blur-sm">
                 <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>⚡ 100% Genuine Brand Codes · Instant Email Delivery &lt; 5 Mins</span>
+                <span>⚡ 100% Genuine Brand Codes · Instant Code Delivery Upon Payment</span>
               </div>
 
               <h1 className="mt-5 text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-[3.25rem] leading-[1.15] text-slate-900">
@@ -204,7 +204,7 @@ export default async function GiftCodesStorefrontPage({
               <div className="mt-10 flex flex-wrap items-center gap-3 border-t border-slate-200 pt-6 text-xs sm:text-sm text-slate-600">
                 <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3.5 py-1.5 shadow-xs">
                   <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                  <span className="font-semibold text-slate-700">&lt; 5 Mins Delivery SLA</span>
+                  <span className="font-semibold text-slate-700">⚡ Instant Delivery Upon Payment</span>
                 </div>
                 <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3.5 py-1.5 shadow-xs">
                   <span className="h-2 w-2 rounded-full bg-cyan-500" />
@@ -247,7 +247,7 @@ export default async function GiftCodesStorefrontPage({
                           Nexora Gift Cards Hub
                         </p>
                         <p className="text-xs font-semibold text-slate-800">
-                          100% Genuine · Delivery in &lt; 5 mins
+                          100% Genuine · Instant Delivery
                         </p>
                       </div>
                       <span className="rounded-lg bg-emerald-600 px-2.5 py-1 text-[11px] font-bold text-white shadow-xs">
@@ -454,16 +454,16 @@ export default async function GiftCodesStorefrontPage({
               Engineered for Speed &amp; Security
             </h2>
             <p className="mt-2 text-xs text-slate-500 leading-relaxed">
-              We eliminate the friction of digital gifting with instant automated queue processing and verified distributor codes.
+              We eliminate the friction of digital gifting with instant automated code delivery and verified distributor codes.
             </p>
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-6 hover:border-emerald-300 hover:bg-white hover:shadow-md transition">
               <span className="text-3xl">⚡</span>
-              <h3 className="mt-3 font-bold text-slate-900 text-sm">5-Minute SLA Guarantee</h3>
+              <h3 className="mt-3 font-bold text-slate-900 text-sm">Instant Delivery Guarantee</h3>
               <p className="mt-1.5 text-xs text-slate-600 leading-relaxed">
-                Automated order dispatch ensures your valid code lands directly in your email inbox in under 5 minutes.
+                Codes are delivered immediately upon payment completion. If code sold out, if payment deducted it will refunded within 24-72 hrs.
               </p>
             </div>
             <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-6 hover:border-cyan-300 hover:bg-white hover:shadow-md transition">

@@ -86,9 +86,10 @@ export async function fulfillGiftOrder(
         const [updated] = await db
           .update(giftCodes)
           .set({
-            status: "ASSIGNED",
+            status: "SOLD",
             assignedOrderId: orderId,
             assignedAt: now,
+            soldAt: now,
             updatedAt: now,
           })
           .where(
@@ -105,26 +106,37 @@ export async function fulfillGiftOrder(
       }
     }
 
-    // Update delivery records with assigned codes
+    // Update delivery records with assigned codes — provide code instantly
     const deliveries = await db
       .select()
       .from(giftCodeDeliveries)
       .where(eq(giftCodeDeliveries.orderId, orderId));
 
+    let anySoldOut = false;
+
     for (let i = 0; i < deliveries.length; i++) {
       const assignedCode = assignedCodes[i];
       if (assignedCode) {
-        await db
-          .update(giftCodeDeliveries)
-          .set({ giftCodeId: assignedCode.id, status: "ASSIGNED", updatedAt: now })
-          .where(eq(giftCodeDeliveries.id, deliveries[i].id));
-      } else {
-        // If not enough codes in stock at checkout completion
+        // INSTANT DELIVERY: Mark SENT immediately on payment completion
         await db
           .update(giftCodeDeliveries)
           .set({
-            status: "PENDING",
-            adminNote: "Awaiting restock — please assign replacement code manually.",
+            giftCodeId: assignedCode.id,
+            status: "SENT",
+            sentAt: now,
+            adminNote: "Instant automated code delivery upon payment completion.",
+            updatedAt: now,
+          })
+          .where(eq(giftCodeDeliveries.id, deliveries[i].id));
+      } else {
+        // If code sold out at payment completion
+        anySoldOut = true;
+        await db
+          .update(giftCodeDeliveries)
+          .set({
+            status: "SOLD_OUT",
+            adminNote: "Code sold out. If payment deducted it will refunded within 24-72 hrs.",
+            failureReason: "Item sold out. If payment deducted it will refunded within 24-72 hrs.",
             updatedAt: now,
           })
           .where(eq(giftCodeDeliveries.id, deliveries[i].id));
@@ -138,13 +150,30 @@ export async function fulfillGiftOrder(
     .set({ status: "CONVERTED", updatedAt: now })
     .where(eq(giftCodeReservations.convertedOrderId, orderId));
 
-  // Notify user
-  await db.insert(notifications).values({
-    userId: order.userId,
-    title: "Gift Code Purchase Confirmed 🎁",
-    message: `Your order ${order.orderNumber} is confirmed! Your gift code(s) will be delivered to your email shortly. Check "My Gift Codes" for details.`,
-    type: "PURCHASE",
-  });
+  // Check if any delivery in this order was sold out
+  const allOrderDeliveries = await db
+    .select({ status: giftCodeDeliveries.status })
+    .from(giftCodeDeliveries)
+    .where(eq(giftCodeDeliveries.orderId, orderId));
+
+  const hasSoldOut = allOrderDeliveries.some((d) => d.status === "SOLD_OUT" || d.status === "FAILED");
+
+  if (hasSoldOut) {
+    await db.insert(notifications).values({
+      userId: order.userId,
+      title: "Item Sold Out - Refund Notice ⚠️",
+      message: `Order ${order.orderNumber}: The requested gift code is sold out. If payment deducted it will refunded within 24-72 hrs.`,
+      type: "PURCHASE",
+    });
+  } else {
+    // Notify user of instant delivery
+    await db.insert(notifications).values({
+      userId: order.userId,
+      title: "Gift Code Delivered Instantly ⚡",
+      message: `Your order ${order.orderNumber} is complete! Your gift code is ready immediately. Check "My Gift Codes" to view and redeem your code.`,
+      type: "PURCHASE",
+    });
+  }
 
   return order;
 }
