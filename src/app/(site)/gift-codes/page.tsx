@@ -45,7 +45,7 @@ const FAQS = [
   },
   {
     q: "What is the return/refund policy?",
-    a: "Digital gift codes are single-use credentials delivered instantly upon payment. If you experience any issues, our 24/7 support desk is available to assist immediately.",
+    a: "All purchases are final. Per our mandatory purchase policy, there is no guarantee of code correctness and you purchase at your own risk. Absolutely no refunds of any type will be made once a voucher code is processed or delivered under any condition, whether the code is right or wrong.",
   },
 ];
 

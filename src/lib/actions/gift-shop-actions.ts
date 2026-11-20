@@ -53,6 +53,11 @@ export async function placeGiftOrderAction(
     return { error: "Please enter a valid email address." };
   }
 
+  const acceptPolicies = formData.get("acceptPolicies");
+  if (!acceptPolicies) {
+    return { error: "You must accept all store policies, no-refund terms, and code risk disclaimer to proceed." };
+  }
+
   // Release any expired reservations first
   await cleanupExpiredGiftReservations();
 

@@ -8,8 +8,7 @@ import { formatDate, formatINR, formatOrderNumber, statusBadgeClass } from "@/li
 import { decryptGiftCode } from "@/lib/gift-crypto";
 import { CodeDisplay } from "@/app/(site)/my-gift-codes/code-display";
 import { syncOrderPaymentWithRazorpay } from "@/lib/payment-sync";
-import { simulatePayAction } from "@/lib/actions/shop-actions";
-import { SubmitButton } from "@/components/client";
+import { PayNowPolicyForm } from "@/app/(site)/pay/[orderId]/pay-now-form";
 import { PendingSyncChecker } from "./pending-sync-checker";
 
 export const dynamic = "force-dynamic";
@@ -173,21 +172,8 @@ export default async function OrderDetailPage({
         )}
 
         {order.status === "PENDING" && (
-          <div className="mt-6 flex flex-col gap-2">
-            <form action={simulatePayAction.bind(null, cleanOrderNumber)}>
-              <SubmitButton
-                className="btn-primary w-full !py-3.5 text-center font-bold shadow-md shadow-emerald-200 flex items-center justify-center gap-2"
-                pendingText="⚡ Completing payment & unlocking code…"
-              >
-                <span>⚡ Pay Now &amp; Unlock Code ({formatINR(order.total)})</span>
-              </SubmitButton>
-            </form>
-            <Link
-              href={`/pay/${cleanOrderNumber}`}
-              className="btn-secondary w-full !py-2.5 text-center text-xs text-slate-600 hover:text-slate-900"
-            >
-              Open Dedicated Payment Page →
-            </Link>
+          <div className="mt-6">
+            <PayNowPolicyForm orderNumber={cleanOrderNumber} total={order.total} />
           </div>
         )}
         {isOrderPaid && (

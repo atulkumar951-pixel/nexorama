@@ -4,8 +4,7 @@ import { orderItems, orders } from "@/db/schema";
 import { eq, or, sql } from "drizzle-orm";
 import { getCurrentUser } from "@/lib/auth";
 import { formatINR, formatOrderNumber } from "@/lib/format";
-import { simulatePayAction } from "@/lib/actions/shop-actions";
-import { SubmitButton } from "@/components/client";
+import { PayNowPolicyForm } from "./pay-now-form";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Complete Payment | Nexora" };
@@ -85,25 +84,8 @@ export default async function PayPage({ params }: { params: Promise<{ orderId: s
           <span className="text-emerald-700">{formatINR(order.total)}</span>
         </div>
 
-        <div className="mt-6 space-y-3">
-          <form action={simulatePayAction.bind(null, cleanOrderNumber)}>
-            <SubmitButton
-              className="btn-primary w-full !py-3.5 text-base font-bold shadow-lg shadow-emerald-200 hover:shadow-emerald-300 transition flex items-center justify-center gap-2"
-              pendingText="⚡ Completing payment & releasing voucher code…"
-            >
-              <span>⚡ Pay Now · {formatINR(order.total)}</span>
-            </SubmitButton>
-          </form>
-
-          <div className="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-3.5 text-center text-xs text-emerald-800 space-y-1">
-            <div className="flex items-center justify-center gap-1.5 font-bold text-emerald-900">
-              <span>⚡</span>
-              <span>Simulated Instant Payment</span>
-            </div>
-            <p className="text-[11px] text-emerald-700 leading-relaxed">
-              No gateway or UPI app required. Clicking <strong>Pay Now</strong> instantly verifies payment, allocates your voucher code from inventory, and delivers it to your screen &amp; email.
-            </p>
-          </div>
+        <div className="mt-6">
+          <PayNowPolicyForm orderNumber={cleanOrderNumber} total={order.total} />
         </div>
 
         <p className="mt-5 text-center text-[11px] text-slate-400">

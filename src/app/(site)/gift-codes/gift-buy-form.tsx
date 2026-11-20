@@ -122,6 +122,38 @@ export function GiftBuyForm({
         </p>
       </div>
 
+      {/* Mandatory Policy Acceptance & Risk Disclosure */}
+      <div className="rounded-2xl border-2 border-amber-300 bg-amber-50/95 p-4 text-xs space-y-2.5 shadow-xs">
+        <div className="flex items-center gap-2 font-bold text-amber-950">
+          <span className="text-lg">⚠️</span>
+          <span className="text-sm">Mandatory Policy Acceptance &amp; Risk Disclosure</span>
+        </div>
+
+        <div className="space-y-1.5 text-amber-900 leading-relaxed text-[11px]">
+          <p>
+            <strong>• Unconditional Policy Acceptance:</strong> Buying any product constitutes unconditional acceptance of all store policies, Terms &amp; Conditions, and Refund Policy under all conditions.
+          </p>
+          <p>
+            <strong>• No Guarantee of Code Correctness (Buy at Your Own Risk):</strong> All digital voucher codes are provided strictly on an &ldquo;AS-IS&rdquo; basis with <strong>no guarantee of code correctness, validity, balance, or redemption ability</strong>. You purchase entirely at your own risk.
+          </p>
+          <p>
+            <strong>• Strictly No Refunds:</strong> Absolutely <strong>no refund of any type will be made</strong> once a code is processed or delivered under any condition, <strong>whether the code is right or wrong</strong>, valid, invalid, or already redeemed.
+          </p>
+        </div>
+
+        <label className="flex items-start gap-2.5 pt-2 border-t border-amber-200 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            name="acceptPolicies"
+            required
+            className="mt-0.5 h-4 w-4 rounded border-amber-400 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+          />
+          <span className="text-[11px] font-bold text-slate-900 leading-snug">
+            I accept all store Policies, Terms &amp; Conditions, and Refund Policy. I agree that buying means unconditional acceptance, I am buying at my own risk with no guarantee of code correctness, and no refund will be made under any condition whether the code is right or wrong.
+          </span>
+        </label>
+      </div>
+
       {state?.error && (
         <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
           {state.error}
@@ -138,7 +170,7 @@ export function GiftBuyForm({
       </button>
 
       <p className="text-center text-xs text-slate-400">
-        🔒 Secure payment via Razorpay · Instant digital delivery
+        🔒 Instant digital voucher delivery · 100% automated processing
       </p>
     </form>
   );

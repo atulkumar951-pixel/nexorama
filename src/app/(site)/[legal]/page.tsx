@@ -4,28 +4,29 @@ const PAGES: Record<string, { title: string; body: string[] }> = {
   terms: {
     title: "Terms & Conditions",
     body: [
-      "By creating an account and purchasing digital products on Nexora, you agree to use purchased content for personal, non-commercial use only.",
-      "Redistribution, resale, or public sharing of purchased files, download links, or lecture URLs is strictly prohibited and may result in account suspension and access revocation.",
-      "Download links are time-limited and download counts may be limited per product. Access duration (lifetime or fixed period) is stated on each product page.",
+      "By purchasing any product on Nexora, you explicitly confirm and agree that you accept all store policies, terms, and conditions under all circumstances without exception.",
+      "Digital Voucher & Gift Code Terms: All digital gift codes and vouchers are provided strictly on an 'AS-IS' and 'AT YOUR OWN RISK' basis. Nexora provides NO GUARANTEE of code correctness, validity, balance, or redemption ability. You purchase all codes entirely at your own risk.",
+      "Strict No-Refund Policy: Absolutely NO REFUNDS, returns, exchanges, or chargebacks will be made once a voucher or code has been processed or delivered under any condition, whether the code is right or wrong, valid or invalid, redeemed or unredeemed.",
+      "Personal Use Only: You agree to use purchased content and codes for personal, non-commercial use only.",
       "Nexora reserves the right to update product content, pricing, and availability at any time. Historical order records always remain available in your account.",
     ],
   },
   privacy: {
     title: "Privacy Policy",
     body: [
-      "We collect only the information required to operate the marketplace: your name, email address, order history, payment references, and download activity.",
-      "Passwords are stored using strong one-way hashing. Payment card details are never stored on our servers — payments are processed securely by Razorpay.",
-      "Download activity (timestamps and IP addresses) is logged for security, abuse prevention, and customer support purposes.",
-      "We do not sell your personal information to third parties. You may request account deletion, subject to legal record-keeping requirements for financial transactions.",
+      "We collect only the information required to operate the marketplace: your name, email address, order history, payment references, and digital delivery activity.",
+      "Passwords are stored using strong one-way cryptographic hashing. Account data is protected with bank-grade encryption.",
+      "Order activity (timestamps, email dispatch, and IP addresses) is logged for security, fraud prevention, and audit compliance.",
+      "We do not sell your personal information to third parties. You may request account deletion, subject to statutory transaction record requirements.",
     ],
   },
   "refund-policy": {
     title: "Refund Policy",
     body: [
-      "Because digital products are delivered instantly, refunds are granted at Nexora's discretion, typically within 7 days of purchase and only if the content is materially defective or misrepresented.",
-      "When a refund is issued, access to the refunded product is normally revoked and future downloads are blocked. In some cases an administrator may allow you to keep access.",
-      "Refunds are processed back to the original payment method via Razorpay and may take 5–7 business days to reflect.",
-      "To request a refund, contact support with your order number (e.g. ORD-2026-000124).",
+      "Strict No-Refund Policy for Digital Vouchers & Gift Codes: By placing an order, you agree that you accept this policy in all conditions without exception.",
+      "No Guarantee of Code Correctness: Digital gift vouchers are supplied strictly on an 'AS-IS' basis. Nexora provides NO GUARANTEE of code correctness. All purchases are made entirely at your own risk.",
+      "Absolute No Refund Condition: Any type of refund is strictly NOT MADE after a code has been processed or delivered, whether the code is right or wrong, active or redeemed.",
+      "For non-code digital goods (e.g. eBooks), refunds are strictly evaluated on a case-by-case basis within 24 hours of purchase only if access could not be provisioned.",
     ],
   },
   about: {

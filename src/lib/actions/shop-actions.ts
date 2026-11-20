@@ -79,6 +79,11 @@ export async function placeOrderAction(_prev: CheckoutState, formData: FormData)
   const user = await getCurrentUser();
   if (!user) redirect("/login?next=/checkout");
 
+  const acceptPolicies = formData.get("acceptPolicies");
+  if (!acceptPolicies) {
+    return { error: "You must accept all store policies and terms to place an order." };
+  }
+
   const couponCode = String(formData.get("coupon") ?? "").trim().toUpperCase();
 
   // Load cart with products, server-side pricing only
