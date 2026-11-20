@@ -171,7 +171,7 @@ export default async function MyGiftCodesPage() {
                           </span>
                         )}
                         <Link
-                          href={`/orders/${row.orderId}`}
+                          href={`/orders/${formatOrderNumber(row.orderNumber)}`}
                           className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2 text-xs font-bold text-white shadow-sm shadow-emerald-200 hover:from-emerald-500 hover:to-teal-500 transition"
                         >
                           <span>View Code</span>
@@ -184,7 +184,7 @@ export default async function MyGiftCodesPage() {
                   {/* Footer actions */}
                   <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50/50 px-5 py-2.5 text-xs">
                     <Link
-                      href={`/orders/${row.orderId}`}
+                      href={`/orders/${formatOrderNumber(row.orderNumber)}`}
                       className="font-semibold text-emerald-700 hover:text-emerald-800 transition"
                     >
                       View Invoice Details →

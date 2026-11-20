@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { orderItems, orders, payments, giftCodeDeliveries, giftCodes } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, or, sql } from "drizzle-orm";
 import { getCurrentUser } from "@/lib/auth";
 import { formatDate, formatINR, formatOrderNumber, statusBadgeClass } from "@/lib/format";
 import { decryptGiftCode } from "@/lib/gift-crypto";
@@ -23,8 +23,32 @@ export default async function OrderDetailPage({
   const user = await getCurrentUser();
   if (!user) redirect(`/login?next=/orders/${orderId}`);
 
-  const [order] = await db.select().from(orders).where(eq(orders.id, Number(orderId))).limit(1);
+  const cleanParam = (orderId || "").trim();
+  const noHyphenParam = cleanParam.replace(/-/g, "");
+  const numId = Number(cleanParam);
+  const isNumeric = !isNaN(numId) && String(numId) === cleanParam;
+
+  const [order] = await db
+    .select()
+    .from(orders)
+    .where(
+      or(
+        isNumeric ? eq(orders.id, numId) : sql`false`,
+        eq(orders.orderNumber, cleanParam),
+        sql`replace(${orders.orderNumber}, '-', '') = ${noHyphenParam}`
+      )
+    )
+    .limit(1);
+
   if (!order || order.userId !== user.id) redirect("/orders");
+
+  const cleanOrderNumber = formatOrderNumber(order.orderNumber);
+
+  // Canonicalize URL: prevent enumeration and tampering with sequential IDs
+  if (cleanParam !== cleanOrderNumber) {
+    const qs = new URLSearchParams(sp as Record<string, string>).toString();
+    redirect(`/orders/${cleanOrderNumber}${qs ? `?${qs}` : ""}`);
+  }
 
   const [items, [payment], giftDeliveries] = await Promise.all([
     db.select().from(orderItems).where(eq(orderItems.orderId, order.id)),
@@ -56,14 +80,14 @@ export default async function OrderDetailPage({
         <div className="mb-6 rounded-xl bg-red-50 p-5 text-red-700 ring-1 ring-red-200">
           <p className="text-lg font-bold">Payment failed</p>
           <p className="text-sm">No money was captured. You can retry the payment below.</p>
-          {order.status === "PENDING" && <Link href={`/pay/${order.id}`} className="btn-primary mt-3 !bg-red-600 hover:!bg-red-700">Retry Payment</Link>}
+          {order.status === "PENDING" && <Link href={`/pay/${cleanOrderNumber}`} className="btn-primary mt-3 !bg-red-600 hover:!bg-red-700">Retry Payment</Link>}
         </div>
       )}
 
       <div className="card p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold font-mono tracking-tight">{formatOrderNumber(order.orderNumber)}</h1>
+            <h1 className="text-2xl font-bold font-mono tracking-tight">{cleanOrderNumber}</h1>
             <p className="text-sm text-slate-500">Placed {formatDate(order.createdAt)}</p>
           </div>
           <span className={`badge ${statusBadgeClass(order.status)} !px-3 !py-1 !text-sm`}>{order.status}</span>
@@ -94,7 +118,7 @@ export default async function OrderDetailPage({
                   rawCode={rawCode}
                   maskedCode={d.maskedCode}
                   recipientEmail={d.recipientEmail}
-                  orderNumber={formatOrderNumber(order.orderNumber)}
+                  orderNumber={cleanOrderNumber}
                   productName={items[0]?.title}
                   denomination={items[0]?.denomination ?? undefined}
                 />
@@ -125,7 +149,7 @@ export default async function OrderDetailPage({
         )}
 
         {order.status === "PENDING" && (
-          <Link href={`/pay/${order.id}`} className="btn-primary mt-6 w-full !py-3">Complete Payment →</Link>
+          <Link href={`/pay/${cleanOrderNumber}`} className="btn-primary mt-6 w-full !py-3">Complete Payment →</Link>
         )}
         {(order.status === "PAID" || order.status === "COMPLETED") && (
           order.orderType === "GIFT_CODE" ? (

@@ -9,7 +9,7 @@ declare global {
   }
 }
 
-export default function RazorpayButton({ orderId }: { orderId: number }) {
+export default function RazorpayButton({ orderIdentifier }: { orderIdentifier: string | number }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
@@ -34,7 +34,7 @@ export default function RazorpayButton({ orderId }: { orderId: number }) {
       const res = await fetch("/api/payment/razorpay-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderId }),
+        body: JSON.stringify({ orderId: orderIdentifier }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Failed to create payment order");
@@ -47,7 +47,7 @@ export default function RazorpayButton({ orderId }: { orderId: number }) {
         description: data.description,
         order_id: data.razorpayOrderId,
         prefill: data.prefill,
-        theme: { color: "#4f46e5" },
+        theme: { color: "#059669" },
         handler: async (response: {
           razorpay_order_id: string;
           razorpay_payment_id: string;
@@ -60,7 +60,7 @@ export default function RazorpayButton({ orderId }: { orderId: number }) {
           });
           const vd = await verify.json();
           if (verify.ok) {
-            router.push(`/orders/${vd.orderId}?success=1`);
+            router.push(`/orders/${vd.orderNumber || vd.orderId}?success=1`);
           } else {
             setError(vd.error ?? "Payment verification failed");
           }

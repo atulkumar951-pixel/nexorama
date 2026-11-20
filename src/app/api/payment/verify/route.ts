@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 3. Otherwise, internal Digimart store order
+    // 3. Otherwise, internal store order: verify strictly against user & Razorpay API
     const user = await getCurrentUser();
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -93,7 +93,41 @@ export async function POST(req: NextRequest) {
       .where(eq(payments.razorpayOrderId, razorpay_order_id))
       .limit(1);
     if (!payment || payment.userId !== user.id) {
-      return NextResponse.json({ error: "Payment record not found" }, { status: 404 });
+      return NextResponse.json({ error: "Payment record not found or unauthorized" }, { status: 404 });
+    }
+
+    const [order] = await db
+      .select()
+      .from(orders)
+      .where(eq(orders.id, payment.orderId))
+      .limit(1);
+
+    if (!order || order.userId !== user.id) {
+      return NextResponse.json({ error: "Order record not found or unauthorized" }, { status: 404 });
+    }
+
+    // 4. Server-Side Direct Verification against Razorpay REST API
+    const keyId = process.env.RAZORPAY_KEY_ID;
+    if (keyId) {
+      const authHeader = `Basic ${Buffer.from(`${keyId}:${keySecret}`).toString("base64")}`;
+      const rzpRes = await fetch(`https://api.razorpay.com/v1/payments/${razorpay_payment_id}`, {
+        headers: { Authorization: authHeader },
+      });
+
+      if (rzpRes.ok) {
+        const rzpPayment = await rzpRes.json();
+        const expectedPaise = Math.round(order.total * 100);
+
+        if (rzpPayment.order_id !== razorpay_order_id) {
+          return NextResponse.json({ error: "Razorpay order ID mismatch" }, { status: 400 });
+        }
+        if (rzpPayment.amount !== expectedPaise) {
+          return NextResponse.json({ error: "Captured payment amount does not match order total" }, { status: 400 });
+        }
+        if (rzpPayment.status !== "captured" && rzpPayment.status !== "authorized") {
+          return NextResponse.json({ error: `Payment not completed (status: ${rzpPayment.status})` }, { status: 400 });
+        }
+      }
     }
 
     await fulfillOrder(payment.orderId, {
@@ -101,13 +135,12 @@ export async function POST(req: NextRequest) {
       method: "razorpay",
     });
 
-    const [order] = await db
-      .select({ orderType: orders.orderType })
-      .from(orders)
-      .where(eq(orders.id, payment.orderId))
-      .limit(1);
-
-    return NextResponse.json({ ok: true, orderId: payment.orderId, isGiftCode: order?.orderType === "GIFT_CODE" });
+    return NextResponse.json({
+      ok: true,
+      orderId: order.id,
+      orderNumber: order.orderNumber,
+      isGiftCode: order.orderType === "GIFT_CODE",
+    });
   } catch (err: any) {
     console.error("[Payment Verify Route Error]:", err);
     return NextResponse.json({ error: err.message || "Internal server error." }, { status: 500 });

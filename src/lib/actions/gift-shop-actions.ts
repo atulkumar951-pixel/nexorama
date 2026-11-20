@@ -131,5 +131,5 @@ export async function placeGiftOrderAction(
   });
 
   revalidatePath("/my-gift-codes");
-  redirect(`/pay/${order.id}`);
+  redirect(`/pay/${order.orderNumber}`);
 }

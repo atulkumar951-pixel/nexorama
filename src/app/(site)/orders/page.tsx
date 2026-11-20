@@ -27,7 +27,7 @@ export default async function OrdersPage() {
       ) : (
         <div className="card mt-8 divide-y divide-slate-100">
           {rows.map((o) => (
-            <Link key={o.id} href={`/orders/${o.id}`} className="flex items-center justify-between gap-3 p-4 hover:bg-slate-50">
+            <Link key={o.id} href={`/orders/${formatOrderNumber(o.orderNumber)}`} className="flex items-center justify-between gap-3 p-4 hover:bg-slate-50">
               <div>
                 <p className="font-semibold font-mono">{formatOrderNumber(o.orderNumber)}</p>
                 <p className="text-xs text-slate-500">{formatDate(o.createdAt)}</p>

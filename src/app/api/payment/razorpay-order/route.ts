@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { orders, payments } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, or, sql } from "drizzle-orm";
 import { getCurrentUser } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
@@ -15,12 +15,33 @@ export async function POST(req: NextRequest) {
   }
 
   const { orderId } = await req.json();
-  const [order] = await db.select().from(orders).where(eq(orders.id, Number(orderId))).limit(1);
+  if (!orderId) return NextResponse.json({ error: "Missing order identifier." }, { status: 400 });
+
+  const cleanParam = String(orderId).trim();
+  const noHyphenParam = cleanParam.replace(/-/g, "");
+  const numId = Number(cleanParam);
+  const isNumeric = !isNaN(numId) && String(numId) === cleanParam;
+
+  const [order] = await db
+    .select()
+    .from(orders)
+    .where(
+      or(
+        isNumeric ? eq(orders.id, numId) : sql`false`,
+        eq(orders.orderNumber, cleanParam),
+        sql`replace(${orders.orderNumber}, '-', '') = ${noHyphenParam}`
+      )
+    )
+    .limit(1);
+
   if (!order || order.userId !== user.id) return NextResponse.json({ error: "Order not found" }, { status: 404 });
   if (order.status !== "PENDING") return NextResponse.json({ error: "Order is not payable" }, { status: 400 });
 
-  // Server-side amount — never trust the client
-  const amountPaise = order.total * 100;
+  // Server-side amount strictly from database — never trust the client
+  const amountPaise = Math.round(order.total * 100);
+  if (amountPaise <= 0) {
+    return NextResponse.json({ error: "Invalid payable amount" }, { status: 400 });
+  }
 
   const res = await fetch("https://api.razorpay.com/v1/orders", {
     method: "POST",
@@ -32,11 +53,19 @@ export async function POST(req: NextRequest) {
       amount: amountPaise,
       currency: "INR",
       receipt: order.orderNumber,
-      notes: { orderId: String(order.id) },
+      notes: {
+        orderId: String(order.id),
+        orderNumber: order.orderNumber,
+        userId: String(user.id),
+      },
     }),
   });
   if (!res.ok) {
-    return NextResponse.json({ error: "Failed to create Razorpay order" }, { status: 502 });
+    const errData = await res.json().catch(() => ({}));
+    return NextResponse.json(
+      { error: errData.error?.description || "Failed to create Razorpay order" },
+      { status: 502 }
+    );
   }
   const rzpOrder = await res.json();
 

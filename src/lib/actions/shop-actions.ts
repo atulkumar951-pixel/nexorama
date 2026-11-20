@@ -14,7 +14,7 @@ import {
   products,
   wishlistItems,
 } from "@/db/schema";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, or, sql } from "drizzle-orm";
 import { getCurrentUser } from "@/lib/auth";
 import { effectivePrice, fulfillOrder, getActiveGrant, validateCoupon } from "@/lib/helpers";
 import { fulfillGiftOrder } from "@/lib/gift-helpers";
@@ -153,35 +153,53 @@ export async function placeOrderAction(_prev: CheckoutState, formData: FormData)
   if (total === 0) {
     // Free order — fulfill immediately
     await fulfillOrder(order.id, { method: "free", provider: "TEST" });
-    redirect(`/orders/${order.id}?success=1`);
+    redirect(`/orders/${order.orderNumber}?success=1`);
   }
 
-  redirect(`/pay/${order.id}`);
+  redirect(`/pay/${order.orderNumber}`);
 }
 
 /** Test-mode payment capture (used when Razorpay keys are not configured). */
-export async function testPayAction(orderId: number, outcome: "success" | "fail") {
+export async function testPayAction(orderIdentifier: number | string, outcome: "success" | "fail") {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
-  const [order] = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
+
+  const cleanParam = String(orderIdentifier).trim();
+  const noHyphenParam = cleanParam.replace(/-/g, "");
+  const numId = Number(cleanParam);
+  const isNumeric = !isNaN(numId) && String(numId) === cleanParam;
+
+  const [order] = await db
+    .select()
+    .from(orders)
+    .where(
+      or(
+        isNumeric ? eq(orders.id, numId) : sql`false`,
+        eq(orders.orderNumber, cleanParam),
+        sql`replace(${orders.orderNumber}, '-', '') = ${noHyphenParam}`
+      )
+    )
+    .limit(1);
+
   if (!order || order.userId !== user.id) redirect("/orders");
+
   if (outcome === "fail") {
-    await db.update(payments).set({ status: "FAILED", updatedAt: new Date() }).where(eq(payments.orderId, orderId));
+    await db.update(payments).set({ status: "FAILED", updatedAt: new Date() }).where(eq(payments.orderId, order.id));
     await db.insert(notifications).values({
       userId: user.id,
       title: "Payment failed",
       message: `Payment for order ${order.orderNumber} failed. You can retry from your orders page.`,
       type: "PURCHASE",
     });
-    redirect(`/orders/${orderId}?failed=1`);
+    redirect(`/orders/${order.orderNumber}?failed=1`);
   }
   // Route to correct fulfillment based on order type
   if (order.orderType === "GIFT_CODE") {
-    await fulfillGiftOrder(orderId, { method: "test-card", provider: "TEST", razorpayPaymentId: `test_${crypto.randomBytes(8).toString("hex")}` });
-    redirect(`/orders/${orderId}?success=1`);
+    await fulfillGiftOrder(order.id, { method: "test-card", provider: "TEST", razorpayPaymentId: `test_${crypto.randomBytes(8).toString("hex")}` });
+    redirect(`/orders/${order.orderNumber}?success=1`);
   }
-  await fulfillOrder(orderId, { method: "test-card", provider: "TEST", razorpayPaymentId: `test_${crypto.randomBytes(8).toString("hex")}` });
-  redirect(`/orders/${orderId}?success=1`);
+  await fulfillOrder(order.id, { method: "test-card", provider: "TEST", razorpayPaymentId: `test_${crypto.randomBytes(8).toString("hex")}` });
+  redirect(`/orders/${order.orderNumber}?success=1`);
 }
 
 // ---------- Notifications ----------
