@@ -5,6 +5,7 @@ import Link from "next/link";
 import { getMarketplaceMode, getPlatformSetting } from "@/lib/marketplace-mode";
 import { redirect } from "next/navigation";
 import { formatINR } from "@/lib/format";
+import { GiftSearchBar } from "./gift-search-bar";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
@@ -140,45 +141,32 @@ export default async function GiftCodesStorefrontPage({
           aria-hidden
         />
 
-        <div className="relative mx-auto max-w-7xl px-4 py-6 sm:py-8">
-          <div className="grid items-center gap-8 lg:grid-cols-12">
+        <div className={`relative mx-auto max-w-7xl px-4 ${isFiltered ? "py-2 sm:py-3 lg:py-8" : "py-6 sm:py-8"}`}>
+          <div className="grid items-center gap-6 lg:gap-8 lg:grid-cols-12">
             {/* Left Content Column */}
             <div className="lg:col-span-7">
-              <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-[2.75rem] leading-[1.15] text-slate-900">
-                Official Gift Cards &amp;{" "}
-                <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
-                  Gaming Vouchers
-                </span>
-              </h1>
+              <div className={isFiltered ? "hidden lg:block mobile-search-hide" : "mobile-search-hide"}>
+                <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-[2.75rem] leading-[1.15] text-slate-900">
+                  Official Gift Cards &amp;{" "}
+                  <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
+                    Gaming Vouchers
+                  </span>
+                </h1>
 
-              <p className="mt-3 text-sm sm:text-base leading-relaxed text-slate-600 max-w-xl">
-                Steam Wallet, Google Play, Amazon Pay, Netflix, Spotify &amp; 50+ top brands. Zero convenience fees, discounted rates, and guaranteed automated email delivery.
-              </p>
+                <p className="mt-3 text-sm sm:text-base leading-relaxed text-slate-600 max-w-xl">
+                  Steam Wallet, Google Play, Amazon Pay, Netflix, Spotify &amp; 50+ top brands. Zero convenience fees, discounted rates, and guaranteed automated email delivery.
+                </p>
+              </div>
 
               {/* Search Bar */}
-              <form
-                action="/gift-codes"
-                className="mt-5 flex max-w-xl items-center gap-2 rounded-2xl border border-slate-300 bg-white p-1.5 shadow-md shadow-emerald-100/50 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-200 transition"
-              >
-                <span className="pl-3 text-base text-slate-400">🔍</span>
-                <input
-                  type="search"
-                  name="q"
-                  defaultValue={q}
-                  placeholder="Search Amazon, Steam, Google Play, Netflix, Spotify…"
-                  className="w-full bg-transparent px-2 py-1.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none"
-                  aria-label="Search gift cards"
-                />
-                <button
-                  type="submit"
-                  className="rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-5 py-2 text-sm font-bold text-white shadow-md shadow-emerald-200 hover:from-emerald-500 hover:to-teal-500 transition active:scale-95 whitespace-nowrap"
-                >
-                  Find Codes
-                </button>
-              </form>
+              <GiftSearchBar initialQuery={q} isFiltered={isFiltered} />
 
               {/* Quick Search Chips */}
-              <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+              <div
+                className={`mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-500 mobile-search-hide ${
+                  isFiltered ? "hidden lg:flex" : ""
+                }`}
+              >
                 <span className="font-semibold text-slate-600">Popular:</span>
                 {["PlayStation", "Amazon", "Google Play", "Spotify", "Swiggy"].map((brand) => (
                   <Link
@@ -192,7 +180,11 @@ export default async function GiftCodesStorefrontPage({
               </div>
 
               {/* Trust badges */}
-              <div className="mt-6 flex flex-wrap items-center gap-2 border-t border-slate-200 pt-4 text-xs text-slate-600">
+              <div
+                className={`mt-6 flex flex-wrap items-center gap-2 border-t border-slate-200 pt-4 text-xs text-slate-600 mobile-search-hide ${
+                  isFiltered ? "hidden lg:flex" : ""
+                }`}
+              >
                 <div className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 shadow-xs">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                   <span className="font-semibold text-slate-700">⚡ Instant Delivery Upon Payment</span>
@@ -209,7 +201,11 @@ export default async function GiftCodesStorefrontPage({
             </div>
 
             {/* Right Image Column (Identical Showcase Card Layout from eBooks Platform) */}
-            <div className="lg:col-span-5">
+            <div
+              className={`lg:col-span-5 mobile-search-hide ${
+                isFiltered ? "hidden lg:block" : ""
+              }`}
+            >
               <div className="relative mx-auto max-w-md lg:max-w-none">
                 {/* Ambient back light */}
                 <div className="absolute -inset-2 rounded-3xl bg-gradient-to-tr from-emerald-200 via-teal-200 to-amber-200 opacity-60 blur-2xl transition duration-500 hover:opacity-80" />
