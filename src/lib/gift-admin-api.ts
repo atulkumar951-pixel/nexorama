@@ -15,7 +15,7 @@ import {
 import { eq, and, desc, sql, count, inArray, gte } from "drizzle-orm";
 import { getCurrentUser } from "@/lib/auth";
 import { encryptGiftCode, decryptGiftCode, hashGiftCode, maskGiftCode } from "@/lib/gift-crypto";
-import { getMarketplaceMode, setMarketplaceMode, type MarketplaceMode } from "@/lib/marketplace-mode";
+import { getMarketplaceMode, setMarketplaceMode, getPlatformSetting, type MarketplaceMode } from "@/lib/marketplace-mode";
 
 export class GiftAdminApiError extends Error {
   status: number;
@@ -102,6 +102,7 @@ export interface GiftAdminProduct {
   sellingPrice: string;
   status: string;
   featured: boolean;
+  sortOrder: number;
   stock: GiftStockSummary | null;
 }
 
@@ -191,17 +192,24 @@ export async function giftAdminApi<T>(
   if (pathname === "/settings/mode") {
     if (method === "GET") {
       const mode = await getMarketplaceMode();
+      const [resMin, lowStock, maxQty, deliveryTarget] = await Promise.all([
+        getPlatformSetting("cart_reservation_minutes", "10"),
+        getPlatformSetting("low_stock_threshold", "10"),
+        getPlatformSetting("max_quantity_per_order", "10"),
+        getPlatformSetting("delivery_target_minutes", "5"),
+      ]);
+
       const config: GiftAdminModeConfig = {
         mode,
         settings: {
           giftCodePurchase: true,
           couponSupport: false,
-          reservationMinutes: 10,
-          lowStockThreshold: 10,
-          maxQuantityPerOrder: 5,
-          maxQuantityPerUserPerDay: 10,
+          reservationMinutes: Number(resMin),
+          lowStockThreshold: Number(lowStock),
+          maxQuantityPerOrder: Number(maxQty),
+          maxQuantityPerUserPerDay: Number(maxQty) * 2,
           maxTransactionAmount: 50000,
-          deliveryTargetMinutes: 5,
+          deliveryTargetMinutes: Number(deliveryTarget),
         },
         rawCodeAccessRoles: ["admin", "super_admin"],
       };
@@ -319,7 +327,7 @@ async function getDashboardData(): Promise<GiftAdminDashboard> {
     .orderBy(orders.createdAt)
     .limit(1);
 
-  const targetMinutes = 5;
+  const targetMinutes = Number(await getPlatformSetting("delivery_target_minutes", "5"));
   const overdueCutoff = new Date(Date.now() - targetMinutes * 60 * 1000);
   const [overdueRes] = await db
     .select({ count: count() })
@@ -370,10 +378,15 @@ async function getProductsList(searchParams: URLSearchParams): Promise<GiftProdu
   const [totalRes] = await db.select({ count: count() }).from(giftProducts);
   const total = totalRes?.count ?? 0;
 
+  const lowStockThreshold = Number(await getPlatformSetting("low_stock_threshold", "10"));
+
   const rows = await db
     .select()
     .from(giftProducts)
-    .orderBy(desc(giftProducts.createdAt))
+    .orderBy(
+      sql`CASE WHEN ${giftProducts.sortOrder} > 0 THEN ${giftProducts.sortOrder} ELSE 999999 END ASC`,
+      desc(giftProducts.createdAt)
+    )
     .limit(limit)
     .offset(offset);
 
@@ -407,7 +420,7 @@ async function getProductsList(searchParams: URLSearchParams): Promise<GiftProdu
         expired: stat.expired ?? 0,
         sellable: avail,
         outOfStock: avail === 0,
-        lowStock: avail > 0 && avail <= 10,
+        lowStock: avail > 0 && avail <= lowStockThreshold,
       };
     }
   }
@@ -432,6 +445,7 @@ async function getProductsList(searchParams: URLSearchParams): Promise<GiftProdu
       sellingPrice: String(p.sellingPrice),
       status: p.status,
       featured: p.isFeatured,
+      sortOrder: p.sortOrder ?? 0,
       stock,
     };
   });
@@ -480,6 +494,7 @@ async function createGiftProduct(body: any) {
       allowCoupon: Boolean(body.allowCoupon),
       purchaseLimit: body.purchaseLimit ? Number(body.purchaseLimit) : 5,
       lowStockThreshold: body.lowStockThreshold ? Number(body.lowStockThreshold) : 10,
+      sortOrder: Number(body.sortOrder ?? 0),
     })
     .returning();
 
@@ -596,7 +611,7 @@ async function getDeliveriesList(searchParams: URLSearchParams): Promise<GiftDel
   const limit = Math.min(100, Math.max(1, Number(searchParams.get("limit") || 25)));
   const offset = (page - 1) * limit;
 
-  const targetMinutes = 5;
+  const targetMinutes = Number(await getPlatformSetting("delivery_target_minutes", "5"));
   const overdueCutoff = new Date(Date.now() - targetMinutes * 60 * 1000);
 
   const [summary] = await db

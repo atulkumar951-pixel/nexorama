@@ -92,7 +92,7 @@ export function CreateGiftProductForm({
         </div>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-3">
         <div>
           <label className="text-xs font-semibold text-gray-700">Image URL</label>
           <input
@@ -108,6 +108,17 @@ export function CreateGiftProductForm({
             <option value="PUBLISHED">Published (Visible in store)</option>
             <option value="DRAFT">Draft (Hidden)</option>
           </select>
+        </div>
+        <div>
+          <label className="text-xs font-semibold text-gray-700">Homepage Position</label>
+          <input
+            type="number"
+            name="sortOrder"
+            min="0"
+            placeholder="e.g. 1 (optional)"
+            className="input mt-1 w-full text-xs"
+            title="1 = first on homepage, 2 = second, etc."
+          />
         </div>
       </div>
 

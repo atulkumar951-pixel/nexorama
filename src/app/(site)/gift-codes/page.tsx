@@ -1,8 +1,8 @@
 import { db } from "@/db";
 import { giftProducts, giftCodes, giftCategories } from "@/db/schema";
-import { and, eq, sql, desc } from "drizzle-orm";
+import { and, eq, sql, desc, asc } from "drizzle-orm";
 import Link from "next/link";
-import { getMarketplaceMode } from "@/lib/marketplace-mode";
+import { getMarketplaceMode, getPlatformSetting } from "@/lib/marketplace-mode";
 import { redirect } from "next/navigation";
 import { formatINR } from "@/lib/format";
 
@@ -96,14 +96,21 @@ export default async function GiftCodesStorefrontPage({
         giftProducts.sellingPrice,
         giftProducts.isFeatured,
         giftProducts.categoryId,
-        giftProducts.description
+        giftProducts.description,
+        giftProducts.sortOrder
       )
-      .orderBy(desc(giftProducts.isFeatured), giftProducts.sortOrder, giftProducts.name);
+      .orderBy(
+        sql`CASE WHEN ${giftProducts.sortOrder} > 0 THEN ${giftProducts.sortOrder} ELSE 999999 END ASC`,
+        desc(giftProducts.isFeatured),
+        desc(giftProducts.createdAt)
+      );
   } catch (err: any) {
     console.error("GiftCodesStorefrontPage: Failed to query gift codes data:", err?.message || err);
   }
 
   // Filter products
+  const lowStockThreshold = Number(await getPlatformSetting("low_stock_threshold", "10"));
+
   let filtered = allProducts;
   if (category) {
     const cat = cats.find((c) => c.slug === category);
@@ -385,7 +392,7 @@ export default async function GiftCodesStorefrontPage({
             </div>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {featured.map((p) => (
-                <GiftProductCard key={p.id} product={p} featured />
+                <GiftProductCard key={p.id} product={p} featured lowStockThreshold={lowStockThreshold} />
               ))}
             </div>
           </section>
@@ -419,7 +426,7 @@ export default async function GiftCodesStorefrontPage({
           ) : (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {all.map((p) => (
-                <GiftProductCard key={p.id} product={p} />
+                <GiftProductCard key={p.id} product={p} lowStockThreshold={lowStockThreshold} />
               ))}
             </div>
           )}
@@ -508,15 +515,16 @@ type GiftProductCardProps = {
     available: number;
   };
   featured?: boolean;
+  lowStockThreshold?: number;
 };
 
-function GiftProductCard({ product: p, featured }: GiftProductCardProps) {
+function GiftProductCard({ product: p, featured, lowStockThreshold = 10 }: GiftProductCardProps) {
   const discount =
     p.denomination > p.sellingPrice
       ? Math.round(((p.denomination - p.sellingPrice) / p.denomination) * 100)
       : 0;
   const inStock = p.available > 0;
-  const isLowStock = inStock && p.available <= 5;
+  const isLowStock = inStock && p.available <= lowStockThreshold;
 
   return (
     <Link

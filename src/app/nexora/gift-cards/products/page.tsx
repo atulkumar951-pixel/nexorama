@@ -7,6 +7,7 @@ import {
   ProductStatusButton,
 } from "../gift-admin-forms";
 import { InventoryActionButtons } from "../inventory/inventory-actions";
+import { ProductPositionInput } from "./product-position-input";
 
 interface GiftProduct {
   id: string;
@@ -19,6 +20,7 @@ interface GiftProduct {
   stockCount?: number;
   category?: { id: string; name: string } | null;
   featured: boolean;
+  sortOrder?: number;
 }
 
 interface GiftCategory {
@@ -91,8 +93,13 @@ export default async function GiftProductsAdminPage() {
       <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
         {/* Products list */}
         <div className="card overflow-hidden">
-          <div className="flex items-center justify-between border-b border-gray-100 p-4">
-            <h2 className="text-sm font-bold text-gray-900">All Products ({products.length})</h2>
+          <div className="flex flex-wrap items-center justify-between border-b border-gray-100 p-4 gap-2">
+            <div>
+              <h2 className="text-sm font-bold text-gray-900">All Products ({products.length})</h2>
+              <p className="text-[11px] text-gray-500 mt-0.5">
+                Arrange homepage order: enter position number (1 = first, 2 = second, etc.). Saves automatically on blur or Enter.
+              </p>
+            </div>
             <Link href="/nexora/gift-cards/inventory" className="text-xs text-emerald-700 hover:underline">
               Manage inventory →
             </Link>
@@ -112,6 +119,7 @@ export default async function GiftProductsAdminPage() {
                     <th className="p-3">Category</th>
                     <th className="p-3">Value</th>
                     <th className="p-3">Price</th>
+                    <th className="p-3" title="Display position on storefront/homepage">Position</th>
                     <th className="p-3">Stock</th>
                     <th className="p-3">Status</th>
                     <th className="p-3 text-right">Action</th>
@@ -128,6 +136,9 @@ export default async function GiftProductsAdminPage() {
                       <td className="p-3 text-gray-600">{p.category?.name ?? "—"}</td>
                       <td className="p-3 font-medium text-gray-900">{formatINR(p.denomination)}</td>
                       <td className="p-3 font-semibold text-gray-900">{formatINR(p.sellingPrice)}</td>
+                      <td className="p-3">
+                        <ProductPositionInput productId={p.id} currentPosition={p.sortOrder ?? 0} />
+                      </td>
                       <td className="p-3">
                         <span className={`badge ${typeof p.stockCount === "number" && p.stockCount > 0 ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}>
                           {p.stockCount ?? 0}

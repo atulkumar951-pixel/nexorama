@@ -3,7 +3,7 @@ import { giftProducts, giftCodes, giftCategories } from "@/db/schema";
 import { and, eq, sql } from "drizzle-orm";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
-import { getMarketplaceMode } from "@/lib/marketplace-mode";
+import { getMarketplaceMode, getPlatformSetting } from "@/lib/marketplace-mode";
 import { getCurrentUser } from "@/lib/auth";
 import { formatINR } from "@/lib/format";
 import { GiftBuyForm } from "../gift-buy-form";
@@ -70,9 +70,18 @@ export default async function GiftProductDetailPage({ params }: Props) {
 
   if (!product) notFound();
 
+  const [lowStockThresholdSetting, maxQtySetting] = await Promise.all([
+    getPlatformSetting("low_stock_threshold", "10"),
+    getPlatformSetting("max_quantity_per_order", "10"),
+  ]);
+
+  const lowStockThreshold = Number(lowStockThresholdSetting);
+  const maxQtyLimit = Number(maxQtySetting);
+
   const available = stockRow?.available ?? 0;
   const inStock = available > 0;
-  const isLowStock = inStock && available <= 5;
+  const isLowStock = inStock && available <= lowStockThreshold;
+  const effectiveMaxQty = product.purchaseLimit ? Math.min(product.purchaseLimit, maxQtyLimit) : maxQtyLimit;
 
   const discount =
     product.denomination > product.sellingPrice
@@ -186,7 +195,7 @@ export default async function GiftProductDetailPage({ params }: Props) {
                   }}
                   userEmail={user.email}
                   userName={user.name}
-                  maxQuantity={Math.min(product.purchaseLimit || 5, available)}
+                  maxQuantity={Math.min(effectiveMaxQty, available > 0 ? available : effectiveMaxQty)}
                 />
               ) : (
                 <div className="space-y-3">

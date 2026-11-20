@@ -7,9 +7,41 @@ import { db } from "@/db";
 import { giftCodes, giftCodeDeliveries, giftProducts, orders, auditLogs } from "@/db/schema";
 import { eq, and, sql } from "drizzle-orm";
 import { encryptGiftCode, decryptGiftCode, hashGiftCode, maskGiftCode } from "@/lib/gift-crypto";
-import { setMarketplaceMode, setPlatformSetting, type MarketplaceMode } from "@/lib/marketplace-mode";
+import { setMarketplaceMode, setPlatformSetting, getPlatformSetting, type MarketplaceMode } from "@/lib/marketplace-mode";
 
 export type GiftAdminFormState = { error?: string; success?: string; rawCode?: string };
+
+/**
+ * Reorder/arrange a gift product's display position on the homepage.
+ */
+export async function updateGiftProductPositionAction(
+  productId: number,
+  sortOrder: number
+): Promise<{ success?: boolean; error?: string }> {
+  try {
+    const admin = await requireAdmin();
+    await db
+      .update(giftProducts)
+      .set({ sortOrder, updatedAt: new Date() })
+      .where(eq(giftProducts.id, productId));
+
+    await db.insert(auditLogs).values({
+      actorId: admin.id,
+      actorEmail: admin.email,
+      action: "GIFT_PRODUCT_POSITION_UPDATED",
+      targetType: "GIFT_PRODUCT",
+      targetId: String(productId),
+      detail: `Set product ID ${productId} homepage position to ${sortOrder}`,
+    });
+
+    revalidatePath("/nexora/gift-cards/products");
+    revalidatePath("/gift-codes");
+    revalidatePath("/", "layout");
+    return { success: true };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Failed to update position" };
+  }
+}
 
 /**
  * Mark gift deliveries as sent (email delivered manually by the ops team).
@@ -46,6 +78,9 @@ export async function saveGiftProductAction(
   if (!denomination || denomination <= 0) return { error: "Gift card value must be greater than zero." };
   if (!sellingPrice || sellingPrice <= 0) return { error: "Selling price must be greater than zero." };
 
+  const defaultMaxQty = Number(await getPlatformSetting("max_quantity_per_order", "10"));
+  const defaultLowStock = Number(await getPlatformSetting("low_stock_threshold", "10"));
+
   const body = {
     name,
     brandName,
@@ -59,8 +94,9 @@ export async function saveGiftProductAction(
     status: str("status") || "DRAFT",
     featured: formData.get("featured") === "on",
     allowCoupon: formData.get("allowCoupon") === "on",
-    purchaseLimit: formData.get("purchaseLimit") ? Number(formData.get("purchaseLimit")) : 5,
-    lowStockThreshold: formData.get("lowStockThreshold") ? Number(formData.get("lowStockThreshold")) : 10,
+    purchaseLimit: formData.get("purchaseLimit") ? Number(formData.get("purchaseLimit")) : defaultMaxQty,
+    lowStockThreshold: formData.get("lowStockThreshold") ? Number(formData.get("lowStockThreshold")) : defaultLowStock,
+    sortOrder: Number(formData.get("sortOrder") ?? 0),
   };
 
   try {
@@ -491,6 +527,11 @@ export async function saveOperationalSettingsAction(
     });
 
     revalidatePath("/nexora/settings");
+    revalidatePath("/nexora/gift-cards");
+    revalidatePath("/nexora/gift-cards/products");
+    revalidatePath("/nexora/gift-cards/deliveries");
+    revalidatePath("/gift-codes");
+    revalidatePath("/", "layout");
     return { success: "Operational parameters saved successfully." };
   } catch (err) {
     return { error: err instanceof Error ? err.message : "Failed to save settings." };

@@ -15,7 +15,7 @@ import {
 } from "@/db/schema";
 import { and, eq, sql } from "drizzle-orm";
 import { getCurrentUser } from "@/lib/auth";
-import { getMarketplaceMode } from "@/lib/marketplace-mode";
+import { getMarketplaceMode, getPlatformSetting } from "@/lib/marketplace-mode";
 import { cleanupExpiredGiftReservations } from "@/lib/gift-helpers";
 
 export type GiftCheckoutState = { error?: string; orderId?: number };
@@ -39,7 +39,7 @@ export async function placeGiftOrderAction(
   }
 
   const giftProductId = Number(formData.get("giftProductId") ?? 0);
-  const quantity = Math.max(1, Math.min(5, Number(formData.get("quantity") ?? 1)));
+  const rawQty = Math.max(1, Number(formData.get("quantity") ?? 1));
   const customerName = String(formData.get("customerName") ?? user.name ?? "").trim();
   const customerMobile = String(formData.get("customerMobile") ?? "").trim();
   const recipientEmail = String(formData.get("recipientEmail") ?? user.email).trim().toLowerCase();
@@ -64,6 +64,10 @@ export async function placeGiftOrderAction(
     .limit(1);
 
   if (!product) return { error: "Product not found or unavailable." };
+
+  const maxQtySetting = Number(await getPlatformSetting("max_quantity_per_order", "10"));
+  const maxAllowed = product.purchaseLimit ? Math.min(product.purchaseLimit, maxQtySetting) : maxQtySetting;
+  const quantity = Math.min(maxAllowed, rawQty);
 
   const total = product.sellingPrice * quantity;
 

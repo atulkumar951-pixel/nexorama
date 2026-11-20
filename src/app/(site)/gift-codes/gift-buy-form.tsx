@@ -25,7 +25,7 @@ export function GiftBuyForm({
   userEmail,
   userName = "",
   userPhone = "",
-  maxQuantity = 5,
+  maxQuantity = 10,
 }: Props) {
   const [quantity, setQuantity] = useState(1);
   const [state, action, pending] = useActionState(placeGiftOrderAction, initialState);
