@@ -6,6 +6,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { formatINR, formatOrderNumber } from "@/lib/format";
 import { testPayAction } from "@/lib/actions/shop-actions";
 import { SubmitButton } from "@/components/client";
+import { syncOrderPaymentWithRazorpay } from "@/lib/payment-sync";
 import RazorpayButton from "./razorpay-button";
 
 export const dynamic = "force-dynamic";
@@ -40,6 +41,16 @@ export default async function PayPage({ params }: { params: Promise<{ orderId: s
   // Canonicalize URL: prevent enumeration and tampering with sequential IDs
   if (cleanParam !== cleanOrderNumber) {
     redirect(`/pay/${cleanOrderNumber}`);
+  }
+
+  // Active server-side sync with Razorpay:
+  // If the user already paid via UPI / Netbanking and the mobile browser reloaded this page,
+  // sync directly from Razorpay REST API without requiring webhooks or client JS handlers.
+  if (order.status === "PENDING") {
+    const syncRes = await syncOrderPaymentWithRazorpay(order.id).catch(() => null);
+    if (syncRes?.paid) {
+      redirect(`/orders/${cleanOrderNumber}?success=1`);
+    }
   }
 
   if (order.status !== "PENDING") redirect(`/orders/${cleanOrderNumber}`);
@@ -93,7 +104,7 @@ export default async function PayPage({ params }: { params: Promise<{ orderId: s
             </>
           )}
         </div>
-        <p className="mt-4 text-center text-xs text-slate-400">🔒 The server verifies every payment before granting access.</p>
+        <p className="mt-4 text-center text-xs text-slate-400">🔒 Nexora verifies every payment instantly before code release.</p>
       </div>
     </div>
   );

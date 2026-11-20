@@ -6,6 +6,7 @@ import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { getMarketplaceMode } from "@/lib/marketplace-mode";
 import { formatDate, formatINR, formatOrderNumber } from "@/lib/format";
+import { syncUserRecentPendingOrders } from "@/lib/payment-sync";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "My Gift Codes | Nexora" };
@@ -16,6 +17,9 @@ export default async function MyGiftCodesPage() {
 
   const user = await getCurrentUser();
   if (!user) redirect("/login?next=/my-gift-codes");
+
+  // Automatically check and sync any recent pending orders with Razorpay directly
+  await syncUserRecentPendingOrders(user.id).catch(() => {});
 
   // Get all gift code orders for this user, with delivery info
   const rows = await db

@@ -6,12 +6,17 @@ import { eq } from "drizzle-orm";
 import { formatDate, formatINR, formatOrderNumber, statusBadgeClass } from "@/lib/format";
 import ActionForm from "@/components/ActionForm";
 import { refundOrderAction } from "@/lib/actions/admin-actions";
+import { syncOrderPaymentWithRazorpay } from "@/lib/payment-sync";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Admin · Order Details" };
 
 export default async function AdminOrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+
+  // Auto-sync with Razorpay if order is pending
+  await syncOrderPaymentWithRazorpay(Number(id)).catch(() => {});
+
   const [row] = await db
     .select({ order: orders, userName: users.name, userEmail: users.email, userId: users.id })
     .from(orders)

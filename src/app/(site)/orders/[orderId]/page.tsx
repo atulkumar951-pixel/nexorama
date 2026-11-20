@@ -7,6 +7,8 @@ import { getCurrentUser } from "@/lib/auth";
 import { formatDate, formatINR, formatOrderNumber, statusBadgeClass } from "@/lib/format";
 import { decryptGiftCode } from "@/lib/gift-crypto";
 import { CodeDisplay } from "@/app/(site)/my-gift-codes/code-display";
+import { syncOrderPaymentWithRazorpay } from "@/lib/payment-sync";
+import { PendingSyncChecker } from "./pending-sync-checker";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Order Details" };
@@ -28,7 +30,7 @@ export default async function OrderDetailPage({
   const numId = Number(cleanParam);
   const isNumeric = !isNaN(numId) && String(numId) === cleanParam;
 
-  const [order] = await db
+  let [order] = await db
     .select()
     .from(orders)
     .where(
@@ -50,10 +52,22 @@ export default async function OrderDetailPage({
     redirect(`/orders/${cleanOrderNumber}${qs ? `?${qs}` : ""}`);
   }
 
+  // Direct server-side sync with Razorpay REST API
+  // If payment was completed via UPI or mobile tab switch, this fulfills the order immediately
+  if (order.status === "PENDING") {
+    const syncRes = await syncOrderPaymentWithRazorpay(order.id).catch(() => null);
+    if (syncRes?.paid) {
+      const [refreshed] = await db.select().from(orders).where(eq(orders.id, order.id)).limit(1);
+      if (refreshed) order = refreshed;
+    }
+  }
+
+  const isOrderPaid = order.status === "PAID" || order.status === "COMPLETED";
+
   const [items, [payment], giftDeliveries] = await Promise.all([
     db.select().from(orderItems).where(eq(orderItems.orderId, order.id)),
     db.select().from(payments).where(eq(payments.orderId, order.id)).limit(1),
-    order.orderType === "GIFT_CODE" && (order.status === "PAID" || order.status === "COMPLETED")
+    order.orderType === "GIFT_CODE" && isOrderPaid
       ? db
           .select({
             id: giftCodeDeliveries.id,
@@ -70,17 +84,21 @@ export default async function OrderDetailPage({
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
-      {sp.success && (
+      {(sp.success || isOrderPaid) && (
         <div className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-800 ring-1 ring-emerald-200 flex items-center gap-2">
           <span>🎉</span>
           <span className="font-semibold text-sm">Payment successful! Your voucher code is ready below.</span>
         </div>
       )}
-      {sp.failed && (
+      {sp.failed && !isOrderPaid && (
         <div className="mb-6 rounded-xl bg-red-50 p-5 text-red-700 ring-1 ring-red-200">
           <p className="text-lg font-bold">Payment failed</p>
           <p className="text-sm">No money was captured. You can retry the payment below.</p>
-          {order.status === "PENDING" && <Link href={`/pay/${cleanOrderNumber}`} className="btn-primary mt-3 !bg-red-600 hover:!bg-red-700">Retry Payment</Link>}
+          {order.status === "PENDING" && (
+            <Link href={`/pay/${cleanOrderNumber}`} className="btn-primary mt-3 !bg-red-600 hover:!bg-red-700">
+              Retry Payment
+            </Link>
+          )}
         </div>
       )}
 
@@ -92,6 +110,10 @@ export default async function OrderDetailPage({
           </div>
           <span className={`badge ${statusBadgeClass(order.status)} !px-3 !py-1 !text-sm`}>{order.status}</span>
         </div>
+
+        {order.status === "PENDING" && (
+          <PendingSyncChecker orderIdentifier={cleanOrderNumber} />
+        )}
 
         <ul className="mt-6 divide-y divide-slate-100 text-sm">
           {items.map((i) => {
@@ -109,7 +131,7 @@ export default async function OrderDetailPage({
         {giftDeliveries.length > 0 && (
           <div className="mt-6 border-t border-slate-200 pt-5">
             <h2 className="text-sm font-bold text-slate-800 mb-1">Your Purchased Voucher Code</h2>
-            <p className="text-xs text-slate-500 mb-2">Click to reveal your decrypted digital voucher code.</p>
+            <p className="text-xs text-slate-500 mb-2">Click below to reveal or copy your voucher code.</p>
             {giftDeliveries.map((d) => {
               const rawCode = d.encryptedCode ? decryptGiftCode(d.encryptedCode) : null;
               return (
@@ -149,9 +171,13 @@ export default async function OrderDetailPage({
         )}
 
         {order.status === "PENDING" && (
-          <Link href={`/pay/${cleanOrderNumber}`} className="btn-primary mt-6 w-full !py-3">Complete Payment →</Link>
+          <div className="mt-6 flex flex-col gap-2">
+            <Link href={`/pay/${cleanOrderNumber}`} className="btn-primary w-full !py-3 text-center">
+              Complete Payment →
+            </Link>
+          </div>
         )}
-        {(order.status === "PAID" || order.status === "COMPLETED") && (
+        {isOrderPaid && (
           order.orderType === "GIFT_CODE" ? (
             <Link href="/my-gift-codes" className="btn-secondary mt-6 w-full !py-3 text-center font-bold">
               ← View All My Bought Codes
