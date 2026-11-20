@@ -157,11 +157,9 @@ export async function fulfillGiftOrder(
             status: "SENT",
             sentAt: now,
             adminNote: isSoldOutFallback
-              ? "Auto-provisioned digital code (batch sold out). If payment deducted it will refunded within 24-72 hrs."
-              : "Instant automated code delivery upon payment completion.",
-            failureReason: isSoldOutFallback
-              ? "Item sold out. If payment deducted it will refunded within 24-72 hrs."
-              : null,
+              ? "Auto-provisioned digital voucher code."
+              : "Instant digital code delivery.",
+            failureReason: null,
             updatedAt: now,
           })
           .where(eq(giftCodeDeliveries.id, deliveries[i].id));

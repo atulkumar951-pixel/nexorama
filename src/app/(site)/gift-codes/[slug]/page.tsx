@@ -299,7 +299,7 @@ export default async function GiftProductDetailPage({ params }: Props) {
                   <span>Safe checkout with 256-bit encrypted Razorpay</span>
                 </div>
                 <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-[11px] text-slate-600 leading-relaxed">
-                  <span className="font-semibold text-slate-800">⚠️ Policy:</span> Digital voucher codes are provided instantly upon payment. If code sold out, if payment deducted it will refunded within 24-72 hrs.
+                  <span className="font-semibold text-slate-800">🛡️ 100% Genuine:</span> Official brand gift cards with verified instant digital delivery.
                 </div>
               </div>
             </div>

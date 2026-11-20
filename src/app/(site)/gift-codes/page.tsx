@@ -33,7 +33,7 @@ const FAQS = [
   },
   {
     q: "How fast is the delivery?",
-    a: "Instant! Once your payment is verified, your code is revealed directly on your screen and dispatched to your email. If any item is sold out, if payment deducted it will refunded within 24-72 hrs.",
+    a: "Instant! As soon as payment is confirmed, your voucher code is delivered directly to your screen and registered email address.",
   },
   {
     q: "Are these codes official and genuine?",
@@ -45,7 +45,7 @@ const FAQS = [
   },
   {
     q: "What is the return/refund policy?",
-    a: "Digital gift codes are single-use credentials delivered instantly upon payment. If a code is sold out at payment completion, if payment deducted it will refunded within 24-72 hrs.",
+    a: "Digital gift codes are single-use credentials delivered instantly upon payment. If you experience any issues, our 24/7 support desk is available to assist immediately.",
   },
 ];
 
@@ -463,7 +463,7 @@ export default async function GiftCodesStorefrontPage({
               <span className="text-3xl">⚡</span>
               <h3 className="mt-3 font-bold text-slate-900 text-sm">Instant Delivery Guarantee</h3>
               <p className="mt-1.5 text-xs text-slate-600 leading-relaxed">
-                Codes are delivered immediately upon payment completion. If code sold out, if payment deducted it will refunded within 24-72 hrs.
+                Codes are delivered immediately to your screen and email upon verified payment completion.
               </p>
             </div>
             <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-6 hover:border-cyan-300 hover:bg-white hover:shadow-md transition">

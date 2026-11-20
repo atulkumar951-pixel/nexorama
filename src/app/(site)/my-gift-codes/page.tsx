@@ -69,15 +69,15 @@ export default async function MyGiftCodesPage({
   };
 
   const deliveryLabel: Record<string, string> = {
-    PENDING: "⏳ Pending Payment",
-    ASSIGNED: "⚡ Instant Delivered",
-    PROCESSING: "⚡ Instant Delivered",
-    SENT: "⚡ Instant Delivered",
-    FAILED: "❌ Delivery Alert",
-    CANCELLED: "🚫 Cancelled",
-    REPLACED: "🔁 Replaced",
-    SOLD_OUT: "⚠️ Sold Out (Refund 24-72h)",
-    OUT_OF_STOCK: "⚠️ Sold Out (Refund 24-72h)",
+    PENDING: "Pending",
+    ASSIGNED: "Delivered",
+    PROCESSING: "Delivered",
+    SENT: "Delivered",
+    FAILED: "Failed",
+    CANCELLED: "Cancelled",
+    REPLACED: "Replaced",
+    SOLD_OUT: "Sold Out",
+    OUT_OF_STOCK: "Sold Out",
   };
 
   return (
@@ -100,16 +100,9 @@ export default async function MyGiftCodesPage({
         </div>
 
         {sp.success && (
-          <div className="mb-8 rounded-2xl border border-emerald-300 bg-emerald-50/90 p-5 shadow-sm text-emerald-900">
-            <div className="flex items-start gap-3">
-              <span className="text-2xl">🎉</span>
-              <div>
-                <h2 className="text-sm font-bold text-emerald-950">Payment Complete! Code Delivered Instantly</h2>
-                <p className="mt-1 text-xs text-emerald-800 leading-relaxed">
-                  Your payment was verified and your voucher code is displayed below. If any requested code was sold out, if payment deducted it will refunded within 24-72 hrs.
-                </p>
-              </div>
-            </div>
+          <div className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs font-semibold text-emerald-800 flex items-center gap-2">
+            <span>🎉</span>
+            <span>Payment successful! Your voucher code is ready below.</span>
           </div>
         )}
 
@@ -169,9 +162,12 @@ export default async function MyGiftCodesPage({
                   <div className="p-5">
                     <div className="flex flex-wrap items-start justify-between gap-4">
                       <div className="flex-1">
-                        <p className="font-bold text-slate-900 text-lg">
-                          {row.brandName && <span className="text-emerald-700">{row.brandName} · </span>}
-                          {row.itemTitle}
+                        <p className="font-bold text-slate-900 text-base sm:text-lg">
+                          {row.brandName && !row.itemTitle.toLowerCase().startsWith(row.brandName.toLowerCase()) ? (
+                            <><span className="text-emerald-700">{row.brandName} · </span>{row.itemTitle}</>
+                          ) : (
+                            row.itemTitle
+                          )}
                         </p>
                         {row.denomination && (
                           <p className="text-xs text-slate-500 mt-1">
@@ -198,7 +194,7 @@ export default async function MyGiftCodesPage({
                       )}
                     </div>
 
-                    {/* Instant Delivered Code Display in Blur Mode with EmailJS integration */}
+                    {/* Instant Delivered Code Display in Blur Mode */}
                     {isPaid && (
                       <div className="mt-4">
                         <CodeDisplay
@@ -208,7 +204,6 @@ export default async function MyGiftCodesPage({
                           orderNumber={row.orderNumber}
                           productName={row.itemTitle}
                           denomination={row.denomination}
-                          isSoldOut={isSoldOut}
                         />
                       </div>
                     )}
@@ -222,13 +217,6 @@ export default async function MyGiftCodesPage({
                           <strong className="text-slate-900">{row.orderNumber}</strong> for immediate resolution.
                         </p>
                       </div>
-                    )}
-
-                    {/* Ops Admin Note */}
-                    {row.adminNote && (
-                      <p className="mt-2 text-[11px] text-slate-500">
-                        <span className="font-semibold text-slate-700">Note:</span> {row.adminNote}
-                      </p>
                     )}
                   </div>
 

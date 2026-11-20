@@ -34,10 +34,9 @@ export default async function OrderDetailPage({
       {sp.success && (
         order.orderType === "GIFT_CODE" ? (
           <div className="mb-6 rounded-xl bg-emerald-50 p-5 text-emerald-800 ring-1 ring-emerald-200">
-            <p className="text-lg font-bold">🎉 Payment successful! Instant Code Delivery</p>
-            <p className="text-sm">Your payment is confirmed and your gift code is delivered instantly. View and redeem your code in My Gift Codes.</p>
-            <p className="mt-1 text-xs text-emerald-700">Note: If any item is sold out, if payment deducted it will refunded within 24-72 hrs.</p>
-            <Link href="/my-gift-codes" className="btn-primary mt-3 !bg-emerald-600 hover:!bg-emerald-700">⚡ View My Gift Codes →</Link>
+            <p className="text-lg font-bold">🎉 Payment successful!</p>
+            <p className="text-sm">Your payment is confirmed and your gift code is ready in My Gift Codes.</p>
+            <Link href="/my-gift-codes" className="btn-primary mt-3 !bg-emerald-600 hover:!bg-emerald-700">View My Gift Codes →</Link>
           </div>
         ) : (
           <div className="mb-6 rounded-xl bg-emerald-50 p-5 text-emerald-800 ring-1 ring-emerald-200">
