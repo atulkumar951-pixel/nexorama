@@ -136,12 +136,11 @@ export async function placeGiftOrderAction(
 
   await db.insert(giftCodeDeliveries).values(deliveriesToInsert);
 
-  // Create payment record
-  const razorpayConfigured = !!process.env.RAZORPAY_KEY_ID && !!process.env.RAZORPAY_KEY_SECRET;
+  // Create payment record (Simulated instant checkout)
   await db.insert(payments).values({
     orderId: order.id,
     userId: user.id,
-    provider: razorpayConfigured && total > 0 ? "RAZORPAY" : "TEST",
+    provider: "SIMULATED",
     amount: total,
     status: "CREATED",
   });

@@ -195,11 +195,24 @@ export async function testPayAction(orderIdentifier: number | string, outcome: "
   }
   // Route to correct fulfillment based on order type
   if (order.orderType === "GIFT_CODE") {
-    await fulfillGiftOrder(order.id, { method: "test-card", provider: "TEST", razorpayPaymentId: `test_${crypto.randomBytes(8).toString("hex")}` });
+    await fulfillGiftOrder(order.id, {
+      method: "instant-simulated",
+      provider: "SIMULATED",
+      razorpayPaymentId: `sim_${crypto.randomBytes(8).toString("hex")}`,
+    });
     redirect(`/orders/${order.orderNumber}?success=1`);
   }
-  await fulfillOrder(order.id, { method: "test-card", provider: "TEST", razorpayPaymentId: `test_${crypto.randomBytes(8).toString("hex")}` });
+  await fulfillOrder(order.id, {
+    method: "instant-simulated",
+    provider: "SIMULATED",
+    razorpayPaymentId: `sim_${crypto.randomBytes(8).toString("hex")}`,
+  });
   redirect(`/orders/${order.orderNumber}?success=1`);
+}
+
+/** Direct 1-click simulated payment action: completes order and unlocks code instantly. */
+export async function simulatePayAction(orderIdentifier: number | string) {
+  return testPayAction(orderIdentifier, "success");
 }
 
 // ---------- Notifications ----------
