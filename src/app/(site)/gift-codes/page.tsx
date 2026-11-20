@@ -144,56 +144,56 @@ export default async function GiftCodesStorefrontPage({
           aria-hidden
         />
 
-        <div className="relative mx-auto max-w-7xl px-4 py-16 sm:py-20">
-          <div className="grid items-center gap-10 lg:grid-cols-12">
+        <div className="relative mx-auto max-w-7xl px-4 py-8 sm:py-12">
+          <div className="grid items-center gap-8 lg:grid-cols-12">
             {/* Left Content Column */}
             <div className="lg:col-span-7">
-              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50/80 px-3.5 py-1.5 text-xs font-bold text-emerald-800 shadow-xs backdrop-blur-sm">
+              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50/80 px-3 py-1 text-xs font-bold text-emerald-800 shadow-xs backdrop-blur-sm">
                 <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>⚡ 100% Genuine Brand Codes · Instant Code Delivery Upon Payment</span>
+                <span>⚡ 100% Genuine Brand Codes · Instant Delivery Upon Payment</span>
               </div>
 
-              <h1 className="mt-5 text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-[3.25rem] leading-[1.15] text-slate-900">
+              <h1 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-[2.75rem] leading-[1.15] text-slate-900">
                 Official Gift Cards &amp;{" "}
                 <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
                   Gaming Vouchers
                 </span>
               </h1>
 
-              <p className="mt-5 text-base sm:text-lg leading-relaxed text-slate-600 max-w-xl">
-                Steam Wallet, Google Play, Amazon Pay, Netflix, Spotify &amp; 50+ top brands. Zero convenience fees, discounted rates, and guaranteed automated email delivery.
+              <p className="mt-3 text-sm sm:text-base leading-relaxed text-slate-600 max-w-xl">
+                Steam Wallet, Google Play, PlayStation, Amazon Pay, Netflix &amp; 50+ top brands. Zero convenience fees, discounted rates, and guaranteed automated email delivery.
               </p>
 
               {/* Search Bar */}
               <form
                 action="/gift-codes"
-                className="mt-8 flex max-w-xl items-center gap-2 rounded-2xl border border-slate-300 bg-white p-2 shadow-lg shadow-emerald-100/50 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-200 transition"
+                className="mt-5 flex max-w-xl items-center gap-2 rounded-2xl border border-slate-300 bg-white p-1.5 shadow-md shadow-emerald-100/50 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-200 transition"
               >
-                <span className="pl-3 text-lg text-slate-400">🔍</span>
+                <span className="pl-3 text-base text-slate-400">🔍</span>
                 <input
                   type="search"
                   name="q"
                   defaultValue={q}
-                  placeholder="Search Amazon, Steam, Google Play, Netflix, Spotify…"
-                  className="w-full bg-transparent px-2 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none"
+                  placeholder="Search PlayStation, Steam, Amazon, Google Play, Netflix…"
+                  className="w-full bg-transparent px-2 py-1.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none"
                   aria-label="Search gift cards"
                 />
                 <button
                   type="submit"
-                  className="rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-emerald-200 hover:from-emerald-500 hover:to-teal-500 transition active:scale-95 whitespace-nowrap"
+                  className="rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-5 py-2 text-sm font-bold text-white shadow-md shadow-emerald-200 hover:from-emerald-500 hover:to-teal-500 transition active:scale-95 whitespace-nowrap"
                 >
                   Find Codes
                 </button>
               </form>
 
               {/* Quick Search Chips */}
-              <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+              <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-500">
                 <span className="font-semibold text-slate-600">Popular:</span>
-                {["Steam", "Amazon", "Google Play", "Netflix", "Spotify", "Swiggy"].map((brand) => (
+                {["PlayStation", "Steam", "Amazon", "Google Play", "Netflix", "Spotify", "Swiggy"].map((brand) => (
                   <Link
                     key={brand}
                     href={`/gift-codes?q=${encodeURIComponent(brand)}`}
-                    className="rounded-full border border-slate-200 bg-white px-3 py-1 text-slate-700 hover:border-emerald-400 hover:text-emerald-700 shadow-xs transition"
+                    className="rounded-full border border-slate-200 bg-white px-3 py-1 text-slate-700 hover:border-emerald-400 hover:text-emerald-700 shadow-xs transition font-medium"
                   >
                     {brand}
                   </Link>
@@ -201,17 +201,17 @@ export default async function GiftCodesStorefrontPage({
               </div>
 
               {/* Trust badges */}
-              <div className="mt-10 flex flex-wrap items-center gap-3 border-t border-slate-200 pt-6 text-xs sm:text-sm text-slate-600">
-                <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3.5 py-1.5 shadow-xs">
-                  <span className="h-2 w-2 rounded-full bg-emerald-500" />
+              <div className="mt-6 flex flex-wrap items-center gap-2 border-t border-slate-200 pt-4 text-xs text-slate-600">
+                <div className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 shadow-xs">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                   <span className="font-semibold text-slate-700">⚡ Instant Delivery Upon Payment</span>
                 </div>
-                <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3.5 py-1.5 shadow-xs">
-                  <span className="h-2 w-2 rounded-full bg-cyan-500" />
+                <div className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 shadow-xs">
+                  <span className="h-1.5 w-1.5 rounded-full bg-cyan-500" />
                   <span className="font-semibold text-slate-700">100% Genuine Brand Codes</span>
                 </div>
-                <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3.5 py-1.5 shadow-xs">
-                  <span className="h-2 w-2 rounded-full bg-amber-500" />
+                <div className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 shadow-xs">
+                  <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
                   <span className="font-semibold text-slate-700">Verified Razorpay UPI</span>
                 </div>
               </div>
@@ -263,22 +263,22 @@ export default async function GiftCodesStorefrontPage({
       </section>
 
       {/* 3. Popular Brands Quick-Select Carousel (Light Style) */}
-      <section className="border-b border-slate-200/80 bg-white py-6">
+      <section className="border-b border-slate-200/80 bg-white py-3 sm:py-4">
         <div className="mx-auto max-w-7xl px-4">
-          <div className="mb-3 flex items-center justify-between">
+          <div className="mb-2 flex items-center justify-between">
             <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
               ⭐ Top Brands &amp; Gaming Currency
             </p>
             <span className="text-xs font-semibold text-emerald-700">Official Distributor Stock</span>
           </div>
-          <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-none">
+          <div className="flex items-center gap-2.5 overflow-x-auto pb-1.5 scrollbar-none">
             {POPULAR_BRANDS.map((b) => (
               <Link
                 key={b.name}
                 href={`/gift-codes?q=${encodeURIComponent(b.name)}`}
-                className="group flex shrink-0 items-center gap-2.5 rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-2.5 shadow-xs hover:border-emerald-400 hover:bg-white hover:shadow-md transition"
+                className="group flex shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50/80 px-3.5 py-2 shadow-xs hover:border-emerald-400 hover:bg-white hover:shadow-md transition"
               >
-                <span className="text-xl group-hover:scale-110 transition">{b.icon}</span>
+                <span className="text-lg group-hover:scale-110 transition">{b.icon}</span>
                 <div className="text-left">
                   <p className="text-xs font-bold text-slate-900 group-hover:text-emerald-700 transition">
                     {b.name}
@@ -292,46 +292,46 @@ export default async function GiftCodesStorefrontPage({
       </section>
 
       {/* 4. 3-Step "How It Works" Infographic Banner */}
-      <section id="how-it-works" className="border-b border-slate-200/80 bg-slate-50 py-10">
+      <section id="how-it-works" className="border-b border-slate-200/80 bg-slate-50 py-4 sm:py-6">
         <div className="mx-auto max-w-7xl px-4">
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
-            <div className="text-center sm:text-left mb-6">
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-600">
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-xs">
+            <div className="text-center sm:text-left mb-4">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600">
                 Simple 3-Step Process
               </span>
-              <h2 className="text-xl font-extrabold text-slate-900 sm:text-2xl">How Code Delivery Works</h2>
+              <h2 className="text-lg font-extrabold text-slate-900 sm:text-xl">How Code Delivery Works</h2>
             </div>
-            <div className="grid gap-6 sm:grid-cols-3">
-              <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-2xl font-black text-emerald-700 border border-emerald-200">
+            <div className="grid gap-4 sm:grid-cols-3">
+              <div className="flex items-start gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-lg font-black text-emerald-700 border border-emerald-200">
                   1
                 </div>
                 <div>
-                  <h3 className="font-bold text-slate-900 text-sm">Select Product &amp; Amount</h3>
-                  <p className="mt-1 text-xs text-slate-600 leading-relaxed">
-                    Pick your brand voucher and denomination (₹100 to ₹5,000) at exclusive discounted prices.
+                  <h3 className="font-bold text-slate-900 text-xs sm:text-sm">Select Product &amp; Amount</h3>
+                  <p className="mt-0.5 text-xs text-slate-500 leading-relaxed">
+                    Pick your brand voucher and denomination at discounted rates.
                   </p>
                 </div>
               </div>
-              <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-cyan-100 text-2xl font-black text-cyan-700 border border-cyan-200">
+              <div className="flex items-start gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cyan-100 text-lg font-black text-cyan-700 border border-cyan-200">
                   2
                 </div>
                 <div>
-                  <h3 className="font-bold text-slate-900 text-sm">Pay Safely via Razorpay</h3>
-                  <p className="mt-1 text-xs text-slate-600 leading-relaxed">
-                    Fast 1-click checkout using UPI, NetBanking, or Cards with 256-bit bank encryption.
+                  <h3 className="font-bold text-slate-900 text-xs sm:text-sm">Pay Safely via Razorpay</h3>
+                  <p className="mt-0.5 text-xs text-slate-500 leading-relaxed">
+                    Fast 1-click checkout using UPI, NetBanking, or Cards.
                   </p>
                 </div>
               </div>
-              <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-2xl font-black text-amber-700 border border-amber-200">
+              <div className="flex items-start gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-lg font-black text-amber-700 border border-amber-200">
                   3
                 </div>
                 <div>
-                  <h3 className="font-bold text-slate-900 text-sm">Instant Email Delivery (&lt; 5m)</h3>
-                  <p className="mt-1 text-xs text-slate-600 leading-relaxed">
-                    Your encrypted digital code arrives straight in your email inbox and customer dashboard.
+                  <h3 className="font-bold text-slate-900 text-xs sm:text-sm">Instant Delivery</h3>
+                  <p className="mt-0.5 text-xs text-slate-500 leading-relaxed">
+                    Code delivered straight to your screen &amp; registered email.
                   </p>
                 </div>
               </div>
@@ -341,10 +341,10 @@ export default async function GiftCodesStorefrontPage({
       </section>
 
       {/* 5. Main Catalog & Filters */}
-      <div className="mx-auto max-w-7xl px-4 py-12">
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:py-8">
         {/* Categories Tab Bar */}
         {cats.length > 0 && (
-          <div className="mb-8 flex flex-wrap items-center gap-2 border-b border-slate-200 pb-4">
+          <div className="mb-5 flex flex-wrap items-center gap-2 border-b border-slate-200 pb-3">
             <Link
               href="/gift-codes"
               className={`rounded-xl px-4 py-2 text-xs font-bold transition ${
@@ -445,15 +445,15 @@ export default async function GiftCodesStorefrontPage({
         </section>
 
         {/* 8. Trust Pillars (Gyftr & Rooter Customer Assurance) */}
-        <section className="mt-20 rounded-3xl border border-slate-200 bg-white p-8 sm:p-12 shadow-sm">
-          <div className="text-center max-w-2xl mx-auto mb-10">
+        <section className="mt-10 sm:mt-12 rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+          <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-8">
             <span className="text-xs font-bold uppercase tracking-wider text-emerald-600">
               Why Customers Trust Nexora
             </span>
-            <h2 className="mt-2 text-2xl font-black text-slate-900 sm:text-3xl">
+            <h2 className="mt-1.5 text-xl font-black text-slate-900 sm:text-2xl">
               Engineered for Speed &amp; Security
             </h2>
-            <p className="mt-2 text-xs text-slate-500 leading-relaxed">
+            <p className="mt-1.5 text-xs text-slate-500 leading-relaxed">
               We eliminate the friction of digital gifting with instant automated code delivery and verified distributor codes.
             </p>
           </div>

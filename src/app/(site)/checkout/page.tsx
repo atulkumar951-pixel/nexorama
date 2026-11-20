@@ -50,7 +50,7 @@ export default async function CheckoutPage() {
             <p className="pt-1 text-xs text-slate-400">Final amount is always recalculated securely on the server.</p>
           </div>
         </div>
-        <CheckoutForm />
+        <CheckoutForm userEmail={user.email} userName={user.name} />
       </div>
     </div>
   );

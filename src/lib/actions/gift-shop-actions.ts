@@ -40,9 +40,18 @@ export async function placeGiftOrderAction(
 
   const giftProductId = Number(formData.get("giftProductId") ?? 0);
   const quantity = Math.max(1, Math.min(5, Number(formData.get("quantity") ?? 1)));
+  const customerName = String(formData.get("customerName") ?? user.name ?? "").trim();
+  const customerMobile = String(formData.get("customerMobile") ?? "").trim();
   const recipientEmail = String(formData.get("recipientEmail") ?? user.email).trim().toLowerCase();
 
   if (!giftProductId) return { error: "Invalid product." };
+  if (!customerName) return { error: "Please enter your full name." };
+  if (!customerMobile || !/^\d{10}$/.test(customerMobile)) {
+    return { error: "Please enter a valid 10-digit mobile number." };
+  }
+  if (!recipientEmail || !recipientEmail.includes("@")) {
+    return { error: "Please enter a valid email address." };
+  }
 
   // Release any expired reservations first
   await cleanupExpiredGiftReservations();
@@ -105,6 +114,7 @@ export async function placeGiftOrderAction(
     orderId: order.id,
     orderItemId: orderItem.id,
     recipientEmail,
+    adminNote: `Customer: ${customerName} | Mobile: ${customerMobile}`,
     status: "PENDING" as const,
   }));
 

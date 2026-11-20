@@ -13,12 +13,20 @@ type Props = {
     sellingPrice: number;
   };
   userEmail: string;
+  userName?: string;
+  userPhone?: string;
   maxQuantity?: number;
 };
 
 const initialState: GiftCheckoutState = {};
 
-export function GiftBuyForm({ product, userEmail, maxQuantity = 5 }: Props) {
+export function GiftBuyForm({
+  product,
+  userEmail,
+  userName = "",
+  userPhone = "",
+  maxQuantity = 5,
+}: Props) {
   const [quantity, setQuantity] = useState(1);
   const [state, action, pending] = useActionState(placeGiftOrderAction, initialState);
   const total = product.sellingPrice * quantity;
@@ -61,11 +69,51 @@ export function GiftBuyForm({ product, userEmail, maxQuantity = 5 }: Props) {
         </div>
       </div>
 
-      {/* Recipient Email */}
+      {/* Customer Name */}
       <div>
-        <label htmlFor="recipientEmail" className="block text-sm font-semibold text-slate-700 mb-1">
-          Recipient Email
+        <label htmlFor="customerName" className="block text-sm font-semibold text-slate-700 mb-1">
+          Full Name
         </label>
+        <input
+          id="customerName"
+          type="text"
+          name="customerName"
+          defaultValue={userName}
+          required
+          className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+          placeholder="Enter your full name"
+        />
+      </div>
+
+      {/* Customer Mobile */}
+      <div>
+        <label htmlFor="customerMobile" className="block text-sm font-semibold text-slate-700 mb-1">
+          Mobile Number
+        </label>
+        <input
+          id="customerMobile"
+          type="tel"
+          name="customerMobile"
+          defaultValue={userPhone}
+          required
+          pattern="[0-9]{10}"
+          maxLength={10}
+          className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+          placeholder="Enter 10-digit mobile number"
+        />
+        <p className="mt-1 text-[11px] text-slate-400">Order SMS confirmation &amp; delivery updates.</p>
+      </div>
+
+      {/* Prefetched Account Email */}
+      <div>
+        <div className="flex items-center justify-between mb-1">
+          <label htmlFor="recipientEmail" className="block text-sm font-semibold text-slate-700">
+            Email Address
+          </label>
+          <span className="rounded-full bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+            Prefetched from account
+          </span>
+        </div>
         <input
           id="recipientEmail"
           type="email"
@@ -75,7 +123,9 @@ export function GiftBuyForm({ product, userEmail, maxQuantity = 5 }: Props) {
           className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
           placeholder="Enter email to receive the gift code"
         />
-        <p className="mt-1 text-xs text-slate-500">The gift code will be delivered to this email address.</p>
+        <p className="mt-1 text-[11px] text-slate-400">
+          The digital voucher code will be dispatched to this email immediately upon payment.
+        </p>
       </div>
 
       {state?.error && (

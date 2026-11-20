@@ -257,6 +257,7 @@ export default async function GiftProductDetailPage({ params }: Props) {
                       sellingPrice: product.sellingPrice,
                     }}
                     userEmail={user.email}
+                    userName={user.name}
                     maxQuantity={Math.min(product.purchaseLimit || 5, available)}
                   />
                 ) : (
