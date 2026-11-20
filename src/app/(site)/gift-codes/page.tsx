@@ -228,9 +228,9 @@ export default async function GiftCodesStorefrontPage({
                   <div className="relative overflow-hidden rounded-xl">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src="/images/gift-hero.jpg"
+                      src="/logo-gift.png"
                       alt="Nexora Official Gift Cards & Gaming Vouchers"
-                      className="aspect-[16/10] w-full object-cover transition duration-700 group-hover:scale-105"
+                      className="aspect-[1/1] sm:aspect-[16/10] w-full object-cover transition duration-700 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent" />
 

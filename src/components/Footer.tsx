@@ -56,7 +56,7 @@ export default async function Footer() {
           <div>
             <Link href="/" className="flex items-center gap-2.5 text-lg font-extrabold text-white group">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo.png" alt="Nexora" className="h-8 w-8 rounded-lg object-contain shadow-sm" />
+              <img src="/logo-gift.png" alt="Nexora Gift Codes" className="h-8 w-8 rounded-lg object-contain shadow-sm" />
               <span>
                 Nex<span className="text-emerald-400">ora</span>{" "}
                 <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">Gift Codes</span>

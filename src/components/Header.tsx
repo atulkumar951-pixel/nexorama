@@ -36,7 +36,7 @@ export default async function Header() {
         <Link href="/" className="flex shrink-0 items-center gap-2.5 group">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/logo.png"
+            src={isGift ? "/logo-gift.png" : "/logo.png"}
             alt="Nexora"
             className="h-9 w-9 rounded-lg object-contain shadow-sm group-hover:scale-105 transition duration-200"
           />

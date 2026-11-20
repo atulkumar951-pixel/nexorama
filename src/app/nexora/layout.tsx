@@ -50,7 +50,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
       <aside className="hidden w-60 shrink-0 flex-col border-r border-slate-800 bg-slate-900 text-slate-300 lg:flex">
         <Link href={mode === "GIFT_CODES" ? "/nexora/gift-cards" : "/nexora"} className="flex items-center gap-2.5 border-b border-slate-800 px-5 py-4 text-lg font-extrabold text-white">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="Nexora" className="h-7 w-7 rounded-md object-contain" />
+          <img src={mode === "GIFT_CODES" ? "/logo-gift.png" : "/logo.png"} alt="Nexora" className="h-7 w-7 rounded-md object-contain" />
           <span>Nex<span className="text-emerald-400">ora</span> Admin</span>
         </Link>
         <nav className="flex-1 space-y-0.5 p-3">
