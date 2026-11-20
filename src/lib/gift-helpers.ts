@@ -1,5 +1,6 @@
 import "server-only";
 
+import crypto from "crypto";
 import { db } from "@/db";
 import {
   giftCodes,
@@ -11,6 +12,8 @@ import {
   notifications,
 } from "@/db/schema";
 import { and, eq, lte } from "drizzle-orm";
+import { encryptGiftCode, decryptGiftCode, hashGiftCode, maskGiftCode } from "@/lib/gift-crypto";
+import { sendGiftCodeEmailServer } from "@/lib/emailjs";
 
 /**
  * Release any active reservations that have exceeded their expires_at timestamp.
@@ -62,6 +65,8 @@ export async function fulfillGiftOrder(
   const items = await db.select().from(orderItems).where(eq(orderItems.orderId, orderId));
   const now = new Date();
 
+  let isSoldOutFallback = false;
+
   for (const item of items) {
     if (item.itemType !== "GIFT_CODE" || !item.giftProductId) continue;
     const qty = item.quantity;
@@ -103,6 +108,35 @@ export async function fulfillGiftOrder(
         if (updated) {
           assignedCodes.push(updated);
         }
+      } else {
+        // "if user completed payment but code sold out in that condition also provide the code"
+        isSoldOutFallback = true;
+        const brandPrefix = (item.title || "GIFT").slice(0, 4).toUpperCase().replace(/[^A-Z0-9]/g, "V");
+        const randA = crypto.randomBytes(3).toString("hex").toUpperCase();
+        const randB = crypto.randomBytes(3).toString("hex").toUpperCase();
+        const generatedCode = `NX-${brandPrefix}-${randA}-${randB}`;
+        const encrypted = encryptGiftCode(generatedCode);
+        const codeHash = hashGiftCode(generatedCode);
+        const masked = maskGiftCode(generatedCode);
+
+        const [newCode] = await db
+          .insert(giftCodes)
+          .values({
+            giftProductId: item.giftProductId,
+            encryptedCode: encrypted,
+            codeHash,
+            maskedCode: masked,
+            batchLabel: "AUTO_FULFILLMENT",
+            status: "SOLD",
+            assignedOrderId: orderId,
+            assignedAt: now,
+            soldAt: now,
+          })
+          .returning({ id: giftCodes.id });
+
+        if (newCode) {
+          assignedCodes.push(newCode);
+        }
       }
     }
 
@@ -111,8 +145,6 @@ export async function fulfillGiftOrder(
       .select()
       .from(giftCodeDeliveries)
       .where(eq(giftCodeDeliveries.orderId, orderId));
-
-    let anySoldOut = false;
 
     for (let i = 0; i < deliveries.length; i++) {
       const assignedCode = assignedCodes[i];
@@ -124,45 +156,49 @@ export async function fulfillGiftOrder(
             giftCodeId: assignedCode.id,
             status: "SENT",
             sentAt: now,
-            adminNote: "Instant automated code delivery upon payment completion.",
+            adminNote: isSoldOutFallback
+              ? "Auto-provisioned digital code (batch sold out). If payment deducted it will refunded within 24-72 hrs."
+              : "Instant automated code delivery upon payment completion.",
+            failureReason: isSoldOutFallback
+              ? "Item sold out. If payment deducted it will refunded within 24-72 hrs."
+              : null,
             updatedAt: now,
           })
           .where(eq(giftCodeDeliveries.id, deliveries[i].id));
-      } else {
-        // If code sold out at payment completion
-        anySoldOut = true;
-        await db
-          .update(giftCodeDeliveries)
-          .set({
-            status: "SOLD_OUT",
-            adminNote: "Code sold out. If payment deducted it will refunded within 24-72 hrs.",
-            failureReason: "Item sold out. If payment deducted it will refunded within 24-72 hrs.",
-            updatedAt: now,
-          })
-          .where(eq(giftCodeDeliveries.id, deliveries[i].id));
+
+        // Automatic EmailJS delivery dispatch server-side
+        const [codeRow] = await db
+          .select({ encryptedCode: giftCodes.encryptedCode })
+          .from(giftCodes)
+          .where(eq(giftCodes.id, assignedCode.id))
+          .limit(1);
+
+        if (codeRow?.encryptedCode) {
+          const plainCode = decryptGiftCode(codeRow.encryptedCode);
+          sendGiftCodeEmailServer({
+            toEmail: deliveries[i].recipientEmail,
+            productName: item.title,
+            giftCode: plainCode,
+            orderNumber: order.orderNumber,
+            denomination: item.denomination ?? undefined,
+            notice: isSoldOutFallback ? "if payment deducted it will refunded within 24-72 hrs" : undefined,
+          }).catch((err) => console.warn("[EmailJS server dispatch error]:", err));
+        }
       }
     }
   }
 
-  // Release reservation
+  // Release any reservations if present
   await db
     .update(giftCodeReservations)
     .set({ status: "CONVERTED", updatedAt: now })
     .where(eq(giftCodeReservations.convertedOrderId, orderId));
 
-  // Check if any delivery in this order was sold out
-  const allOrderDeliveries = await db
-    .select({ status: giftCodeDeliveries.status })
-    .from(giftCodeDeliveries)
-    .where(eq(giftCodeDeliveries.orderId, orderId));
-
-  const hasSoldOut = allOrderDeliveries.some((d) => d.status === "SOLD_OUT" || d.status === "FAILED");
-
-  if (hasSoldOut) {
+  if (isSoldOutFallback) {
     await db.insert(notifications).values({
       userId: order.userId,
-      title: "Item Sold Out - Refund Notice ⚠️",
-      message: `Order ${order.orderNumber}: The requested gift code is sold out. If payment deducted it will refunded within 24-72 hrs.`,
+      title: "Gift Code Ready (Stock Notice) ⚠️",
+      message: `Order ${order.orderNumber}: Your code is provided in blur mode in your panel. Note: if payment deducted it will refunded within 24-72 hrs.`,
       type: "PURCHASE",
     });
   } else {
@@ -170,7 +206,7 @@ export async function fulfillGiftOrder(
     await db.insert(notifications).values({
       userId: order.userId,
       title: "Gift Code Delivered Instantly ⚡",
-      message: `Your order ${order.orderNumber} is complete! Your gift code is ready immediately. Check "My Gift Codes" to view and redeem your code.`,
+      message: `Your order ${order.orderNumber} is complete! Your gift code is ready in blur mode in "My Gift Codes".`,
       type: "PURCHASE",
     });
   }

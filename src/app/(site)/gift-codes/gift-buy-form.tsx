@@ -78,12 +78,6 @@ export function GiftBuyForm({ product, userEmail, maxQuantity = 5 }: Props) {
         <p className="mt-1 text-xs text-slate-500">The gift code will be delivered to this email address.</p>
       </div>
 
-      {/* Reservation note (PRD §23, §59) */}
-      <div className="flex items-center gap-2 rounded-xl bg-emerald-50/80 border border-emerald-200/80 px-3.5 py-2 text-xs text-emerald-800">
-        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-        <span>Inventory reserved for <strong>10 minutes</strong> upon proceeding to checkout.</span>
-      </div>
-
       {state?.error && (
         <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
           {state.error}
@@ -96,7 +90,7 @@ export function GiftBuyForm({ product, userEmail, maxQuantity = 5 }: Props) {
         className="w-full rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-3.5 text-base font-bold text-white shadow-md shadow-emerald-200 hover:shadow-lg hover:shadow-emerald-300 hover:from-emerald-500 hover:to-teal-500 transition duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
         id="gift-buy-button"
       >
-        {pending ? "Reserving & Processing…" : `Buy Now · ${formatINR(total)}`}
+        {pending ? "Processing…" : `Buy Now · ${formatINR(total)}`}
       </button>
 
       <p className="text-center text-xs text-slate-400">

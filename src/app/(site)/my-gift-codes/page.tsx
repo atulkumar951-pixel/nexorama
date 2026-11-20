@@ -198,34 +198,18 @@ export default async function MyGiftCodesPage({
                       )}
                     </div>
 
-                    {/* Instant Delivered Code Display */}
-                    {hasCode && isPaid && (
+                    {/* Instant Delivered Code Display in Blur Mode with EmailJS integration */}
+                    {isPaid && (
                       <div className="mt-4">
-                        <CodeDisplay rawCode={rawCode} maskedCode={row.maskedCode} />
-                        <div className="mt-2.5 flex items-center gap-2 text-[11px] text-slate-500">
-                          <span className="text-emerald-600 font-bold">⚡ Instant Delivery:</span>
-                          <span>Voucher confirmed and dispatched to {row.recipientEmail}</span>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Sold Out Notice */}
-                    {isSoldOut && (
-                      <div className="mt-4 rounded-xl border border-amber-300 bg-amber-50/90 p-4">
-                        <div className="flex items-start gap-3">
-                          <span className="text-xl">⚠️</span>
-                          <div>
-                            <p className="text-xs font-bold text-amber-900">
-                              Item Sold Out
-                            </p>
-                            <p className="mt-1 text-xs text-amber-800 leading-relaxed font-semibold">
-                              if payment deducted it will refunded within 24-72 hrs
-                            </p>
-                            <p className="mt-1 text-[11px] text-amber-700">
-                              Our automated billing system is processing the reversal. Please contact support if you need further help.
-                            </p>
-                          </div>
-                        </div>
+                        <CodeDisplay
+                          rawCode={rawCode}
+                          maskedCode={row.maskedCode}
+                          recipientEmail={row.recipientEmail}
+                          orderNumber={row.orderNumber}
+                          productName={row.itemTitle}
+                          denomination={row.denomination}
+                          isSoldOut={isSoldOut}
+                        />
                       </div>
                     )}
 

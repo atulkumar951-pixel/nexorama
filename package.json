@@ -12,6 +12,7 @@
     "db:restore": "node scripts/restore-db.js"
   },
   "dependencies": {
+    "@emailjs/browser": "^5.0.3",
     "dotenv": "17.3.1",
     "drizzle-orm": "0.45.2",
     "next": "16.2.6",

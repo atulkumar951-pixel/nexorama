@@ -56,17 +56,6 @@ export async function placeGiftOrderAction(
 
   if (!product) return { error: "Product not found or unavailable." };
 
-  // Check available stock
-  const [stockRow] = await db
-    .select({ available: sql<number>`count(*) filter (where ${giftCodes.status} = 'AVAILABLE')::int` })
-    .from(giftCodes)
-    .where(eq(giftCodes.giftProductId, giftProductId));
-
-  const available = stockRow?.available ?? 0;
-  if (available < quantity) {
-    return { error: `Not enough stock. Only ${available} code(s) available.` };
-  }
-
   const total = product.sellingPrice * quantity;
 
   // PRD §31, §66: Format NX-GC-YYYYMMDD-XXXXX
@@ -104,20 +93,6 @@ export async function placeGiftOrderAction(
       price: product.sellingPrice,
     })
     .returning();
-
-  // Create reservation token (10 minutes per PRD §23)
-  const reservationToken = crypto.randomBytes(32).toString("hex");
-  const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
-
-  await db.insert(giftCodeReservations).values({
-    userId: user.id,
-    giftProductId,
-    quantity,
-    reservationToken,
-    status: "ACTIVE",
-    expiresAt,
-    convertedOrderId: order.id,
-  });
 
   // Create individual delivery records for each purchased code unit
   const deliveriesToInsert = Array.from({ length: quantity }, () => ({
