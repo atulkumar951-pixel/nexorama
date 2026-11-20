@@ -8,7 +8,6 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "db:migrate": "node scripts/migrate-schema.js && node scripts/migrate-gift-schema.js",
-    "db:seed:gift": "node scripts/seed-playstation-cards.js",
     "db:backup": "node scripts/backup-db.js",
     "db:restore": "node scripts/restore-db.js"
   },

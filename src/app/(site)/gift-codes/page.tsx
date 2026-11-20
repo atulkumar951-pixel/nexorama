@@ -19,7 +19,6 @@ const POPULAR_BRANDS = [
   { name: "Amazon", icon: "🛍️", tag: "Shopping & Pay" },
   { name: "Netflix", icon: "🎬", tag: "OTT & Movies" },
   { name: "Spotify", icon: "🎧", tag: "Music Premium" },
-  { name: "PlayStation", icon: "🕹️", tag: "PSN Credits" },
   { name: "Xbox", icon: "🟢", tag: "Xbox Game Pass" },
   { name: "Flipkart", icon: "📦", tag: "Voucher" },
   { name: "Swiggy", icon: "🍔", tag: "Food & Grocery" },
@@ -161,7 +160,7 @@ export default async function GiftCodesStorefrontPage({
               </h1>
 
               <p className="mt-3 text-sm sm:text-base leading-relaxed text-slate-600 max-w-xl">
-                Steam Wallet, Google Play, PlayStation, Amazon Pay, Netflix &amp; 50+ top brands. Zero convenience fees, discounted rates, and guaranteed automated email delivery.
+                Steam Wallet, Google Play, Amazon Pay, Netflix, Spotify &amp; 50+ top brands. Zero convenience fees, discounted rates, and guaranteed automated email delivery.
               </p>
 
               {/* Search Bar */}
@@ -174,7 +173,7 @@ export default async function GiftCodesStorefrontPage({
                   type="search"
                   name="q"
                   defaultValue={q}
-                  placeholder="Search PlayStation, Steam, Amazon, Google Play, Netflix…"
+                  placeholder="Search Amazon, Steam, Google Play, Netflix, Spotify…"
                   className="w-full bg-transparent px-2 py-1.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none"
                   aria-label="Search gift cards"
                 />
@@ -189,7 +188,7 @@ export default async function GiftCodesStorefrontPage({
               {/* Quick Search Chips */}
               <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-500">
                 <span className="font-semibold text-slate-600">Popular:</span>
-                {["PlayStation", "Steam", "Amazon", "Google Play", "Netflix", "Spotify", "Swiggy"].map((brand) => (
+                {["Steam", "Amazon", "Google Play", "Netflix", "Spotify", "Swiggy"].map((brand) => (
                   <Link
                     key={brand}
                     href={`/gift-codes?q=${encodeURIComponent(brand)}`}
