@@ -40,7 +40,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   await ensureDatabaseSchema();
   const user = await getCurrentUser();
   if (!user) redirect("/login?next=/nexora");
-  if (!isAdmin(user)) redirect("/dashboard");
+  if (!isAdmin(user)) redirect("/");
 
   const mode = await getMarketplaceMode();
   const navItems = mode === "GIFT_CODES" ? GIFT_NAV : DIGITAL_NAV;

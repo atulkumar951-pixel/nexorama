@@ -4,12 +4,16 @@ import { db } from "@/db";
 import { accessGrants, downloads, orders, products, wishlistItems } from "@/db/schema";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { getCurrentUser } from "@/lib/auth";
+import { getMarketplaceMode } from "@/lib/marketplace-mode";
 import { formatDate, formatINR, formatOrderNumber, statusBadgeClass } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Dashboard" };
 
 export default async function DashboardPage() {
+  const mode = await getMarketplaceMode();
+  if (mode === "GIFT_CODES") redirect("/");
+
   const user = await getCurrentUser();
   if (!user) redirect("/login?next=/dashboard");
 

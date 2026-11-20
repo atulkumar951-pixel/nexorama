@@ -152,12 +152,14 @@ export default async function Header() {
                       <p className="font-bold text-slate-900">{user.name}</p>
                       <p className="truncate text-xs text-slate-500">{user.email}</p>
                     </div>
-                    <Link
-                      href="/dashboard"
-                      className="block px-4 py-2 hover:bg-slate-50 transition"
-                    >
-                      Dashboard
-                    </Link>
+                    {!isGift && (
+                      <Link
+                        href="/dashboard"
+                        className="block px-4 py-2 hover:bg-slate-50 transition"
+                      >
+                        Dashboard
+                      </Link>
+                    )}
                     {isGift ? (
                       <Link
                         href="/my-gift-codes"

@@ -29,7 +29,7 @@ export async function registerAction(_prev: FormState, formData: FormData): Prom
       .values({ name, email, passwordHash: hashPassword(password), authMethod: "email" })
       .returning();
 
-    await notify(user.id, "Welcome to Nexora! 👋", "Your account is ready. Browse the marketplace and start learning.", "ACCOUNT");
+    await notify(user.id, "Welcome to Nexora! 👋", "Your account is ready. Browse the marketplace and start shopping.", "ACCOUNT");
     await createSession(user.id);
   } catch (err: any) {
     if (err?.message?.includes("NEXT_REDIRECT") || err?.digest?.includes("NEXT_REDIRECT")) throw err;
@@ -39,13 +39,14 @@ export async function registerAction(_prev: FormState, formData: FormData): Prom
     }
     return { error: err?.message || "Failed to create account." };
   }
-  redirect("/dashboard");
+  redirect("/");
 }
 
 export async function loginAction(_prev: FormState, formData: FormData): Promise<FormState> {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
-  const next = String(formData.get("next") ?? "") || "/dashboard";
+  const rawNext = String(formData.get("next") ?? "").trim();
+  const next = rawNext && rawNext !== "/dashboard" && rawNext.startsWith("/") ? rawNext : "/";
 
   try {
     const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
@@ -65,7 +66,7 @@ export async function loginAction(_prev: FormState, formData: FormData): Promise
     }
     return { error: err?.message || "Failed to sign in." };
   }
-  redirect(next.startsWith("/") ? next : "/dashboard");
+  redirect(next);
 }
 
 export async function logoutAction() {

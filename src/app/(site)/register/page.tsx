@@ -15,7 +15,7 @@ export default function RegisterPage() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.png" alt="Nexora" className="h-16 w-16 rounded-xl object-contain shadow-md" />
           <h1 className="mt-4 text-2xl font-black text-slate-900">Create your account</h1>
-          <p className="mt-1 text-sm text-slate-500">Join thousands of learners on Nexora.</p>
+          <p className="mt-1 text-sm text-slate-500">Join Nexora for instant gift codes &amp; vouchers.</p>
         </div>
 
         {state.error && <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">{state.error}</div>}
@@ -42,7 +42,7 @@ export default function RegisterPage() {
 
         <div className="mt-6 border-t border-slate-100 pt-5 text-center text-sm text-slate-500">
           <a
-            href="/api/auth/google"
+            href="/api/auth/google?next=/"
             className="btn-secondary flex w-full items-center justify-center gap-3 !py-2.5 font-medium shadow-sm hover:bg-slate-50 transition"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24">

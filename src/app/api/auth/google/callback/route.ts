@@ -9,7 +9,8 @@ export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
   const code = searchParams.get("code");
   const error = searchParams.get("error");
-  const next = searchParams.get("state") || "/dashboard";
+  const stateNext = searchParams.get("state");
+  const next = stateNext && stateNext !== "/dashboard" && stateNext.startsWith("/") ? stateNext : "/";
 
   const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || "digimart9.vercel.app";
   const proto = req.headers.get("x-forwarded-proto") || (host.includes("localhost") ? "http" : "https");
@@ -93,7 +94,7 @@ export async function GET(req: NextRequest) {
     }
 
     await createSession(user.id);
-    return NextResponse.redirect(`${origin}${next.startsWith("/") ? next : "/dashboard"}`);
+    return NextResponse.redirect(`${origin}${next.startsWith("/") ? next : "/"}`);
   } catch (err) {
     console.error("Google OAuth error:", err);
     return NextResponse.redirect(`${origin}/login?error=Unexpected error during Google sign-in.`);

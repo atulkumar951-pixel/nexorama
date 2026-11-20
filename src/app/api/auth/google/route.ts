@@ -15,7 +15,8 @@ export async function GET(req: NextRequest) {
   const redirectUri = `${origin}/api/auth/google/callback`;
 
   const searchParams = req.nextUrl.searchParams;
-  const next = searchParams.get("next") || "/dashboard";
+  const rawNext = searchParams.get("next");
+  const next = rawNext && rawNext !== "/dashboard" && rawNext.startsWith("/") ? rawNext : "/";
 
   const googleAuthUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
   googleAuthUrl.searchParams.set("client_id", clientId);

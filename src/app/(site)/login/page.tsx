@@ -8,7 +8,8 @@ import { SubmitButton } from "@/components/client";
 
 function LoginForm() {
   const params = useSearchParams();
-  const next = params.get("next") ?? "/dashboard";
+  const rawNext = params.get("next");
+  const next = rawNext && rawNext !== "/dashboard" && rawNext.startsWith("/") ? rawNext : "/";
   const urlError = params.get("error");
   const [state, action] = useActionState<FormState, FormData>(loginAction, {});
   const error = state.error || urlError;
@@ -20,7 +21,7 @@ function LoginForm() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.png" alt="Nexora" className="h-16 w-16 rounded-xl object-contain shadow-md" />
           <h1 className="mt-4 text-2xl font-black text-slate-900">Welcome to Nexora</h1>
-          <p className="mt-1 text-sm text-slate-500">Sign in to access your digital library & orders.</p>
+          <p className="mt-1 text-sm text-slate-500">Sign in to your Nexora account.</p>
         </div>
 
         {error && <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">{error}</div>}
