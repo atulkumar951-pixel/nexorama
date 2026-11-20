@@ -45,20 +45,14 @@ export default function CheckoutForm({
       </div>
 
       <div>
-        <div className="flex items-center justify-between mb-1">
-          <label className="label mb-0" htmlFor="customerEmail">Account Email</label>
-          <span className="rounded-full bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
-            Prefetched from account
-          </span>
-        </div>
+        <label className="label" htmlFor="customerEmail">Account Email</label>
         <input
           id="customerEmail"
           name="customerEmail"
           type="email"
-          className="input"
+          className="input bg-slate-100 text-slate-600 cursor-not-allowed select-none focus:outline-none"
           defaultValue={userEmail || ""}
-          required
-          placeholder="account@example.com"
+          readOnly
         />
       </div>
 

@@ -124,18 +124,7 @@ export default async function GiftCodesStorefrontPage({
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 selection:bg-emerald-500 selection:text-white">
-      {/* 1. Top Live Announcement Ticker (Gyftr / E2Z Style) */}
-      <div className="border-b border-emerald-100 bg-emerald-50/70 px-4 py-2 text-center text-xs font-semibold text-emerald-900">
-        <div className="mx-auto flex max-w-7xl items-center justify-center gap-3 overflow-hidden">
-          <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-          <p className="truncate">
-            <span className="font-extrabold text-emerald-800">⚡ FLASH OFFERS:</span> Instant automated email delivery on Steam, Google Play, Amazon &amp; Netflix codes |{" "}
-            <span className="text-emerald-700">Average delivery time: 2.8 mins</span> | 100% Genuine Guaranteed
-          </p>
-        </div>
-      </div>
-
-      {/* 2. Hero Section (Light Mode Two-Column Layout Plotted with Hero Image as in eBooks Platform) */}
+      {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-b from-white via-emerald-50/30 to-slate-50 border-b border-slate-200/80 text-slate-900">
         {/* Subtle ambient radial gradient */}
         <div
@@ -143,16 +132,11 @@ export default async function GiftCodesStorefrontPage({
           aria-hidden
         />
 
-        <div className="relative mx-auto max-w-7xl px-4 py-8 sm:py-12">
+        <div className="relative mx-auto max-w-7xl px-4 py-6 sm:py-8">
           <div className="grid items-center gap-8 lg:grid-cols-12">
             {/* Left Content Column */}
             <div className="lg:col-span-7">
-              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50/80 px-3 py-1 text-xs font-bold text-emerald-800 shadow-xs backdrop-blur-sm">
-                <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>⚡ 100% Genuine Brand Codes · Instant Delivery Upon Payment</span>
-              </div>
-
-              <h1 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-[2.75rem] leading-[1.15] text-slate-900">
+              <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-[2.75rem] leading-[1.15] text-slate-900">
                 Official Gift Cards &amp;{" "}
                 <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
                   Gaming Vouchers
@@ -188,7 +172,7 @@ export default async function GiftCodesStorefrontPage({
               {/* Quick Search Chips */}
               <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-500">
                 <span className="font-semibold text-slate-600">Popular:</span>
-                {["Steam", "Amazon", "Google Play", "Netflix", "Spotify", "Swiggy"].map((brand) => (
+                {["Steam", "PlayStation", "Amazon", "Google Play", "Netflix", "Spotify", "Swiggy"].map((brand) => (
                   <Link
                     key={brand}
                     href={`/gift-codes?q=${encodeURIComponent(brand)}`}
@@ -346,11 +330,10 @@ export default async function GiftCodesStorefrontPage({
           <div className="mb-5 flex flex-wrap items-center gap-2 border-b border-slate-200 pb-3">
             <Link
               href="/gift-codes"
-              className={`rounded-xl px-4 py-2 text-xs font-bold transition ${
-                !category
-                  ? "bg-emerald-600 text-white shadow-sm"
-                  : "border border-slate-200 bg-white text-slate-700 hover:border-emerald-300 hover:text-emerald-700"
-              }`}
+              className={`rounded-xl px-4 py-2 text-xs font-bold transition ${!category
+                ? "bg-emerald-600 text-white shadow-sm"
+                : "border border-slate-200 bg-white text-slate-700 hover:border-emerald-300 hover:text-emerald-700"
+                }`}
             >
               🏷️ All Vouchers ({allProducts.length})
             </Link>
@@ -358,11 +341,10 @@ export default async function GiftCodesStorefrontPage({
               <Link
                 key={c.id}
                 href={`/gift-codes?category=${c.slug}${q ? `&q=${encodeURIComponent(q)}` : ""}`}
-                className={`rounded-xl px-4 py-2 text-xs font-bold transition ${
-                  category === c.slug
-                    ? "bg-emerald-600 text-white shadow-sm"
-                    : "border border-slate-200 bg-white text-slate-700 hover:border-emerald-300 hover:text-emerald-700"
-                }`}
+                className={`rounded-xl px-4 py-2 text-xs font-bold transition ${category === c.slug
+                  ? "bg-emerald-600 text-white shadow-sm"
+                  : "border border-slate-200 bg-white text-slate-700 hover:border-emerald-300 hover:text-emerald-700"
+                  }`}
               >
                 {c.icon} {c.name}
               </Link>
@@ -539,11 +521,10 @@ function GiftProductCard({ product: p, featured }: GiftProductCardProps) {
   return (
     <Link
       href={`/gift-codes/${p.slug}`}
-      className={`group relative flex flex-col overflow-hidden rounded-2xl border bg-white transition duration-300 hover:-translate-y-1 hover:shadow-xl ${
-        featured
-          ? "border-amber-300 hover:border-amber-400 hover:shadow-amber-100"
-          : "border-slate-200/90 hover:border-emerald-300 hover:shadow-emerald-50"
-      }`}
+      className={`group relative flex flex-col overflow-hidden rounded-2xl border bg-white transition duration-300 hover:-translate-y-1 hover:shadow-xl ${featured
+        ? "border-amber-300 hover:border-amber-400 hover:shadow-amber-100"
+        : "border-slate-200/90 hover:border-emerald-300 hover:shadow-emerald-50"
+        }`}
     >
       {/* Product Image / Card Art */}
       <div className="relative overflow-hidden bg-gradient-to-br from-slate-100 via-slate-50 to-emerald-50/40 h-44 flex items-center justify-center p-3">
@@ -632,11 +613,10 @@ function GiftProductCard({ product: p, featured }: GiftProductCardProps) {
           </div>
 
           <span
-            className={`rounded-lg px-3 py-1.5 text-xs font-bold transition flex items-center gap-1 ${
-              inStock
-                ? "bg-emerald-600 text-white group-hover:bg-emerald-700 shadow-sm shadow-emerald-200"
-                : "bg-slate-100 text-slate-400 cursor-not-allowed"
-            }`}
+            className={`rounded-lg px-3 py-1.5 text-xs font-bold transition flex items-center gap-1 ${inStock
+              ? "bg-emerald-600 text-white group-hover:bg-emerald-700 shadow-sm shadow-emerald-200"
+              : "bg-slate-100 text-slate-400 cursor-not-allowed"
+              }`}
           >
             <span>{inStock ? "Buy Now" : "Notify"}</span>
             <span className="text-xs">→</span>

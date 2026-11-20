@@ -104,24 +104,18 @@ export function GiftBuyForm({
         <p className="mt-1 text-[11px] text-slate-400">Order SMS confirmation &amp; delivery updates.</p>
       </div>
 
-      {/* Prefetched Account Email */}
+      {/* Account Email (Non-editable) */}
       <div>
-        <div className="flex items-center justify-between mb-1">
-          <label htmlFor="recipientEmail" className="block text-sm font-semibold text-slate-700">
-            Email Address
-          </label>
-          <span className="rounded-full bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
-            Prefetched from account
-          </span>
-        </div>
+        <label htmlFor="recipientEmail" className="block text-sm font-semibold text-slate-700 mb-1">
+          Email Address
+        </label>
         <input
           id="recipientEmail"
           type="email"
           name="recipientEmail"
           defaultValue={userEmail}
-          required
-          className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
-          placeholder="Enter email to receive the gift code"
+          readOnly
+          className="w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-2.5 text-sm text-slate-600 cursor-not-allowed select-none focus:outline-none"
         />
         <p className="mt-1 text-[11px] text-slate-400">
           The digital voucher code will be dispatched to this email immediately upon payment.
