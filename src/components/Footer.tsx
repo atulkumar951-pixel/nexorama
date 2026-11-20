@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { getMarketplaceMode } from "@/lib/marketplace-mode";
+import { getCurrentUser } from "@/lib/auth";
+import { SupportFooterModal } from "./SupportFooterModal";
 
 export default async function Footer() {
   const mode = await getMarketplaceMode();
+  const user = await getCurrentUser();
   const isGift = mode === "GIFT_CODES";
 
   if (isGift) {
@@ -38,15 +41,19 @@ export default async function Footer() {
                 <p className="text-[11px] text-slate-400">256-bit bank-grade encryption</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <SupportFooterModal
+              userEmail={user?.email}
+              userName={user?.name}
+              className="flex items-center gap-3 text-left hover:opacity-90 transition cursor-pointer"
+            >
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-500/10 text-xl text-violet-400 border border-violet-500/20">
                 🎧
               </span>
               <div>
                 <p className="text-xs font-bold text-white uppercase tracking-wider">24/7 Ops Support</p>
-                <p className="text-[11px] text-slate-400">Real-time tracking &amp; query resolution</p>
+                <p className="text-[11px] text-slate-400">Click to open support form · 24-72h resolution</p>
               </div>
-            </div>
+            </SupportFooterModal>
           </div>
         </div>
 
@@ -146,9 +153,13 @@ export default async function Footer() {
             <p className="mb-3 text-xs font-bold uppercase tracking-wider text-emerald-400">Assurance &amp; Legal</p>
             <ul className="space-y-2 text-xs text-slate-400">
               <li>
-                <Link href="/contact" className="flex items-center gap-1.5 font-semibold text-emerald-400 hover:text-emerald-300 transition">
+                <SupportFooterModal
+                  userEmail={user?.email}
+                  userName={user?.name}
+                  className="flex items-center gap-1.5 font-semibold text-emerald-400 hover:text-emerald-300 transition text-left cursor-pointer"
+                >
                   ✉ Contact 24/7 Ops Desk
-                </Link>
+                </SupportFooterModal>
               </li>
               <li>
                 <Link href="/terms" className="hover:text-white transition">
@@ -222,7 +233,15 @@ export default async function Footer() {
         <div>
           <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-white">Support &amp; Legal</p>
           <ul className="space-y-2 text-sm">
-            <li><Link href="/contact" className="flex items-center gap-1.5 font-semibold text-emerald-400 hover:text-emerald-300">✉ Contact Us</Link></li>
+            <li>
+              <SupportFooterModal
+                userEmail={user?.email}
+                userName={user?.name}
+                className="flex items-center gap-1.5 font-semibold text-emerald-400 hover:text-emerald-300 transition text-left cursor-pointer"
+              >
+                ✉ Contact Us
+              </SupportFooterModal>
+            </li>
             <li><Link href="/terms" className="hover:text-white">Terms &amp; Conditions</Link></li>
             <li><Link href="/privacy" className="hover:text-white">Privacy Policy</Link></li>
             <li><Link href="/refund-policy" className="hover:text-white">Refund Policy</Link></li>

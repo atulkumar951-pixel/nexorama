@@ -299,6 +299,20 @@ export const auditLogs = pgTable("audit_logs", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const supportTickets = pgTable("support_tickets", {
+  id: serial("id").primaryKey(),
+  ticketNo: varchar("ticket_no", { length: 40 }).notNull().unique(),
+  userId: integer("user_id").references(() => users.id),
+  name: varchar("name", { length: 120 }).notNull(),
+  phone: varchar("phone", { length: 30 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull(),
+  category: varchar("category", { length: 100 }).notNull(),
+  problem: text("problem").notNull(),
+  status: varchar("status", { length: 30 }).notNull().default("OPEN"), // OPEN | IN_PROGRESS | RESOLVED | CLOSED
+  resolutionTimeframe: varchar("resolution_timeframe", { length: 60 }).notNull().default("24-72 hours"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const lectureProgress = pgTable(
   "lecture_progress",
   {
