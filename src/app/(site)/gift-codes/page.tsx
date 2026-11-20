@@ -179,7 +179,7 @@ export default async function GiftCodesStorefrontPage({
               {/* Quick Search Chips */}
               <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-500">
                 <span className="font-semibold text-slate-600">Popular:</span>
-                {["Steam", "PlayStation", "Amazon", "Google Play", "Netflix", "Spotify", "Swiggy"].map((brand) => (
+                {["PlayStation", "Amazon", "Google Play", "Spotify", "Swiggy"].map((brand) => (
                   <Link
                     key={brand}
                     href={`/gift-codes?q=${encodeURIComponent(brand)}`}
