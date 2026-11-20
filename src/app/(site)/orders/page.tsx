@@ -4,7 +4,7 @@ import { db } from "@/db";
 import { orders } from "@/db/schema";
 import { desc, eq } from "drizzle-orm";
 import { getCurrentUser } from "@/lib/auth";
-import { formatDate, formatINR, statusBadgeClass } from "@/lib/format";
+import { formatDate, formatINR, formatOrderNumber, statusBadgeClass } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "My Orders" };
@@ -29,7 +29,7 @@ export default async function OrdersPage() {
           {rows.map((o) => (
             <Link key={o.id} href={`/orders/${o.id}`} className="flex items-center justify-between gap-3 p-4 hover:bg-slate-50">
               <div>
-                <p className="font-semibold">{o.orderNumber}</p>
+                <p className="font-semibold font-mono">{formatOrderNumber(o.orderNumber)}</p>
                 <p className="text-xs text-slate-500">{formatDate(o.createdAt)}</p>
               </div>
               <div className="flex items-center gap-4">

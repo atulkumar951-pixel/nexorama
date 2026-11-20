@@ -2,7 +2,7 @@ import Link from "next/link";
 import { db } from "@/db";
 import { orders, users } from "@/db/schema";
 import { desc, eq } from "drizzle-orm";
-import { formatDate, formatINR, statusBadgeClass } from "@/lib/format";
+import { formatDate, formatINR, formatOrderNumber, statusBadgeClass } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Admin · Orders" };
@@ -48,7 +48,7 @@ export default async function AdminOrdersPage({
             {rows.map(({ order: o, userName, userEmail }) => (
               <tr key={o.id} className="hover:bg-slate-50">
                 <td className="px-4 py-3">
-                  <Link href={`/nexora/orders/${o.id}`} className="font-semibold text-indigo-600 hover:underline">{o.orderNumber}</Link>
+                  <Link href={`/nexora/orders/${o.id}`} className="font-semibold text-indigo-600 hover:underline">{formatOrderNumber(o.orderNumber)}</Link>
                 </td>
                 <td className="px-4 py-3">
                   <p className="font-medium">{userName}</p>

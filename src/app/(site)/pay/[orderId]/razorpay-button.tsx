@@ -60,11 +60,7 @@ export default function RazorpayButton({ orderId }: { orderId: number }) {
           });
           const vd = await verify.json();
           if (verify.ok) {
-            if (vd.isGiftCode) {
-              router.push(`/my-gift-codes?order=${vd.orderId}&success=1`);
-            } else {
-              router.push(`/orders/${vd.orderId}?success=1`);
-            }
+            router.push(`/orders/${vd.orderId}?success=1`);
           } else {
             setError(vd.error ?? "Payment verification failed");
           }

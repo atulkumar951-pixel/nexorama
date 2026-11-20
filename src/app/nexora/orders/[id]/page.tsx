@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { db } from "@/db";
 import { accessGrants, orderItems, orders, payments, refunds, users } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { formatDate, formatINR, statusBadgeClass } from "@/lib/format";
+import { formatDate, formatINR, formatOrderNumber, statusBadgeClass } from "@/lib/format";
 import ActionForm from "@/components/ActionForm";
 import { refundOrderAction } from "@/lib/actions/admin-actions";
 
@@ -32,7 +32,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
     <div className="mx-auto max-w-4xl">
       <Link href="/nexora/orders" className="text-sm text-slate-500 hover:text-indigo-600">← All orders</Link>
       <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold">{order.orderNumber}</h1>
+        <h1 className="text-2xl font-bold font-mono">{formatOrderNumber(order.orderNumber)}</h1>
         <span className={`badge ${statusBadgeClass(order.status)} !px-3 !py-1`}>{order.status}</span>
       </div>
       <p className="mt-1 text-sm text-slate-500">

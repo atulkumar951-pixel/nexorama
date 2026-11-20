@@ -115,7 +115,7 @@ export async function placeOrderAction(_prev: CheckoutState, formData: FormData)
   }
 
   const total = Math.max(0, payable - couponDiscount);
-  const orderNumber = `ORD-${new Date().getFullYear()}-${crypto.randomInt(100000, 999999)}`;
+  const orderNumber = `ORD${new Date().getFullYear()}${crypto.randomInt(100000, 999999)}`;
 
   const [order] = await db
     .insert(orders)
@@ -178,7 +178,7 @@ export async function testPayAction(orderId: number, outcome: "success" | "fail"
   // Route to correct fulfillment based on order type
   if (order.orderType === "GIFT_CODE") {
     await fulfillGiftOrder(orderId, { method: "test-card", provider: "TEST", razorpayPaymentId: `test_${crypto.randomBytes(8).toString("hex")}` });
-    redirect(`/my-gift-codes?order=${orderId}&success=1`);
+    redirect(`/orders/${orderId}?success=1`);
   }
   await fulfillOrder(orderId, { method: "test-card", provider: "TEST", razorpayPaymentId: `test_${crypto.randomBytes(8).toString("hex")}` });
   redirect(`/orders/${orderId}?success=1`);

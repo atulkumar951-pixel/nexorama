@@ -2,7 +2,7 @@ import Link from "next/link";
 import { db } from "@/db";
 import { downloads, orders, payments, products, refunds, users } from "@/db/schema";
 import { desc, eq, sql } from "drizzle-orm";
-import { formatDate, formatINR, statusBadgeClass } from "@/lib/format";
+import { formatDate, formatINR, formatOrderNumber, statusBadgeClass } from "@/lib/format";
 
 import { redirect } from "next/navigation";
 import { getMarketplaceMode } from "@/lib/marketplace-mode";
@@ -113,7 +113,7 @@ export default async function AdminDashboard() {
               {recentOrders.map(({ order, userName }) => (
                 <tr key={order.id} className="hover:bg-slate-50">
                   <td className="px-4 py-2.5">
-                    <Link href={`/nexora/orders/${order.id}`} className="font-semibold text-indigo-600 hover:underline">{order.orderNumber}</Link>
+                    <Link href={`/nexora/orders/${order.id}`} className="font-semibold text-indigo-600 hover:underline">{formatOrderNumber(order.orderNumber)}</Link>
                   </td>
                   <td className="px-4 py-2.5">{userName}</td>
                   <td className="px-4 py-2.5 font-semibold">{formatINR(order.total)}</td>

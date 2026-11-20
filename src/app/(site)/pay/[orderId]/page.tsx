@@ -3,7 +3,7 @@ import { db } from "@/db";
 import { orderItems, orders } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { getCurrentUser } from "@/lib/auth";
-import { formatINR } from "@/lib/format";
+import { formatINR, formatOrderNumber } from "@/lib/format";
 import { testPayAction } from "@/lib/actions/shop-actions";
 import { SubmitButton } from "@/components/client";
 import RazorpayButton from "./razorpay-button";
@@ -26,7 +26,7 @@ export default async function PayPage({ params }: { params: Promise<{ orderId: s
   return (
     <div className="mx-auto max-w-lg px-4 py-14">
       <div className="card p-8">
-        <p className="text-sm font-semibold text-indigo-600">{order.orderNumber}</p>
+        <p className="text-sm font-semibold font-mono text-indigo-600">{formatOrderNumber(order.orderNumber)}</p>
         <h1 className="mt-1 text-2xl font-bold">Complete your payment</h1>
         <ul className="mt-5 divide-y divide-slate-100 text-sm">
           {items.map((i) => (

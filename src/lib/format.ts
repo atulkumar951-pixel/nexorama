@@ -2,6 +2,11 @@ export function formatINR(amount: number) {
   return `₹${amount.toLocaleString("en-IN")}`;
 }
 
+export function formatOrderNumber(orderNumber: string | null | undefined): string {
+  if (!orderNumber) return "";
+  return orderNumber.replace(/-/g, "");
+}
+
 export function formatBytes(bytes: number) {
   if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   if (bytes >= 1024) return `${(bytes / 1024).toFixed(0)} KB`;

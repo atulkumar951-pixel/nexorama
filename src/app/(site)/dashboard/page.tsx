@@ -4,7 +4,7 @@ import { db } from "@/db";
 import { accessGrants, downloads, orders, products, wishlistItems } from "@/db/schema";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { getCurrentUser } from "@/lib/auth";
-import { formatDate, formatINR, statusBadgeClass } from "@/lib/format";
+import { formatDate, formatINR, formatOrderNumber, statusBadgeClass } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Dashboard" };
@@ -63,7 +63,7 @@ export default async function DashboardPage() {
               {recentOrders.map((o) => (
                 <li key={o.id} className="flex items-center justify-between py-2.5">
                   <div>
-                    <Link href={`/orders/${o.id}`} className="font-semibold hover:text-indigo-600">{o.orderNumber}</Link>
+                    <Link href={`/orders/${o.id}`} className="font-semibold font-mono hover:text-indigo-600">{formatOrderNumber(o.orderNumber)}</Link>
                     <p className="text-xs text-slate-500">{formatDate(o.createdAt)}</p>
                   </div>
                   <div className="text-right">

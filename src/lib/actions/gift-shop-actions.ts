@@ -58,11 +58,11 @@ export async function placeGiftOrderAction(
 
   const total = product.sellingPrice * quantity;
 
-  // PRD §31, §66: Format NX-GC-YYYYMMDD-XXXXX
+  // Format order number without hyphens per user request: NXGCYYYYMMDDXXXXX
   const now = new Date();
   const yyyymmdd = now.toISOString().slice(0, 10).replace(/-/g, "");
   const rand = crypto.randomBytes(3).toString("hex").toUpperCase().slice(0, 5);
-  const orderNumber = `NX-GC-${yyyymmdd}-${rand}`;
+  const orderNumber = `NXGC${yyyymmdd}${rand}`;
 
   // Create order
   const [order] = await db
@@ -80,14 +80,20 @@ export async function placeGiftOrderAction(
     })
     .returning();
 
-  // Create order item
+  // Create order item (avoid duplicate brand name, e.g. "Amazon Amazon")
+  const brandName = (product.brandName || "").trim();
+  const productName = (product.name || "").trim();
+  const title = productName.toLowerCase().startsWith(brandName.toLowerCase())
+    ? `${productName} ₹${product.denomination}`
+    : `${brandName} ${productName} ₹${product.denomination}`;
+
   const [orderItem] = await db
     .insert(orderItems)
     .values({
       orderId: order.id,
       giftProductId: product.id,
       itemType: "GIFT_CODE",
-      title: `${product.brandName} ${product.name} ₹${product.denomination}`,
+      title,
       denomination: product.denomination,
       quantity,
       price: product.sellingPrice,

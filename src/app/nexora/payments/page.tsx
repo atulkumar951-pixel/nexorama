@@ -2,7 +2,7 @@ import Link from "next/link";
 import { db } from "@/db";
 import { orders, payments, users } from "@/db/schema";
 import { desc, eq } from "drizzle-orm";
-import { formatDate, formatINR, statusBadgeClass } from "@/lib/format";
+import { formatDate, formatINR, formatOrderNumber, statusBadgeClass } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Admin · Payments" };
@@ -40,7 +40,7 @@ export default async function AdminPaymentsPage() {
                   <p className="text-xs text-slate-500">{p.razorpayPaymentId ?? "—"}</p>
                 </td>
                 <td className="px-4 py-3">
-                  <Link href={`/nexora/orders/${orderId}`} className="font-semibold text-indigo-600 hover:underline">{orderNumber}</Link>
+                  <Link href={`/nexora/orders/${orderId}`} className="font-semibold text-indigo-600 hover:underline">{formatOrderNumber(orderNumber)}</Link>
                 </td>
                 <td className="px-4 py-3 text-slate-500">{userEmail}</td>
                 <td className="px-4 py-3 font-semibold">{formatINR(p.amount)}</td>

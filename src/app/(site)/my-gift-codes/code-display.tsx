@@ -20,7 +20,7 @@ export function CodeDisplay({
   productName,
   denomination,
 }: CodeDisplayProps) {
-  // Starts in blur mode, opened by clicking on the panel
+  // Starts in blur mode, opened by clicking on the panel or reveal button
   const [isBlurred, setIsBlurred] = useState(true);
   const [copied, setCopied] = useState(false);
   const emailSentRef = useRef(false);
@@ -72,6 +72,10 @@ export function CodeDisplay({
 
   const handleCopy = async (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (isBlurred) {
+      setIsBlurred(false);
+      return;
+    }
     const codeToCopy = rawCode || maskedCode;
     if (!codeToCopy) return;
 
@@ -98,16 +102,16 @@ export function CodeDisplay({
         onClick={() => {
           if (isBlurred) setIsBlurred(false);
         }}
-        className={`group relative overflow-hidden rounded-xl border p-3.5 transition ${
+        className={`group relative overflow-hidden rounded-2xl border p-4 transition ${
           isBlurred
             ? "border-emerald-200 bg-emerald-50/40 cursor-pointer hover:border-emerald-300"
             : "border-slate-200 bg-slate-50"
         }`}
       >
-        <div className="flex items-center justify-between gap-2 mb-2">
+        <div className="flex items-center justify-between gap-2 mb-2.5">
           <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-            Digital Voucher Code
+            <span className="h-2 w-2 rounded-full bg-emerald-500" />
+            DIGITAL VOUCHER CODE
           </span>
           <button
             type="button"
@@ -115,14 +119,14 @@ export function CodeDisplay({
               e.stopPropagation();
               setIsBlurred(!isBlurred);
             }}
-            className="text-[11px] font-semibold text-slate-500 hover:text-slate-800 transition"
+            className="text-[11px] font-semibold text-slate-500 hover:text-slate-800 transition flex items-center gap-1"
           >
             {isBlurred ? "👁️ Show Code" : "🙈 Hide Code"}
           </button>
         </div>
 
         {/* Code Container */}
-        <div className="relative flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-3.5 py-2.5">
+        <div className="relative flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 min-h-[52px]">
           <div className="flex-1 overflow-hidden">
             <span
               className={`block font-mono text-base sm:text-lg font-bold tracking-wider text-slate-900 select-all transition-all duration-200 ${
@@ -136,21 +140,28 @@ export function CodeDisplay({
           <button
             type="button"
             onClick={handleCopy}
-            className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-bold transition flex items-center gap-1.5 ${
+            className={`shrink-0 rounded-lg px-3.5 py-1.5 text-xs font-bold transition flex items-center gap-1.5 ${
               copied
                 ? "bg-emerald-600 text-white"
                 : "bg-slate-900 text-white hover:bg-slate-800 active:scale-95"
-            }`}
+            } ${isBlurred ? "filter blur-[2px] opacity-60 pointer-events-none" : ""}`}
           >
             {copied ? "✓ Copied!" : "📋 Copy Code"}
           </button>
 
-          {/* Click to Reveal Overlay when blurred */}
+          {/* Click to Reveal Overlay when blurred - Exactly matching user screenshot */}
           {isBlurred && (
-            <div className="absolute inset-0 flex items-center justify-center bg-white/40 backdrop-blur-[1px]">
-              <span className="rounded-full bg-slate-900/90 px-3 py-1 text-[11px] font-semibold text-white shadow-sm">
+            <div className="absolute inset-0 flex items-center justify-center bg-white/20 backdrop-blur-[2px]">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsBlurred(false);
+                }}
+                className="rounded-full bg-slate-900/90 px-4 py-1.5 text-xs font-semibold text-white shadow-md hover:bg-slate-900 transition flex items-center gap-1.5"
+              >
                 🔒 Click to Reveal
-              </span>
+              </button>
             </div>
           )}
         </div>

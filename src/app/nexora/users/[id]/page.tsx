@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { db } from "@/db";
 import { accessGrants, downloads, orders, productAssets, products, users } from "@/db/schema";
 import { desc, eq } from "drizzle-orm";
-import { formatDate, formatINR, statusBadgeClass } from "@/lib/format";
+import { formatDate, formatINR, formatOrderNumber, statusBadgeClass } from "@/lib/format";
 import { restoreAccessAction, revokeAccessAction, setUserStatus } from "@/lib/actions/admin-actions";
 import { SubmitButton, ConfirmButton } from "@/components/client";
 
@@ -98,7 +98,7 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
         <ul className="mt-3 divide-y divide-slate-100 text-sm">
           {userOrders.map((o) => (
             <li key={o.id} className="flex items-center justify-between py-2.5">
-              <Link href={`/nexora/orders/${o.id}`} className="font-semibold text-indigo-600 hover:underline">{o.orderNumber}</Link>
+              <Link href={`/nexora/orders/${o.id}`} className="font-semibold text-indigo-600 hover:underline">{formatOrderNumber(o.orderNumber)}</Link>
               <div className="flex items-center gap-3">
                 <span className="font-semibold">{formatINR(o.total)}</span>
                 <span className={`badge ${statusBadgeClass(o.status)}`}>{o.status}</span>

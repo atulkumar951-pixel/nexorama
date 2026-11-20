@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { formatDate, statusBadgeClass } from "@/lib/format";
+import { formatDate, formatOrderNumber, statusBadgeClass } from "@/lib/format";
 import {
   giftAdminApi,
   GiftAdminApiError,
@@ -179,7 +179,7 @@ export default async function AdminGiftInventoryPage({
                 <td className="px-4 py-3">
                   <span className={`badge ${statusBadgeClass(code.status)}`}>{code.status}</span>
                 </td>
-                <td className="px-4 py-3 text-slate-500">{code.assignedOrder?.orderNumber ?? "—"}</td>
+                <td className="px-4 py-3 text-slate-500 font-mono text-xs">{code.assignedOrder?.orderNumber ? formatOrderNumber(code.assignedOrder.orderNumber) : "—"}</td>
                 <td className="px-4 py-3 text-slate-500">{formatDate(code.createdAt)}</td>
                 <td className="px-4 py-3">
                   <RevealCodeButton codeId={code.id} maskedCode={code.maskedCode} />

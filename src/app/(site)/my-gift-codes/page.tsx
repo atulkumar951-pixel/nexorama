@@ -1,24 +1,16 @@
 import { db } from "@/db";
-import { orders, orderItems, giftCodeDeliveries, giftCodes, giftProducts } from "@/db/schema";
+import { orders, orderItems, giftCodeDeliveries, giftProducts } from "@/db/schema";
 import { eq, desc, and } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { getMarketplaceMode } from "@/lib/marketplace-mode";
-import { formatDate } from "@/lib/format";
-import { formatINR } from "@/lib/format";
-import { decryptGiftCode } from "@/lib/gift-crypto";
-import { CodeDisplay } from "./code-display";
+import { formatDate, formatINR, formatOrderNumber } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "My Gift Codes | Nexora" };
 
-export default async function MyGiftCodesPage({
-  searchParams,
-}: {
-  searchParams?: Promise<{ success?: string; order?: string }>;
-}) {
-  const sp = searchParams ? await searchParams : {};
+export default async function MyGiftCodesPage() {
   const mode = await getMarketplaceMode();
   if (mode !== "GIFT_CODES") redirect("/library");
 
@@ -40,10 +32,6 @@ export default async function MyGiftCodesPage({
       deliveryStatus: giftCodeDeliveries.status,
       recipientEmail: giftCodeDeliveries.recipientEmail,
       sentAt: giftCodeDeliveries.sentAt,
-      adminNote: giftCodeDeliveries.adminNote,
-      maskedCode: giftCodes.maskedCode,
-      encryptedCode: giftCodes.encryptedCode,
-      codeStatus: giftCodes.status,
       productName: giftProducts.name,
       brandName: giftProducts.brandName,
       productSlug: giftProducts.slug,
@@ -51,7 +39,6 @@ export default async function MyGiftCodesPage({
     .from(orders)
     .innerJoin(orderItems, eq(orderItems.orderId, orders.id))
     .leftJoin(giftCodeDeliveries, eq(giftCodeDeliveries.orderId, orders.id))
-    .leftJoin(giftCodes, eq(giftCodeDeliveries.giftCodeId, giftCodes.id))
     .leftJoin(giftProducts, eq(orderItems.giftProductId, giftProducts.id))
     .where(and(eq(orders.userId, user.id), eq(orders.orderType, "GIFT_CODE")))
     .orderBy(desc(orders.createdAt));
@@ -88,7 +75,7 @@ export default async function MyGiftCodesPage({
           <div>
             <h1 className="text-3xl font-black text-slate-900">My Gift Codes</h1>
             <p className="mt-1 text-xs text-slate-500">
-              Access your instant digital codes, redemption details, and purchase receipts.
+              Access all your purchased gift vouchers, redemption details, and invoices.
             </p>
           </div>
           <Link
@@ -98,13 +85,6 @@ export default async function MyGiftCodesPage({
             🎁 Shop More Vouchers
           </Link>
         </div>
-
-        {sp.success && (
-          <div className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs font-semibold text-emerald-800 flex items-center gap-2">
-            <span>🎉</span>
-            <span>Payment successful! Your voucher code is ready below.</span>
-          </div>
-        )}
 
         {rows.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-white py-20 text-center shadow-xs">
@@ -121,25 +101,22 @@ export default async function MyGiftCodesPage({
             </Link>
           </div>
         ) : (
-          <div className="space-y-5">
+          <div className="space-y-4">
             {rows.map((row) => {
-              const rawCode = row.encryptedCode ? decryptGiftCode(row.encryptedCode) : null;
-              const hasCode = Boolean(rawCode || (row.maskedCode && row.maskedCode !== "UNASSIGNED"));
               const isPaid = row.orderStatus === "PAID" || row.orderStatus === "COMPLETED";
-              const isSoldOut =
-                row.deliveryStatus === "SOLD_OUT" ||
-                row.deliveryStatus === "OUT_OF_STOCK" ||
-                (!hasCode && isPaid);
+              const cleanTitle = row.itemTitle.replace(/^([A-Za-z0-9]+)\s+\1\b/i, "$1");
 
               return (
                 <div
-                  key={`${row.orderId}-${row.deliveryId}`}
-                  className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition"
+                  key={`${row.orderId}-${row.deliveryId ?? 0}`}
+                  className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:border-slate-300"
                 >
                   {/* Order header */}
                   <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 bg-slate-50/80 px-5 py-3">
                     <div className="flex items-center gap-3">
-                      <span className="text-xs font-mono font-bold text-slate-700">{row.orderNumber}</span>
+                      <span className="text-xs font-mono font-bold text-slate-700">
+                        {formatOrderNumber(row.orderNumber)}
+                      </span>
                       <span
                         className={`rounded-full border px-2.5 py-0.5 text-[11px] font-bold ${
                           isPaid
@@ -158,15 +135,15 @@ export default async function MyGiftCodesPage({
                     </div>
                   </div>
 
-                  {/* Product & delivery info */}
+                  {/* Product & details info */}
                   <div className="p-5">
-                    <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div className="flex flex-wrap items-center justify-between gap-4">
                       <div className="flex-1">
                         <p className="font-bold text-slate-900 text-base sm:text-lg">
-                          {row.brandName && !row.itemTitle.toLowerCase().startsWith(row.brandName.toLowerCase()) ? (
-                            <><span className="text-emerald-700">{row.brandName} · </span>{row.itemTitle}</>
+                          {row.brandName && !cleanTitle.toLowerCase().startsWith(row.brandName.toLowerCase()) ? (
+                            <><span className="text-emerald-700">{row.brandName} · </span>{cleanTitle}</>
                           ) : (
-                            row.itemTitle
+                            cleanTitle
                           )}
                         </p>
                         {row.denomination && (
@@ -177,53 +154,40 @@ export default async function MyGiftCodesPage({
                         )}
                         {row.recipientEmail && (
                           <p className="mt-1 text-xs text-slate-500">
-                            Recipient Email: <strong className="text-slate-800">{row.recipientEmail}</strong>
+                            Recipient: <strong className="text-slate-700">{row.recipientEmail}</strong>
                           </p>
                         )}
                       </div>
 
-                      {/* Delivery status badge */}
-                      {row.deliveryStatus && (
-                        <div
-                          className={`rounded-xl border px-3.5 py-1.5 text-xs font-bold ${
-                            statusColor[row.deliveryStatus] ?? "bg-slate-100 text-slate-700 border-slate-200"
-                          }`}
+                      {/* Right Action: Click to view code on the order page */}
+                      <div className="flex items-center gap-3">
+                        {row.deliveryStatus && (
+                          <span
+                            className={`rounded-xl border px-3 py-1.5 text-xs font-bold ${
+                              statusColor[row.deliveryStatus] ?? "bg-slate-100 text-slate-700 border-slate-200"
+                            }`}
+                          >
+                            {deliveryLabel[row.deliveryStatus] ?? row.deliveryStatus}
+                          </span>
+                        )}
+                        <Link
+                          href={`/orders/${row.orderId}`}
+                          className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2 text-xs font-bold text-white shadow-sm shadow-emerald-200 hover:from-emerald-500 hover:to-teal-500 transition"
                         >
-                          {deliveryLabel[row.deliveryStatus] ?? row.deliveryStatus}
-                        </div>
-                      )}
+                          <span>View Code</span>
+                          <span>→</span>
+                        </Link>
+                      </div>
                     </div>
-
-                    {/* Instant Delivered Code Display in Blur Mode */}
-                    {isPaid && (
-                      <div className="mt-4">
-                        <CodeDisplay
-                          rawCode={rawCode}
-                          maskedCode={row.maskedCode}
-                          recipientEmail={row.recipientEmail}
-                          orderNumber={row.orderNumber}
-                          productName={row.itemTitle}
-                          denomination={row.denomination}
-                        />
-                      </div>
-                    )}
-
-                    {/* Failed banner */}
-                    {row.deliveryStatus === "FAILED" && (
-                      <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4">
-                        <p className="text-xs font-bold text-red-900">❌ Dispatch Alert</p>
-                        <p className="mt-1 text-[11px] text-red-800">
-                          Please contact our 24/7 support desk with order reference{" "}
-                          <strong className="text-slate-900">{row.orderNumber}</strong> for immediate resolution.
-                        </p>
-                      </div>
-                    )}
                   </div>
 
                   {/* Footer actions */}
-                  <div className="flex items-center gap-4 border-t border-slate-100 bg-slate-50/50 px-5 py-3 text-xs">
-                    <Link href={`/orders/${row.orderId}`} className="font-bold text-emerald-700 hover:text-emerald-800 transition">
-                      View Full Invoice →
+                  <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50/50 px-5 py-2.5 text-xs">
+                    <Link
+                      href={`/orders/${row.orderId}`}
+                      className="font-semibold text-emerald-700 hover:text-emerald-800 transition"
+                    >
+                      View Invoice Details →
                     </Link>
                     {row.productSlug && (
                       <Link

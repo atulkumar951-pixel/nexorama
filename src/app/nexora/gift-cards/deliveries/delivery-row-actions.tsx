@@ -126,7 +126,7 @@ export function DeliveryRowActions({
             </div>
             <h3 className="mt-3 text-base font-bold text-slate-900">Assigned Gift Code</h3>
             <p className="text-xs text-slate-500 mt-1">
-              Order #{orderNumber} · {recipientEmail}
+              Order #{orderNumber.replace(/-/g, "")} · {recipientEmail}
             </p>
 
             <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
@@ -174,7 +174,7 @@ export function DeliveryRowActions({
           <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
             <h3 className="text-base font-bold text-slate-900">Confirm Code Email Dispatch</h3>
             <p className="mt-1 text-xs text-slate-500">
-              Confirm that the assigned code for Order <strong>#{orderNumber}</strong> was manually emailed to{" "}
+              Confirm that the assigned code for Order <strong>#{orderNumber.replace(/-/g, "")}</strong> was manually emailed to{" "}
               <strong>{recipientEmail}</strong>.
             </p>
 

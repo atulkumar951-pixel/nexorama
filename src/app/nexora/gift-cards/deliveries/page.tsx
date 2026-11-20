@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { formatDate, formatINR, statusBadgeClass } from "@/lib/format";
+import { formatDate, formatINR, formatOrderNumber, statusBadgeClass } from "@/lib/format";
 import { giftAdminApi, GiftAdminApiError, type GiftDeliveryQueueResponse } from "@/lib/gift-admin-api";
 import { DeliveryRowActions } from "./delivery-row-actions";
 
@@ -122,7 +122,7 @@ export default async function AdminGiftDeliveriesPage({
             {queue.deliveries.map((d) => (
               <tr key={d.id} className="hover:bg-slate-50">
                 <td className="px-4 py-3">
-                  <span className="font-semibold">{d.orderNumber}</span>
+                  <span className="font-semibold font-mono">{formatOrderNumber(d.orderNumber)}</span>
                   <span className="block text-xs text-slate-400">{formatDate(d.purchaseTime)}</span>
                 </td>
                 <td className="px-4 py-3">
