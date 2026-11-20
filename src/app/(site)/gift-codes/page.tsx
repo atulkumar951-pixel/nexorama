@@ -227,9 +227,9 @@ export default async function GiftCodesStorefrontPage({
                   <div className="relative overflow-hidden rounded-xl">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src="/logo-gift.png"
+                      src="/images/gift-hero.jpg"
                       alt="Nexora Official Gift Cards & Gaming Vouchers"
-                      className="aspect-[1/1] sm:aspect-[16/10] w-full object-cover transition duration-700 group-hover:scale-105"
+                      className="aspect-[16/10] w-full object-cover transition duration-700 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent" />
 
@@ -340,7 +340,7 @@ export default async function GiftCodesStorefrontPage({
       </section>
 
       {/* 5. Main Catalog & Filters */}
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:py-8">
+      <div className="mx-auto max-w-7xl px-4 pt-4 pb-8">
         {/* Categories Tab Bar */}
         {cats.length > 0 && (
           <div className="mb-5 flex flex-wrap items-center gap-2 border-b border-slate-200 pb-3">
@@ -443,125 +443,66 @@ export default async function GiftCodesStorefrontPage({
           )}
         </section>
 
-        {/* 8. Trust Pillars (Gyftr & Rooter Customer Assurance) */}
-        <section className="mt-10 sm:mt-12 rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
-          <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-8">
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-600">
+        {/* 8. Trust Pillars (Customer Assurance) */}
+        <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-xs">
+          <div className="text-center max-w-2xl mx-auto mb-5 sm:mb-6">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600">
               Why Customers Trust Nexora
             </span>
-            <h2 className="mt-1.5 text-xl font-black text-slate-900 sm:text-2xl">
+            <h2 className="mt-1 text-lg font-black text-slate-900 sm:text-xl">
               Engineered for Speed &amp; Security
             </h2>
-            <p className="mt-1.5 text-xs text-slate-500 leading-relaxed">
-              We eliminate the friction of digital gifting with instant automated code delivery and verified distributor codes.
+            <p className="mt-1 text-xs text-slate-500 leading-relaxed">
+              Instant automated code delivery and 100% genuine distributor codes.
             </p>
           </div>
 
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-6 hover:border-emerald-300 hover:bg-white hover:shadow-md transition">
-              <span className="text-3xl">⚡</span>
-              <h3 className="mt-3 font-bold text-slate-900 text-sm">Instant Delivery Guarantee</h3>
-              <p className="mt-1.5 text-xs text-slate-600 leading-relaxed">
-                Codes are delivered immediately to your screen and email upon verified payment completion.
+          <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3.5 sm:p-4 hover:border-emerald-300 hover:bg-white transition">
+              <span className="text-2xl">⚡</span>
+              <h3 className="mt-2 font-bold text-slate-900 text-xs sm:text-sm">Instant Delivery</h3>
+              <p className="mt-1 text-[11px] text-slate-500 leading-relaxed">
+                Codes delivered immediately to screen &amp; email upon payment.
               </p>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-6 hover:border-cyan-300 hover:bg-white hover:shadow-md transition">
-              <span className="text-3xl">🛡️</span>
-              <h3 className="mt-3 font-bold text-slate-900 text-sm">100% Genuine Distributor Codes</h3>
-              <p className="mt-1.5 text-xs text-slate-600 leading-relaxed">
-                Direct procurement from authorized channels. Guaranteed valid, unredeemed, and covered by brand warranty.
+            <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3.5 sm:p-4 hover:border-cyan-300 hover:bg-white transition">
+              <span className="text-2xl">🛡️</span>
+              <h3 className="mt-2 font-bold text-slate-900 text-xs sm:text-sm">100% Genuine</h3>
+              <p className="mt-1 text-[11px] text-slate-500 leading-relaxed">
+                Direct official procurement covered by brand guarantee.
               </p>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-6 hover:border-amber-300 hover:bg-white hover:shadow-md transition">
-              <span className="text-3xl">🔒</span>
-              <h3 className="mt-3 font-bold text-slate-900 text-sm">AES-256 Encrypted Security</h3>
-              <p className="mt-1.5 text-xs text-slate-600 leading-relaxed">
-                Voucher codes are stored with bank-grade encryption and revealed strictly to the authenticated buyer.
+            <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3.5 sm:p-4 hover:border-amber-300 hover:bg-white transition">
+              <span className="text-2xl">🔒</span>
+              <h3 className="mt-2 font-bold text-slate-900 text-xs sm:text-sm">AES-256 Encrypted</h3>
+              <p className="mt-1 text-[11px] text-slate-500 leading-relaxed">
+                Stored with bank-grade encryption and revealed strictly to buyer.
               </p>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-6 hover:border-violet-300 hover:bg-white hover:shadow-md transition">
-              <span className="text-3xl">🎧</span>
-              <h3 className="mt-3 font-bold text-slate-900 text-sm">24/7 Human Ops Support</h3>
-              <p className="mt-1.5 text-xs text-slate-600 leading-relaxed">
-                Have questions about redemption? Our dedicated operations desk assists with order tracking in minutes.
+            <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3.5 sm:p-4 hover:border-violet-300 hover:bg-white transition">
+              <span className="text-2xl">🎧</span>
+              <h3 className="mt-2 font-bold text-slate-900 text-xs sm:text-sm">24/7 Ops Support</h3>
+              <p className="mt-1 text-[11px] text-slate-500 leading-relaxed">
+                Dedicated support desk assists with order tracking anytime.
               </p>
             </div>
           </div>
         </section>
 
-        {/* 9. Verified Customer Reviews & Social Proof */}
-        <section className="mt-16">
-          <div className="text-center mb-8">
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-600">
-              Real Gamer &amp; Shopper Reviews
-            </span>
-            <h2 className="mt-1 text-2xl font-black text-slate-900">What Our Customers Say</h2>
+        {/* 9. Frequently Asked Questions (FAQ) */}
+        <section className="mt-8 border-t border-slate-200 pt-8">
+          <div className="text-center max-w-2xl mx-auto mb-6">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600">Got Questions?</span>
+            <h2 className="mt-1 text-lg font-black text-slate-900 sm:text-xl">Frequently Asked Questions</h2>
           </div>
-          <div className="grid gap-6 sm:grid-cols-3">
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs hover:shadow-md transition">
-              <div className="flex items-center gap-1 text-amber-500 text-sm">★★★★★</div>
-              <p className="mt-3 text-xs text-slate-700 leading-relaxed">
-                &ldquo;Got my Steam ₹1,000 wallet code in literally 2 minutes on my Gmail. Redeemed instantly on my Steam client. Best prices online!&rdquo;
-              </p>
-              <div className="mt-4 flex items-center gap-2.5 border-t border-slate-100 pt-3">
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-800">
-                  AS
-                </span>
-                <div>
-                  <p className="text-xs font-bold text-slate-900">Aman Sharma</p>
-                  <p className="text-[10px] text-emerald-700 font-semibold">Verified Gamer · Steam Wallet</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs hover:shadow-md transition">
-              <div className="flex items-center gap-1 text-amber-500 text-sm">★★★★★</div>
-              <p className="mt-3 text-xs text-slate-700 leading-relaxed">
-                &ldquo;Cheapest Amazon Pay vouchers with instant UPI checkout. Received receipt and code in under 3 minutes. Will definitely buy again.&rdquo;
-              </p>
-              <div className="mt-4 flex items-center gap-2.5 border-t border-slate-100 pt-3">
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-cyan-100 text-xs font-bold text-cyan-800">
-                  RK
-                </span>
-                <div>
-                  <p className="text-xs font-bold text-slate-900">Rohit Kumar</p>
-                  <p className="text-[10px] text-cyan-700 font-semibold">Verified Buyer · Amazon Pay</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs hover:shadow-md transition">
-              <div className="flex items-center gap-1 text-amber-500 text-sm">★★★★★</div>
-              <p className="mt-3 text-xs text-slate-700 leading-relaxed">
-                &ldquo;Was skeptical initially, but the Google Play code worked immediately for my BGMI UC recharge. Outstanding service and instant SLA!&rdquo;
-              </p>
-              <div className="mt-4 flex items-center gap-2.5 border-t border-slate-100 pt-3">
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-violet-100 text-xs font-bold text-violet-800">
-                  DP
-                </span>
-                <div>
-                  <p className="text-xs font-bold text-slate-900">Dev Patel</p>
-                  <p className="text-[10px] text-violet-700 font-semibold">Verified Gamer · Google Play</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* 10. Frequently Asked Questions (FAQ) */}
-        <section className="mt-20 border-t border-slate-200 pt-16">
-          <div className="text-center max-w-2xl mx-auto mb-10">
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-600">Got Questions?</span>
-            <h2 className="mt-1 text-2xl font-black text-slate-900">Frequently Asked Questions</h2>
-          </div>
-          <div className="mx-auto max-w-3xl divide-y divide-slate-200 rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-xs">
+          <div className="mx-auto max-w-3xl divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 shadow-xs">
             {FAQS.map((faq, idx) => (
-              <details key={idx} className="group py-4 first:pt-0 last:pb-0">
-                <summary className="flex cursor-pointer items-center justify-between text-sm font-bold text-slate-900 hover:text-emerald-700 transition list-none">
+              <details key={idx} className="group py-3 first:pt-0 last:pb-0">
+                <summary className="flex cursor-pointer items-center justify-between text-xs sm:text-sm font-bold text-slate-900 hover:text-emerald-700 transition list-none">
                   <span>{faq.q}</span>
                   <span className="text-emerald-600 transition group-open:rotate-180">▼</span>
                 </summary>
-                <p className="mt-3 text-xs leading-relaxed text-slate-600">{faq.a}</p>
+                <p className="mt-2 text-xs leading-relaxed text-slate-600">{faq.a}</p>
               </details>
             ))}
           </div>
