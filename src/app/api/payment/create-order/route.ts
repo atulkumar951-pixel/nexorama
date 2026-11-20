@@ -100,8 +100,8 @@ export async function POST(req: NextRequest) {
       })
     ).toString("base64url");
 
-    const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || "nexoramart.vercel.app";
-    const proto = req.headers.get("x-forwarded-proto") || "https";
+    const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || "nexorama.store";
+    const proto = req.headers.get("x-forwarded-proto") || (host.includes("localhost") ? "http" : "https");
     const baseUrl = `${proto}://${host}`;
 
     return NextResponse.json({

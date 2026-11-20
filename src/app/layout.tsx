@@ -3,9 +3,13 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    process.env.NEXT_PUBLIC_APP_URL ??
+    "https://nexorama.store"
+  ),
   title: {
-    default: "Nexora — Your Digital Knowledge Marketplace",
+    default: "Nexora — Official Gift Cards & Digital Marketplace",
     template: "%s | Nexora",
   },
   description:

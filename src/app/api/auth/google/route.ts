@@ -9,7 +9,10 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || "digimart9.vercel.app";
+  const host =
+    req.headers.get("x-forwarded-host") ||
+    req.headers.get("host") ||
+    (process.env.NEXT_PUBLIC_APP_URL ? new URL(process.env.NEXT_PUBLIC_APP_URL).host : "nexorama.store");
   const proto = req.headers.get("x-forwarded-proto") || (host.includes("localhost") ? "http" : "https");
   const origin = `${proto}://${host}`;
   const redirectUri = `${origin}/api/auth/google/callback`;
