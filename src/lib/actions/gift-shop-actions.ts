@@ -65,6 +65,18 @@ export async function placeGiftOrderAction(
 
   if (!product) return { error: "Product not found or unavailable." };
 
+  // Check available stock
+  const [stock] = await db
+    .select({
+      available: sql<number>`count(*) filter (where ${giftCodes.status} = 'AVAILABLE')::int`,
+    })
+    .from(giftCodes)
+    .where(eq(giftCodes.giftProductId, product.id));
+
+  if (!stock || stock.available < 1) {
+    return { error: "This gift voucher is currently out of stock." };
+  }
+
   const maxQtySetting = Number(await getPlatformSetting("max_quantity_per_order", "10"));
   const maxAllowed = product.purchaseLimit ? Math.min(product.purchaseLimit, maxQtySetting) : maxQtySetting;
   const quantity = Math.min(maxAllowed, rawQty);
