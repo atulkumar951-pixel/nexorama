@@ -23,25 +23,35 @@ export default async function HomePage() {
     or(isNull(banners.endsAt), gte(banners.endsAt, now))
   );
 
-  const [heroBanners, promoBanners, cats, featured, latest] = await Promise.all([
-    db.select().from(banners).where(and(activeBanner, eq(banners.position, "HERO"))).orderBy(desc(banners.priority)).limit(1),
-    db.select().from(banners).where(and(activeBanner, eq(banners.position, "PROMO"))).orderBy(desc(banners.priority)).limit(2),
-    db.select().from(categories).where(eq(categories.isActive, true)).orderBy(categories.sortOrder).limit(8),
-    db
-      .select({ product: products, categoryName: categories.name })
-      .from(products)
-      .leftJoin(categories, eq(products.categoryId, categories.id))
-      .where(and(eq(products.status, "PUBLISHED"), eq(products.isFeatured, true)))
-      .orderBy(desc(products.salesCount))
-      .limit(4),
-    db
-      .select({ product: products, categoryName: categories.name })
-      .from(products)
-      .leftJoin(categories, eq(products.categoryId, categories.id))
-      .where(eq(products.status, "PUBLISHED"))
-      .orderBy(desc(products.createdAt))
-      .limit(8),
-  ]);
+  let heroBanners: any[] = [];
+  let promoBanners: any[] = [];
+  let cats: any[] = [];
+  let featured: any[] = [];
+  let latest: any[] = [];
+
+  try {
+    [heroBanners, promoBanners, cats, featured, latest] = await Promise.all([
+      db.select().from(banners).where(and(activeBanner, eq(banners.position, "HERO"))).orderBy(desc(banners.priority)).limit(1),
+      db.select().from(banners).where(and(activeBanner, eq(banners.position, "PROMO"))).orderBy(desc(banners.priority)).limit(2),
+      db.select().from(categories).where(eq(categories.isActive, true)).orderBy(categories.sortOrder).limit(8),
+      db
+        .select({ product: products, categoryName: categories.name })
+        .from(products)
+        .leftJoin(categories, eq(products.categoryId, categories.id))
+        .where(and(eq(products.status, "PUBLISHED"), eq(products.isFeatured, true)))
+        .orderBy(desc(products.salesCount))
+        .limit(4),
+      db
+        .select({ product: products, categoryName: categories.name })
+        .from(products)
+        .leftJoin(categories, eq(products.categoryId, categories.id))
+        .where(eq(products.status, "PUBLISHED"))
+        .orderBy(desc(products.createdAt))
+        .limit(8),
+    ]);
+  } catch (err: any) {
+    console.error("HomePage: Database query error, using empty fallbacks:", err?.message || err);
+  }
 
   const hero = heroBanners[0];
   const heroImageUrl =

@@ -33,10 +33,14 @@ export default async function ProductsPage({
   }
   let activeCategory = null;
   if (sp.category) {
-    const [cat] = await db.select().from(categories).where(eq(categories.slug, sp.category)).limit(1);
-    if (cat) {
-      activeCategory = cat;
-      conditions.push(eq(products.categoryId, cat.id));
+    try {
+      const [cat] = await db.select().from(categories).where(eq(categories.slug, sp.category)).limit(1);
+      if (cat) {
+        activeCategory = cat;
+        conditions.push(eq(products.categoryId, cat.id));
+      }
+    } catch (e) {
+      console.error("ProductsPage: category lookup error:", e);
     }
   }
   if (sp.type) conditions.push(eq(products.productType, sp.type));
@@ -51,18 +55,26 @@ export default async function ProductsPage({
           ? desc(products.salesCount)
           : desc(products.createdAt);
 
-  const rows = await db
-    .select({ product: products, categoryName: categories.name })
-    .from(products)
-    .leftJoin(categories, eq(products.categoryId, categories.id))
-    .where(and(...conditions))
-    .orderBy(orderBy)
-    .limit(PAGE_SIZE + 1)
-    .offset((page - 1) * PAGE_SIZE);
+  let rows: any[] = [];
+  let allCats: any[] = [];
+  try {
+    [rows, allCats] = await Promise.all([
+      db
+        .select({ product: products, categoryName: categories.name })
+        .from(products)
+        .leftJoin(categories, eq(products.categoryId, categories.id))
+        .where(and(...conditions))
+        .orderBy(orderBy)
+        .limit(PAGE_SIZE + 1)
+        .offset((page - 1) * PAGE_SIZE),
+      db.select().from(categories).where(eq(categories.isActive, true)).orderBy(categories.sortOrder),
+    ]);
+  } catch (err: any) {
+    console.error("ProductsPage: Failed to query products:", err?.message || err);
+  }
 
   const hasNext = rows.length > PAGE_SIZE;
   const items = rows.slice(0, PAGE_SIZE);
-  const allCats = await db.select().from(categories).where(eq(categories.isActive, true)).orderBy(categories.sortOrder);
 
   const qs = (patch: Record<string, string | undefined>) => {
     const params = new URLSearchParams();

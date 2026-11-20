@@ -14,16 +14,20 @@ export default async function Header() {
   let cartCount = 0;
   let unread = 0;
   if (user) {
-    const [c] = await db
-      .select({ count: sql<number>`count(*)::int` })
-      .from(cartItems)
-      .where(eq(cartItems.userId, user.id));
-    cartCount = c?.count ?? 0;
-    const [n] = await db
-      .select({ count: sql<number>`count(*)::int` })
-      .from(notifications)
-      .where(and(eq(notifications.userId, user.id), isNull(notifications.readAt)));
-    unread = n?.count ?? 0;
+    try {
+      const [c] = await db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(cartItems)
+        .where(eq(cartItems.userId, user.id));
+      cartCount = c?.count ?? 0;
+      const [n] = await db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(notifications)
+        .where(and(eq(notifications.userId, user.id), isNull(notifications.readAt)));
+      unread = n?.count ?? 0;
+    } catch (err: any) {
+      console.warn("Header: Failed to fetch cart/notifications:", err?.message || err);
+    }
   }
 
   return (

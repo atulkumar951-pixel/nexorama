@@ -11,19 +11,24 @@ export default async function CategoriesPage() {
   const mode = await getMarketplaceMode();
 
   if (mode === "GIFT_CODES") {
-    const giftRows = await db
-      .select({
-        category: giftCategories,
-        productCount: sql<number>`count(${giftProducts.id})::int`,
-      })
-      .from(giftCategories)
-      .leftJoin(
-        giftProducts,
-        and(eq(giftProducts.categoryId, giftCategories.id), eq(giftProducts.status, "PUBLISHED"))
-      )
-      .where(eq(giftCategories.status, "ACTIVE"))
-      .groupBy(giftCategories.id)
-      .orderBy(giftCategories.sortOrder, giftCategories.name);
+    let giftRows: any[] = [];
+    try {
+      giftRows = await db
+        .select({
+          category: giftCategories,
+          productCount: sql<number>`count(${giftProducts.id})::int`,
+        })
+        .from(giftCategories)
+        .leftJoin(
+          giftProducts,
+          and(eq(giftProducts.categoryId, giftCategories.id), eq(giftProducts.status, "PUBLISHED"))
+        )
+        .where(eq(giftCategories.status, "ACTIVE"))
+        .groupBy(giftCategories.id)
+        .orderBy(giftCategories.sortOrder, giftCategories.name);
+    } catch (err: any) {
+      console.error("CategoriesPage: Failed to load gift categories:", err?.message || err);
+    }
 
     return (
       <div className="min-h-screen bg-slate-50 text-slate-900 py-12">
@@ -67,16 +72,21 @@ export default async function CategoriesPage() {
   }
 
   // Digital Marketplace Categories
-  const rows = await db
-    .select({
-      category: categories,
-      productCount: sql<number>`count(${products.id})::int`,
-    })
-    .from(categories)
-    .leftJoin(products, and(eq(products.categoryId, categories.id), eq(products.status, "PUBLISHED")))
-    .where(eq(categories.isActive, true))
-    .groupBy(categories.id)
-    .orderBy(categories.sortOrder);
+  let rows: any[] = [];
+  try {
+    rows = await db
+      .select({
+        category: categories,
+        productCount: sql<number>`count(${products.id})::int`,
+      })
+      .from(categories)
+      .leftJoin(products, and(eq(products.categoryId, categories.id), eq(products.status, "PUBLISHED")))
+      .where(eq(categories.isActive, true))
+      .groupBy(categories.id)
+      .orderBy(categories.sortOrder);
+  } catch (err: any) {
+    console.error("CategoriesPage: Failed to load digital categories:", err?.message || err);
+  }
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10">

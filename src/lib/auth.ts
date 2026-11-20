@@ -59,27 +59,32 @@ export type CurrentUser = {
 };
 
 export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
-  const store = await cookies();
-  const token = store.get(SESSION_COOKIE)?.value;
-  if (!token) return null;
-  const rows = await db
-    .select({
-      id: users.id,
-      name: users.name,
-      email: users.email,
-      image: users.image,
-      role: users.role,
-      status: users.status,
-      createdAt: users.createdAt,
-      authMethod: users.authMethod,
-    })
-    .from(sessions)
-    .innerJoin(users, eq(sessions.userId, users.id))
-    .where(and(eq(sessions.token, token), gt(sessions.expiresAt, new Date())))
-    .limit(1);
-  const user = rows[0];
-  if (!user || user.status !== "ACTIVE") return null;
-  return user;
+  try {
+    const store = await cookies();
+    const token = store.get(SESSION_COOKIE)?.value;
+    if (!token) return null;
+    const rows = await db
+      .select({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        image: users.image,
+        role: users.role,
+        status: users.status,
+        createdAt: users.createdAt,
+        authMethod: users.authMethod,
+      })
+      .from(sessions)
+      .innerJoin(users, eq(sessions.userId, users.id))
+      .where(and(eq(sessions.token, token), gt(sessions.expiresAt, new Date())))
+      .limit(1);
+    const user = rows[0];
+    if (!user || user.status !== "ACTIVE") return null;
+    return user;
+  } catch (err: any) {
+    console.warn("getCurrentUser: DB session lookup error:", err?.message || err);
+    return null;
+  }
 });
 
 export async function requireUser(): Promise<CurrentUser> {

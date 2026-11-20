@@ -17,13 +17,18 @@ export const revalidate = 60;
 
 // Deduplicate product lookup between generateMetadata and ProductDetailPage
 const getProductBySlug = cache(async (slug: string) => {
-  const [row] = await db
-    .select({ product: products, categoryName: categories.name, categorySlug: categories.slug })
-    .from(products)
-    .leftJoin(categories, eq(products.categoryId, categories.id))
-    .where(eq(products.slug, slug))
-    .limit(1);
-  return row ?? null;
+  try {
+    const [row] = await db
+      .select({ product: products, categoryName: categories.name, categorySlug: categories.slug })
+      .from(products)
+      .leftJoin(categories, eq(products.categoryId, categories.id))
+      .where(eq(products.slug, slug))
+      .limit(1);
+    return row ?? null;
+  } catch (err: any) {
+    console.error("getProductBySlug: query error:", err?.message || err);
+    return null;
+  }
 });
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -47,49 +52,59 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   const user = await getCurrentUser();
 
   // Run all secondary queries in parallel with explicit column projection (omitting large fileData base64)
-  const [assets, lectures, grant, wish, related] = await Promise.all([
-    db
-      .select({
-        id: productAssets.id,
-        productId: productAssets.productId,
-        fileName: productAssets.fileName,
-        fileType: productAssets.fileType,
-        fileSize: productAssets.fileSize,
-        storageKey: productAssets.storageKey,
-        externalUrl: productAssets.externalUrl,
-        isPreview: productAssets.isPreview,
-        sortOrder: productAssets.sortOrder,
-        status: productAssets.status,
-      })
-      .from(productAssets)
-      .where(and(eq(productAssets.productId, p.id), eq(productAssets.status, "ACTIVE")))
-      .orderBy(asc(productAssets.sortOrder)),
+  let assets: any[] = [];
+  let lectures: any[] = [];
+  let grant: any = null;
+  let wish: any[] = [];
+  let related: any[] = [];
 
-    db
-      .select()
-      .from(productLectures)
-      .where(eq(productLectures.productId, p.id))
-      .orderBy(asc(productLectures.sortOrder), asc(productLectures.id)),
+  try {
+    [assets, lectures, grant, wish, related] = await Promise.all([
+      db
+        .select({
+          id: productAssets.id,
+          productId: productAssets.productId,
+          fileName: productAssets.fileName,
+          fileType: productAssets.fileType,
+          fileSize: productAssets.fileSize,
+          storageKey: productAssets.storageKey,
+          externalUrl: productAssets.externalUrl,
+          isPreview: productAssets.isPreview,
+          sortOrder: productAssets.sortOrder,
+          status: productAssets.status,
+        })
+        .from(productAssets)
+        .where(and(eq(productAssets.productId, p.id), eq(productAssets.status, "ACTIVE")))
+        .orderBy(asc(productAssets.sortOrder)),
 
-    user ? getActiveGrant(user.id, p.id) : Promise.resolve(null),
+      db
+        .select()
+        .from(productLectures)
+        .where(eq(productLectures.productId, p.id))
+        .orderBy(asc(productLectures.sortOrder), asc(productLectures.id)),
 
-    user
-      ? db
-          .select({ id: wishlistItems.id })
-          .from(wishlistItems)
-          .where(and(eq(wishlistItems.userId, user.id), eq(wishlistItems.productId, p.id)))
-          .limit(1)
-      : Promise.resolve([]),
+      user ? getActiveGrant(user.id, p.id) : Promise.resolve(null),
 
-    p.categoryId
-      ? db
-          .select({ product: products, categoryName: categories.name })
-          .from(products)
-          .leftJoin(categories, eq(products.categoryId, categories.id))
-          .where(and(eq(products.categoryId, p.categoryId), eq(products.status, "PUBLISHED"), ne(products.id, p.id)))
-          .limit(4)
-      : Promise.resolve([]),
-  ]);
+      user
+        ? db
+            .select({ id: wishlistItems.id })
+            .from(wishlistItems)
+            .where(and(eq(wishlistItems.userId, user.id), eq(wishlistItems.productId, p.id)))
+            .limit(1)
+        : Promise.resolve([]),
+
+      p.categoryId
+        ? db
+            .select({ product: products, categoryName: categories.name })
+            .from(products)
+            .leftJoin(categories, eq(products.categoryId, categories.id))
+            .where(and(eq(products.categoryId, p.categoryId), eq(products.status, "PUBLISHED"), ne(products.id, p.id)))
+            .limit(4)
+        : Promise.resolve([]),
+    ]);
+  } catch (err: any) {
+    console.error("ProductDetailPage: secondary query error:", err?.message || err);
+  }
   const inWishlist = wish.length > 0;
 
   const final = p.isFree ? 0 : p.salePrice !== null && p.salePrice < p.price ? p.salePrice : p.price;

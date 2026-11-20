@@ -14,16 +14,20 @@ type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
-  const [product] = await db
-    .select({ name: giftProducts.name, brandName: giftProducts.brandName, description: giftProducts.description })
-    .from(giftProducts)
-    .where(eq(giftProducts.slug, slug))
-    .limit(1);
-  if (!product) return { title: "Gift Card | Nexora" };
-  return {
-    title: `${product.brandName} ${product.name} | Nexora Gift Codes`,
-    description: product.description ?? `Buy ${product.brandName} ${product.name} gift card. Instant digital delivery in under 5 minutes.`,
-  };
+  try {
+    const [product] = await db
+      .select({ name: giftProducts.name, brandName: giftProducts.brandName, description: giftProducts.description })
+      .from(giftProducts)
+      .where(eq(giftProducts.slug, slug))
+      .limit(1);
+    if (!product) return { title: "Gift Card | Nexora" };
+    return {
+      title: `${product.brandName} ${product.name} | Nexora Gift Codes`,
+      description: product.description ?? `Buy ${product.brandName} ${product.name} gift card. Instant digital delivery in under 5 minutes.`,
+    };
+  } catch {
+    return { title: "Gift Card | Nexora" };
+  }
 }
 
 export default async function GiftProductDetailPage({ params }: Props) {
@@ -33,31 +37,42 @@ export default async function GiftProductDetailPage({ params }: Props) {
   const { slug } = await params;
   const user = await getCurrentUser();
 
-  const [product] = await db
-    .select()
-    .from(giftProducts)
-    .where(and(eq(giftProducts.slug, slug), eq(giftProducts.status, "PUBLISHED")))
-    .limit(1);
+  let product: any = null;
+  let stockRow: any = null;
+  let category: any = null;
+
+  try {
+    const [p] = await db
+      .select()
+      .from(giftProducts)
+      .where(and(eq(giftProducts.slug, slug), eq(giftProducts.status, "PUBLISHED")))
+      .limit(1);
+    product = p;
+
+    if (product) {
+      const [sr] = await db
+        .select({
+          total: sql<number>`count(*)::int`,
+          available: sql<number>`count(*) filter (where ${giftCodes.status} = 'AVAILABLE')::int`,
+        })
+        .from(giftCodes)
+        .where(eq(giftCodes.giftProductId, product.id));
+      stockRow = sr;
+
+      if (product.categoryId) {
+        const [cat] = await db.select().from(giftCategories).where(eq(giftCategories.id, product.categoryId)).limit(1);
+        category = cat;
+      }
+    }
+  } catch (err: any) {
+    console.error("GiftProductDetailPage: query error:", err?.message || err);
+  }
 
   if (!product) notFound();
-
-  // Stock count
-  const [stockRow] = await db
-    .select({
-      total: sql<number>`count(*)::int`,
-      available: sql<number>`count(*) filter (where ${giftCodes.status} = 'AVAILABLE')::int`,
-    })
-    .from(giftCodes)
-    .where(eq(giftCodes.giftProductId, product.id));
 
   const available = stockRow?.available ?? 0;
   const inStock = available > 0;
   const isLowStock = inStock && available <= 5;
-
-  // Category
-  const category = product.categoryId
-    ? (await db.select().from(giftCategories).where(eq(giftCategories.id, product.categoryId)).limit(1))[0]
-    : null;
 
   const discount =
     product.denomination > product.sellingPrice

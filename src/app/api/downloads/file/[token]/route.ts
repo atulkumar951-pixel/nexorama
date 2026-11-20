@@ -61,18 +61,13 @@ export async function GET(_req: NextRequest, ctx: { params: Promise<{ token: str
   }
 
   // 3. Local / tmp disk cache
-  const possiblePaths = [
-    path.join(os.tmpdir(), "nexora-uploads", asset.storageKey),
-    path.join(process.cwd(), "uploads", asset.storageKey),
-  ];
-
   let body: Buffer | null = null;
-  for (const p of possiblePaths) {
+  if (asset.storageKey) {
+    const tmpPath = path.join(/*turbopackIgnore: true*/ os.tmpdir(), "nexora-uploads", asset.storageKey);
     try {
-      body = await fs.readFile(p);
-      if (body) break;
+      body = await fs.readFile(/*turbopackIgnore: true*/ tmpPath);
     } catch {
-      // try next
+      // file not on disk or serverless instance
     }
   }
 

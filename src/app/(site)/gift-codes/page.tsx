@@ -60,43 +60,49 @@ export default async function GiftCodesStorefrontPage({
   const { q, category } = await searchParams;
 
   // Load active categories
-  const cats = await db
-    .select()
-    .from(giftCategories)
-    .where(eq(giftCategories.status, "ACTIVE"))
-    .orderBy(giftCategories.sortOrder, giftCategories.name);
+  let cats: any[] = [];
+  let allProducts: any[] = [];
 
-  // Query published products with stock count
-  const allProducts = await db
-    .select({
-      id: giftProducts.id,
-      name: giftProducts.name,
-      brandName: giftProducts.brandName,
-      slug: giftProducts.slug,
-      image: giftProducts.image,
-      denomination: giftProducts.denomination,
-      sellingPrice: giftProducts.sellingPrice,
-      isFeatured: giftProducts.isFeatured,
-      categoryId: giftProducts.categoryId,
-      description: giftProducts.description,
-      available: sql<number>`count(*) filter (where ${giftCodes.status} = 'AVAILABLE')::int`,
-    })
-    .from(giftProducts)
-    .leftJoin(giftCodes, eq(giftCodes.giftProductId, giftProducts.id))
-    .where(eq(giftProducts.status, "PUBLISHED"))
-    .groupBy(
-      giftProducts.id,
-      giftProducts.name,
-      giftProducts.brandName,
-      giftProducts.slug,
-      giftProducts.image,
-      giftProducts.denomination,
-      giftProducts.sellingPrice,
-      giftProducts.isFeatured,
-      giftProducts.categoryId,
-      giftProducts.description
-    )
-    .orderBy(desc(giftProducts.isFeatured), giftProducts.sortOrder, giftProducts.name);
+  try {
+    cats = await db
+      .select()
+      .from(giftCategories)
+      .where(eq(giftCategories.status, "ACTIVE"))
+      .orderBy(giftCategories.sortOrder, giftCategories.name);
+
+    allProducts = await db
+      .select({
+        id: giftProducts.id,
+        name: giftProducts.name,
+        brandName: giftProducts.brandName,
+        slug: giftProducts.slug,
+        image: giftProducts.image,
+        denomination: giftProducts.denomination,
+        sellingPrice: giftProducts.sellingPrice,
+        isFeatured: giftProducts.isFeatured,
+        categoryId: giftProducts.categoryId,
+        description: giftProducts.description,
+        available: sql<number>`count(*) filter (where ${giftCodes.status} = 'AVAILABLE')::int`,
+      })
+      .from(giftProducts)
+      .leftJoin(giftCodes, eq(giftCodes.giftProductId, giftProducts.id))
+      .where(eq(giftProducts.status, "PUBLISHED"))
+      .groupBy(
+        giftProducts.id,
+        giftProducts.name,
+        giftProducts.brandName,
+        giftProducts.slug,
+        giftProducts.image,
+        giftProducts.denomination,
+        giftProducts.sellingPrice,
+        giftProducts.isFeatured,
+        giftProducts.categoryId,
+        giftProducts.description
+      )
+      .orderBy(desc(giftProducts.isFeatured), giftProducts.sortOrder, giftProducts.name);
+  } catch (err: any) {
+    console.error("GiftCodesStorefrontPage: Failed to query gift codes data:", err?.message || err);
+  }
 
   // Filter products
   let filtered = allProducts;
