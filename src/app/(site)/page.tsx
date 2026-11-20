@@ -170,19 +170,25 @@ export default async function HomePage() {
             <Link href="/categories" className="text-sm font-semibold text-indigo-600 hover:underline">View all →</Link>
           </div>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            {cats.map((c) => (
-              <Link
-                key={c.id}
-                href={`/products?category=${c.slug}`}
-                className="card flex items-center gap-3 p-4 transition hover:border-indigo-300 hover:shadow-md"
-              >
-                <span className="text-3xl">{c.emoji}</span>
-                <div>
-                  <p className="font-semibold text-slate-900">{c.name}</p>
-                  <p className="line-clamp-1 text-xs text-slate-500">{c.description}</p>
-                </div>
-              </Link>
-            ))}
+            {cats.length === 0 ? (
+              <div className="col-span-full rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center text-slate-500">
+                <p className="text-sm">Categories will load here once connected to the database.</p>
+              </div>
+            ) : (
+              cats.map((c) => (
+                <Link
+                  key={c.id}
+                  href={`/products?category=${c.slug}`}
+                  className="card flex items-center gap-3 p-4 transition hover:border-indigo-300 hover:shadow-md"
+                >
+                  <span className="text-3xl">{c.emoji}</span>
+                  <div>
+                    <p className="font-semibold text-slate-900">{c.name}</p>
+                    <p className="line-clamp-1 text-xs text-slate-500">{c.description}</p>
+                  </div>
+                </Link>
+              ))
+            )}
           </div>
         </section>
 
@@ -224,11 +230,19 @@ export default async function HomePage() {
             <h2 className="text-2xl font-bold">🆕 Latest Products</h2>
             <Link href="/products?sort=newest" className="text-sm font-semibold text-indigo-600 hover:underline">View all →</Link>
           </div>
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {latest.map(({ product, categoryName }) => (
-              <ProductCard key={product.id} p={{ ...product, categoryName }} />
-            ))}
-          </div>
+          {latest.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center text-slate-500">
+              <span className="text-4xl">📚</span>
+              <p className="mt-3 font-semibold text-slate-700">No products displayed</p>
+              <p className="mt-1 text-xs text-slate-500">Please connect your database to load published products.</p>
+            </div>
+          ) : (
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              {latest.map(({ product, categoryName }) => (
+                <ProductCard key={product.id} p={{ ...product, categoryName }} />
+              ))}
+            </div>
+          )}
         </section>
 
         {/* Why choose us */}

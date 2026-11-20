@@ -92,18 +92,26 @@ export default async function CategoriesPage() {
     <div className="mx-auto max-w-7xl px-4 py-10">
       <h1 className="text-3xl font-bold text-slate-900">All Categories</h1>
       <p className="mt-1 text-slate-500">Find study material organized by subject.</p>
-      <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {rows.map(({ category: c, productCount }) => (
-          <Link key={c.id} href={`/products?category=${c.slug}`} className="card flex items-start gap-4 p-6 transition hover:border-indigo-300 hover:shadow-md">
-            <span className="text-4xl">{c.emoji}</span>
-            <div>
-              <p className="text-lg font-semibold text-slate-900">{c.name}</p>
-              <p className="mt-1 text-sm text-slate-500">{c.description}</p>
-              <p className="mt-2 text-xs font-semibold text-indigo-600">{productCount} products →</p>
-            </div>
-          </Link>
-        ))}
-      </div>
+      {rows.length === 0 ? (
+        <div className="card mt-10 p-16 text-center text-slate-500">
+          <p className="text-4xl">📂</p>
+          <p className="mt-3 font-semibold text-slate-700">No categories found</p>
+          <p className="text-sm">Categories will appear here once connected to the database.</p>
+        </div>
+      ) : (
+        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {rows.map(({ category: c, productCount }) => (
+            <Link key={c.id} href={`/products?category=${c.slug}`} className="card flex items-start gap-4 p-6 transition hover:border-indigo-300 hover:shadow-md">
+              <span className="text-4xl">{c.emoji}</span>
+              <div>
+                <p className="text-lg font-semibold text-slate-900">{c.name}</p>
+                <p className="mt-1 text-sm text-slate-500">{c.description}</p>
+                <p className="mt-2 text-xs font-semibold text-indigo-600">{productCount} products →</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -9,7 +9,9 @@ import { SubmitButton } from "@/components/client";
 function LoginForm() {
   const params = useSearchParams();
   const next = params.get("next") ?? "/dashboard";
+  const urlError = params.get("error");
   const [state, action] = useActionState<FormState, FormData>(loginAction, {});
+  const error = state.error || urlError;
 
   return (
     <div className="mx-auto max-w-md px-4 py-16">
@@ -21,7 +23,7 @@ function LoginForm() {
           <p className="mt-1 text-sm text-slate-500">Sign in to access your digital library & orders.</p>
         </div>
 
-        {state.error && <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">{state.error}</div>}
+        {error && <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">{error}</div>}
 
         <form action={action} className="space-y-4">
           <input type="hidden" name="next" value={next} />
