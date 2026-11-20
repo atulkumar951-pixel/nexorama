@@ -110,14 +110,25 @@ export default async function GiftProductDetailPage({ params }: Props) {
         {/* Main Card: Voucher Card & Purchase Form */}
         <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-lg shadow-slate-200/50">
           {/* Card Artwork */}
-          <div className="relative aspect-[16/9] w-full overflow-hidden bg-gradient-to-br from-emerald-50/50 via-slate-50 to-teal-50 flex items-center justify-center border-b border-slate-100">
+          <div className="relative aspect-[16/10] sm:aspect-[16/9] w-full overflow-hidden bg-slate-900/5 flex items-center justify-center border-b border-slate-100">
             {product.image ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={product.image}
-                alt={cleanTitle}
-                className="h-full w-full object-cover"
-              />
+              <>
+                {/* Ambient blurred backdrop matching the image colors */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={product.image.trim()}
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute inset-0 h-full w-full object-cover blur-2xl opacity-35 scale-110 pointer-events-none select-none"
+                />
+                {/* Pristine auto-dimensioned voucher image: never cropped or hidden */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={product.image.trim()}
+                  alt={cleanTitle}
+                  className="relative z-10 max-h-full max-w-full w-auto h-auto object-contain p-4 drop-shadow-md"
+                />
+              </>
             ) : (
               <div className="text-center p-6">
                 <div className="text-6xl mb-2">🎁</div>
@@ -127,7 +138,7 @@ export default async function GiftProductDetailPage({ params }: Props) {
             )}
 
             {/* Denomination Badge */}
-            <div className="absolute bottom-3 right-3 rounded-2xl border border-slate-200 bg-white/95 px-4 py-1.5 backdrop-blur-md shadow-md text-right">
+            <div className="absolute bottom-3 right-3 z-20 rounded-2xl border border-slate-200 bg-white/95 px-4 py-1.5 backdrop-blur-md shadow-md text-right">
               <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Face Value</p>
               <p className="text-lg font-black text-emerald-700">{formatINR(product.denomination)}</p>
             </div>

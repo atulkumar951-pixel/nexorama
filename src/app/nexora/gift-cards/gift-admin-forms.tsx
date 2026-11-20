@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useTransition } from "react";
+import { useState, useActionState, useTransition } from "react";
 import {
   saveGiftProductAction,
   saveGiftCategoryAction,
@@ -13,6 +13,7 @@ export function CreateGiftProductForm({
 }: {
   categories: Array<{ id: string; name: string }>;
 }) {
+  const [imageUrl, setImageUrl] = useState("");
   const [state, formAction, pending] = useActionState<GiftAdminFormState, FormData>(
     saveGiftProductAction,
     {},
@@ -98,6 +99,8 @@ export function CreateGiftProductForm({
           <input
             type="url"
             name="image"
+            value={imageUrl}
+            onChange={(e) => setImageUrl(e.target.value)}
             placeholder="https://..."
             className="input mt-1 w-full text-xs"
           />
@@ -121,6 +124,30 @@ export function CreateGiftProductForm({
           />
         </div>
       </div>
+
+      {imageUrl.trim() && (
+        <div className="rounded-xl border border-gray-200 bg-gray-50/70 p-2.5">
+          <p className="text-[11px] font-semibold text-gray-600 mb-1.5">Artwork Preview (Auto-Fitted Dimension)</p>
+          <div className="relative aspect-[16/10] w-full max-w-[240px] overflow-hidden rounded-lg border border-gray-200 bg-slate-900/5 flex items-center justify-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={imageUrl.trim()}
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 h-full w-full object-cover blur-xl opacity-35 scale-110"
+            />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={imageUrl.trim()}
+              alt="Preview"
+              className="relative z-10 max-h-full max-w-full w-auto h-auto object-contain p-2 drop-shadow-sm"
+              onError={(e) => {
+                (e.currentTarget as HTMLElement).style.display = "none";
+              }}
+            />
+          </div>
+        </div>
+      )}
 
       <div>
         <label className="text-xs font-semibold text-gray-700">Description</label>

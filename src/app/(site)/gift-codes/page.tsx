@@ -536,23 +536,35 @@ function GiftProductCard({ product: p, featured, lowStockThreshold = 10 }: GiftP
         }`}
     >
       {/* Product Image / Card Art */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-slate-100 via-slate-50 to-emerald-50/40 h-44 flex items-center justify-center p-3">
+      <div className="relative aspect-[16/10] sm:aspect-[16/9] w-full overflow-hidden bg-gradient-to-br from-slate-100 via-slate-50 to-emerald-50/40 flex items-center justify-center">
         {p.image ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={p.image}
-            alt={`${p.brandName} ${p.name}`}
-            className="h-full w-full rounded-xl object-cover transition duration-500 group-hover:scale-105"
-          />
+          <>
+            {/* Ambient blurred backdrop so letterbox seamlessly matches image colors */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={p.image.trim()}
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 h-full w-full object-cover blur-xl opacity-35 scale-110 pointer-events-none select-none"
+            />
+            {/* Pristine auto-dimensioned voucher image: never cropped or hidden */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={p.image.trim()}
+              alt={`${p.brandName} ${p.name}`}
+              className="relative z-10 max-h-full max-w-full w-auto h-auto object-contain p-2.5 transition duration-500 group-hover:scale-105 drop-shadow-sm rounded-xl"
+              loading="lazy"
+            />
+          </>
         ) : (
-          <div className="flex flex-col items-center justify-center text-center">
+          <div className="flex flex-col items-center justify-center text-center p-4">
             <span className="text-5xl group-hover:scale-110 transition duration-300">🎁</span>
             <p className="mt-2 text-xs font-black uppercase tracking-wider text-emerald-700">{p.brandName}</p>
           </div>
         )}
 
         {/* Top Floating Badges */}
-        <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5">
+        <div className="absolute top-2.5 left-2.5 z-20 flex flex-col gap-1.5 pointer-events-none">
           {featured && (
             <span className="inline-flex items-center gap-1 rounded-md bg-amber-400 px-2 py-0.5 text-[10px] font-extrabold text-slate-900 shadow-xs">
               ⭐ BESTSELLER
@@ -566,7 +578,7 @@ function GiftProductCard({ product: p, featured, lowStockThreshold = 10 }: GiftP
         </div>
 
         {/* Live Stock Overlay */}
-        <div className="absolute top-2.5 right-2.5">
+        <div className="absolute top-2.5 right-2.5 z-20 pointer-events-none">
           {inStock ? (
             isLowStock ? (
               <span className="rounded-md border border-amber-300 bg-amber-50 px-2 py-0.5 text-[10px] font-extrabold text-amber-800 shadow-xs">
@@ -586,7 +598,7 @@ function GiftProductCard({ product: p, featured, lowStockThreshold = 10 }: GiftP
 
         {/* Out of Stock Grayscale Overlay */}
         {!inStock && (
-          <div className="absolute inset-0 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs">
+          <div className="absolute inset-0 z-20 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs">
             <span className="rounded-xl border border-red-200 bg-white/95 px-4 py-1.5 text-xs font-extrabold text-red-700 shadow-sm">
               OUT OF STOCK
             </span>
