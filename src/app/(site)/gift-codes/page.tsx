@@ -128,6 +128,7 @@ export default async function GiftCodesStorefrontPage({
 
   const featured = filtered.filter((p) => p.isFeatured);
   const all = filtered;
+  const isFiltered = Boolean((q && q.trim()) || category);
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 selection:bg-emerald-500 selection:text-white">
@@ -252,83 +253,87 @@ export default async function GiftCodesStorefrontPage({
         </div>
       </section>
 
-      {/* 3. Popular Brands Quick-Select Carousel (Light Style) */}
-      <section className="border-b border-slate-200/80 bg-white py-3 sm:py-4">
-        <div className="mx-auto max-w-7xl px-4">
-          <div className="mb-2 flex items-center justify-between">
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              ⭐ Top Brands &amp; Gaming Currency
-            </p>
-            <span className="text-xs font-semibold text-emerald-700">Official Distributor Stock</span>
-          </div>
-          <div className="flex items-center gap-2.5 overflow-x-auto pb-1.5 scrollbar-none">
-            {POPULAR_BRANDS.map((b) => (
-              <Link
-                key={b.name}
-                href={`/gift-codes?q=${encodeURIComponent(b.name)}`}
-                className="group flex shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50/80 px-3.5 py-2 shadow-xs hover:border-emerald-400 hover:bg-white hover:shadow-md transition"
-              >
-                <span className="text-lg group-hover:scale-110 transition">{b.icon}</span>
-                <div className="text-left">
-                  <p className="text-xs font-bold text-slate-900 group-hover:text-emerald-700 transition">
-                    {b.name}
-                  </p>
-                  <p className="text-[10px] text-slate-500">{b.tag}</p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* 3. Popular Brands Quick-Select Carousel & 4. How It Works (Hidden on Search / Filter) */}
+      {!isFiltered && (
+        <>
+          <section className="border-b border-slate-200/80 bg-white py-3 sm:py-4">
+            <div className="mx-auto max-w-7xl px-4">
+              <div className="mb-2 flex items-center justify-between">
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                  ⭐ Top Brands &amp; Gaming Currency
+                </p>
+                <span className="text-xs font-semibold text-emerald-700">Official Distributor Stock</span>
+              </div>
+              <div className="flex items-center gap-2.5 overflow-x-auto pb-1.5 scrollbar-none">
+                {POPULAR_BRANDS.map((b) => (
+                  <Link
+                    key={b.name}
+                    href={`/gift-codes?q=${encodeURIComponent(b.name)}`}
+                    className="group flex shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50/80 px-3.5 py-2 shadow-xs hover:border-emerald-400 hover:bg-white hover:shadow-md transition"
+                  >
+                    <span className="text-lg group-hover:scale-110 transition">{b.icon}</span>
+                    <div className="text-left">
+                      <p className="text-xs font-bold text-slate-900 group-hover:text-emerald-700 transition">
+                        {b.name}
+                      </p>
+                      <p className="text-[10px] text-slate-500">{b.tag}</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
 
-      {/* 4. 3-Step "How It Works" Infographic Banner */}
-      <section id="how-it-works" className="border-b border-slate-200/80 bg-slate-50 py-4 sm:py-6">
-        <div className="mx-auto max-w-7xl px-4">
-          <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-xs">
-            <div className="text-center sm:text-left mb-4">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600">
-                Simple 3-Step Process
-              </span>
-              <h2 className="text-lg font-extrabold text-slate-900 sm:text-xl">How Code Delivery Works</h2>
+          {/* 4. 3-Step "How It Works" Infographic Banner */}
+          <section id="how-it-works" className="border-b border-slate-200/80 bg-slate-50 py-4 sm:py-6">
+            <div className="mx-auto max-w-7xl px-4">
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-xs">
+                <div className="text-center sm:text-left mb-4">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600">
+                    Simple 3-Step Process
+                  </span>
+                  <h2 className="text-lg font-extrabold text-slate-900 sm:text-xl">How Code Delivery Works</h2>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-lg font-black text-emerald-700 border border-emerald-200">
+                      1
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-slate-900 text-xs sm:text-sm">Select Product &amp; Amount</h3>
+                      <p className="mt-0.5 text-xs text-slate-500 leading-relaxed">
+                        Pick your brand voucher and denomination at discounted rates.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cyan-100 text-lg font-black text-cyan-700 border border-cyan-200">
+                      2
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-slate-900 text-xs sm:text-sm">Pay Safely via Razorpay</h3>
+                      <p className="mt-0.5 text-xs text-slate-500 leading-relaxed">
+                        Fast 1-click checkout using UPI, NetBanking, or Cards.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-lg font-black text-amber-700 border border-amber-200">
+                      3
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-slate-900 text-xs sm:text-sm">Instant Delivery</h3>
+                      <p className="mt-0.5 text-xs text-slate-500 leading-relaxed">
+                        Code delivered straight to your screen &amp; registered email.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="grid gap-4 sm:grid-cols-3">
-              <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-lg font-black text-emerald-700 border border-emerald-200">
-                  1
-                </div>
-                <div>
-                  <h3 className="font-bold text-slate-900 text-xs sm:text-sm">Select Product &amp; Amount</h3>
-                  <p className="mt-0.5 text-xs text-slate-500 leading-relaxed">
-                    Pick your brand voucher and denomination at discounted rates.
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cyan-100 text-lg font-black text-cyan-700 border border-cyan-200">
-                  2
-                </div>
-                <div>
-                  <h3 className="font-bold text-slate-900 text-xs sm:text-sm">Pay Safely via Razorpay</h3>
-                  <p className="mt-0.5 text-xs text-slate-500 leading-relaxed">
-                    Fast 1-click checkout using UPI, NetBanking, or Cards.
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-lg font-black text-amber-700 border border-amber-200">
-                  3
-                </div>
-                <div>
-                  <h3 className="font-bold text-slate-900 text-xs sm:text-sm">Instant Delivery</h3>
-                  <p className="mt-0.5 text-xs text-slate-500 leading-relaxed">
-                    Code delivered straight to your screen &amp; registered email.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+          </section>
+        </>
+      )}
 
       {/* 5. Main Catalog & Filters */}
       <div className="mx-auto max-w-7xl px-4 pt-4 pb-8">
